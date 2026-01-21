@@ -1,0 +1,129 @@
+/* Table Container */
+.table-container {
+  overflow-x: auto;
+  margin: 2rem 0;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 46, 93, 0.1);
+  background: white;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: white;
+  color: #2d3748;
+}
+
+thead {
+  background: linear-gradient(135deg, #002e5d 0%, #003d7a 100%);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+
+td {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.95rem;
+  color: #4a5568;
+  transition: all 0.2s ease;
+}
+
+tbody tr {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+tbody tr:hover {
+  background-color: #f7fafc;
+  transform: scale(1.005);
+  box-shadow: 0 4px 12px rgba(0, 46, 93, 0.08);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* PDF Actions */
+.pdf-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.pdf-link {
+  font-size: 0.85rem;
+  color: #718096;
+  word-break: break-all;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.btn-view,
+.btn-download {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-view {
+  background: linear-gradient(135deg, #002e5d 0%, #003d7a 100%);
+  color: white;
+}
+
+.btn-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 46, 93, 0.3);
+}
+
+.btn-download {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.btn-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  th,
+  td {
+    padding: 0.875rem 1rem;
+    font-size: 0.85rem;
+  }
+}

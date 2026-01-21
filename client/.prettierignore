@@ -1,0 +1,16 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+.next
+
+# Generated files
+coverage
+.cache
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

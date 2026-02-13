@@ -55,6 +55,19 @@ export const formatFieldValue = (value: AirtableFieldValue): string => {
 };
 
 /**
+ * Formats a field name for display as a column header.
+ * Converts PascalCase/camelCase to space-separated words and replaces underscores.
+ * e.g. CountryOfOrigin => Country Of Origin
+ */
+export const formatColumnHeader = (field: string): string => {
+  return field
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/_/g, ' ')
+    .trim();
+};
+
+/**
  * Extracts all unique field names from a collection of records
  */
 export const getAllFieldNames = (

@@ -30,6 +30,9 @@ class AirtableService {
       .select({
         view: viewName,
         maxRecords: maxRecords,
+        cellFormat: 'string',
+        timeZone: 'UTC',
+        userLocale: 'en-us',
       })
       .eachPage((records: Records<FieldSet>, fetchNextPage: () => void) => {
         records.forEach((record) => {

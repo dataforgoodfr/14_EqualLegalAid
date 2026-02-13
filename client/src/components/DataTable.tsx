@@ -1,4 +1,4 @@
-import { getAllFieldNames, formatFieldValue, isPdfUrl } from '../utils/formatters';
+import { getAllFieldNames, formatFieldValue, formatColumnHeader, isPdfUrl } from '../utils/formatters';
 import { downloadPdf } from '../utils/pdfHelpers';
 import type { AirtableRecord, AirtableFieldValue } from '../types';
 import './DataTable.css';
@@ -41,7 +41,7 @@ export const DataTable = ({ records }: DataTableProps) => {
         <thead>
           <tr>
             {fields.map((field) => (
-              <th key={field}>{field}</th>
+              <th key={field}>{formatColumnHeader(field)}</th>
             ))}
           </tr>
         </thead>

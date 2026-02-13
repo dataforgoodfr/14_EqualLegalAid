@@ -1,5 +1,5 @@
 import { useAirtable } from './hooks/useAirtable';
-import { Header, Loading, ErrorMessage, DataTable } from './components';
+import { Header, Loading, ErrorMessage, CaselawList } from './components';
 import './App.css';
 
 /**
@@ -17,7 +17,7 @@ function App() {
 
         {error && <ErrorMessage message={error} onRetry={refetch} />}
 
-        {!loading && !error && <DataTable records={records} />}
+        {!loading && !error && <CaselawList records={records} />}
       </main>
     </div>
   );

@@ -53,3 +53,20 @@ export interface AirtableConfig {
   baseId: string;
   tableName: string;
 }
+
+/**
+ * Represents a case law record with structured fields
+ */
+export interface Caselaw {
+  title: string;
+  publishedAt: Date;
+  applicationType: string;
+  legalProcedureType: string;
+  asylumProcedure: string;
+  countryOfOrigin: string;
+  competentCourtOrAuthority: string;
+  caselawOutcome: string;
+  keywords: string[];
+  englishPdfLink: string;
+  greekPdfLink: string;
+}

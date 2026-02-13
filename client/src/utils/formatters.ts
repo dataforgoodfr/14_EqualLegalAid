@@ -1,4 +1,4 @@
-import type { AirtableAttachment, AirtableUser, AirtableFieldValue } from '../types';
+import type { AirtableAttachment, AirtableUser, AirtableFieldValue, AirtableRecord, Caselaw } from '../types';
 
 /**
  * Checks if a value is a PDF URL
@@ -83,4 +83,36 @@ export const getAllFieldNames = (
   });
 
   return Array.from(fieldNamesSet);
+};
+
+/**
+ * Converts an AirtableRecord into a strongly-typed Caselaw object.
+ * Field names are matched case-insensitively against common Airtable column names.
+ */
+export const toCaselaw = (record: AirtableRecord): Caselaw => {
+  const f = record.fields;
+
+  const str = (key: string): string => {
+    const val = f[key];
+    return typeof val === 'string' ? val : '';
+  };
+
+  const keywords = str('Keywords')
+    .split(',')
+    .map((k) => k.trim())
+    .filter(Boolean);
+
+  return {
+    title: str('Title'),
+    publishedAt: str('PublishedAt') ? new Date(str('PublishedAt')) : new Date(),
+    applicationType: str('ApplicationType'),
+    legalProcedureType: str('LegalProcedureType'),
+    asylumProcedure: str('AsylumProcedure'),
+    countryOfOrigin: str('CountryOfOrigin'),
+    competentCourtOrAuthority: str('CompetentCourtOrAuthority'),
+    caselawOutcome: str('CaselawOutcome'),
+    keywords,
+    englishPdfLink: str('EnglishPdfLink'),
+    greekPdfLink: str('GreekPdfLink'),
+  };
 };

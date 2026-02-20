@@ -1,6 +1,7 @@
 import { useAirtable } from './hooks/useAirtable';
 import { Header, Loading, ErrorMessage, CaselawList } from './components';
 import './App.css';
+import { Button } from './components/ui/button';
 
 /**
  * Main application component
@@ -12,6 +13,7 @@ function App() {
     <div className="App">
       <Header recordCount={records.length} loading={loading} error={error} onRefresh={refetch} />
 
+      <Button>Sort</Button>
       <main className="main-content">
         {loading && <Loading />}
 

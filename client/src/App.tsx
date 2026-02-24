@@ -3,6 +3,7 @@ import { useAirtable } from './hooks/useAirtable';
 import { Header, Loading, ErrorMessage, CaselawList } from './components';
 import './App.css';
 import { Button } from './components/ui/button';
+import { ColoredText } from './components/ColoredText/ColoredText';
 
 /**
  * Main application component
@@ -20,6 +21,9 @@ function App() {
       <Header recordCount={records.length} loading={loading} error={error} onRefresh={refetch} />
 
       <Button onClick={handleSortToggle}>Sort</Button>
+      <ColoredText>
+        Find all the decision to <span>get the best chance</span>
+      </ColoredText>
       <main className="main-content">
         {loading && <Loading />}
 

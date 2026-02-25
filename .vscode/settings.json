@@ -1,10 +1,7 @@
 {
-  // Enable the flat config support
   "eslint.useFlatConfig": true,
-  // Disable the default formatter
   "prettier.enable": false,
   "editor.formatOnSave": false,
-  // Auto fix
   "tailwind-fold.autoFold": true,
   "tailwind-fold.foldStyle": "QUOTES",
   "tailwind-fold.showTailwindImage": false,
@@ -12,11 +9,19 @@
   "tailwind-fold.foldedTextBackgroundColor": "#302f2f",
   "tailwind-fold.foldLengthThreshold": 20,
   "tailwind-fold.unfoldedTextOpacity": 0.7,
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "stylelint.validate": [
+    "css",
+    "postcss",
+    "scss"
+  ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "never"
+    "source.organizeImports": "never",
+    "source.fixAll.stylelint": "explicit"
   },
-  // Silent the stylistic rules in you IDE, but still auto fix them
   "eslint.rules.customizations": [
     {
       "rule": "@stylistic/*",
@@ -55,10 +60,6 @@
       "severity": "off"
     }
   ],
-  // The following is optional.
-  // It's better to put under project setting `.vscode/settings.json`
-  // to avoid conflicts with working with different eslint configs
-  // that does not support all formats.
   "eslint.validate": [
     "javascript",
     "javascriptreact",

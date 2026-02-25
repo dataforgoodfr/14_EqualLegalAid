@@ -14,7 +14,7 @@ const coloredTextVariants = cva('colored-text font-bold text-2xl lg:text-[2.687r
 
 type ColoredTextProps = VariantProps<typeof coloredTextVariants> & {
   children: ReactNode
-  upper: boolean
+  upper?: boolean
 }
 
 export const ColoredText = ({ variant = 'default', children, upper = false }: ColoredTextProps) => {

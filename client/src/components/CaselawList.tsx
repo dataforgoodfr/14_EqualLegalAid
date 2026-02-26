@@ -1,15 +1,15 @@
-import { useMemo } from 'react';
 import type { AirtableRecord } from '../types';
-import { toCaselaw } from '../utils/formatters';
 import { CaselawCard } from './CaselawCard';
 import './CaselawCard.css';
+import { sortPerDate } from '../utils/sortPerDate';
 
 interface CaselawListProps {
   records: AirtableRecord[];
+  sortDesc?: boolean;
 }
 
-export const CaselawList = ({ records }: CaselawListProps) => {
-  const caselaws = useMemo(() => records.map(toCaselaw), [records]);
+export const CaselawList = ({ records, sortDesc = true }: CaselawListProps) => {
+  const caselaws = sortPerDate(records, sortDesc);
 
   if (caselaws.length === 0) {
     return <p className="caselaw-empty">No records found</p>;

@@ -1,6 +1,6 @@
 import Airtable from 'airtable';
 import type { Base, Records, FieldSet } from 'airtable';
-import type { AirtableRecord, AirtableConfig, AirtableFieldValue } from '../types';
+import type { AirtableRecord, AirtableConfig, AirtableFieldValue } from '@/types';
 
 /**
  * Service for interacting with Airtable API

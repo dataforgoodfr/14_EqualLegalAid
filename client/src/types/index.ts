@@ -2,6 +2,9 @@
  * Type definitions for the ELA application
  */
 
+export type AiretableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories'
+
+
 /**
  * Represents possible field value types from Airtable
  */

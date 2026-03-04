@@ -1,6 +1,11 @@
 import Airtable from 'airtable';
 import type { Base, Records, FieldSet } from 'airtable';
-import type { AirtableRecord, AirtableConfig, AirtableFieldValue } from '@/types';
+import type {
+  AirtableRecord,
+  AirtableConfig,
+  AirtableFieldValue,
+  AiretableBaseName
+} from '../types';
 
 /**
  * Service for interacting with Airtable API
@@ -20,15 +25,14 @@ class AirtableService {
    * @param maxRecords - Maximum number of records to fetch (default: 100)
    * @returns Promise with array of Airtable records
    */
-  async fetchRecords(
-    viewName: string = 'Caselaws',
+  async fetchRecordsFromTable(
+    airtableBaseName: AiretableBaseName = 'Caselaws',
     maxRecords: number = 100
   ): Promise<AirtableRecord[]> {
     const fetchedRecords: AirtableRecord[] = [];
 
-    await this.base(this.tableName)
+    await this.base(airtableBaseName)
       .select({
-        view: viewName,
         maxRecords: maxRecords,
         cellFormat: 'string',
         timeZone: 'UTC',
@@ -45,6 +49,10 @@ class AirtableService {
       });
 
     return fetchedRecords;
+  }
+
+  async fetchFilters() {
+    const filters = Promise.all()
   }
 }
 

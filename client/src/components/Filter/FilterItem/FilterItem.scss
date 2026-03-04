@@ -1,0 +1,9 @@
+.filter-item {
+    $c: &;
+    &__content {
+        display: none;
+        &#{$c}__content--visible {
+            display: block;
+        }
+    }
+}

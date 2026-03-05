@@ -9,6 +9,7 @@
   "tailwind-fold.foldedTextBackgroundColor": "#302f2f",
   "tailwind-fold.foldLengthThreshold": 20,
   "tailwind-fold.unfoldedTextOpacity": 0.7,
+  "tailwindCSS.classFunctions": ["cva", "cx", "cn"],
   "[scss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

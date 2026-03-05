@@ -1,35 +1,84 @@
+import type {AiretableBaseName} from '../../../types/index'
+import type { FilterInterface } from '../../../types/filter'
+
 import { FilterItem } from '../FilterItem/FilterItem'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-export const FilterPanel = () => {
-  const AcordionItems = [
+} from "@/components/ui"
+interface FilterPanelProps {
+  filters : FilterInterface[]
+}
+export const FilterPanel = ({
+  filters
+}:FilterPanelProps) => {
+  interface AccordionInterface {
+    accordionTriggerLabel: string,
+    airtableBaseName: AiretableBaseName,
+    search: {
+      enabled: boolean,
+      placeholder: string
+    }
+  }
+  interface AccordionItemInterface extends AccordionInterface {
+    items: any[]
+  }
+  const ACCORDION_CONFIG:AccordionInterface[] = [
     {
-      label: 'Ground of persecution'
+      accordionTriggerLabel: 'Outcome',
+      airtableBaseName: 'Outcomes',
+      search: {
+        enabled: false,
+        placeholder: 'Search outcome'
+      }
     },
     {
-      label: 'Outcome'
+      accordionTriggerLabel: 'Country of origin',
+      airtableBaseName: 'Countries',
+      search: {
+        enabled: true,
+        placeholder: 'Search a Country'
+      }
     },
     {
-      label: 'Country of origin'
+      accordionTriggerLabel: 'Competent court',
+      airtableBaseName: 'LegalProcedureTypes',
+      search: {
+        enabled: false,
+        placeholder: 'Search a Competent court'
+      }
     },
     {
-      label: 'Competent court'
-    },
-    {
-      label: 'Type of legal procedure'
+      accordionTriggerLabel: 'Type of legal procedure',
+      airtableBaseName: 'LegalProcedureTypes',
+      search: {
+        enabled: false,
+        placeholder: 'Search a Type of legal procedure'
+      }
     }
   ]
+  const accordionItems: AccordionItemInterface[] = ACCORDION_CONFIG.map((accordionConfigItem) => {
+  const matchedFilter = filters.find((filter) => filter.label === accordionConfigItem.airtableBaseName)
+
+  return {
+    ...accordionConfigItem,
+    items: matchedFilter?.value ?? [],
+    available: matchedFilter?.available ?? false,
+  }
+})
   return (
-    <Accordion type="single" collapsible defaultValue="item-0">
-      {AcordionItems.map((AcordionItem, AcordionItemIndex) => (
-        <AccordionItem value={`item-${AcordionItemIndex}`}>
-          <AccordionTrigger>{ AcordionItem.label }</AccordionTrigger>
+    <Accordion type="multiple" collapsible>
+      {accordionItems.map((accordionItem, accordionItemIndex) => (
+        <AccordionItem value={`item-${accordionItemIndex}`}>
+          <AccordionTrigger>{ accordionItem.accordionTriggerLabel }</AccordionTrigger>
           <AccordionContent>
-            <FilterItem />
+            <FilterItem
+              enabledSearch={accordionItem.search.enabled}
+              searchPlaceholder={accordionItem.search.placeholder}
+              items={accordionItem.items}
+            />
           </AccordionContent>
         </AccordionItem>
       ))}

@@ -2,15 +2,7 @@ import { useState, useEffect } from 'react';
 import { createAirtableService } from '../services/airtableService';
 import { AIRTABLE_CONFIG, APP_CONFIG, AIRTABLE_FILTER_BASE_NAME } from '../constants/config';
 import type { AirtableRecord, AiretableBaseName } from '../types';
-
-
-type AirtableFilter = {
-  key: string;              // ex: "countries"
-  tableName: AiretableBaseName; // ex: "Countries"
-  label: string;            // label UI (ici = tableName)
-  available: boolean;
-  value: []
-};
+import type {FilterInterface} from '../types/filter'
 
 /**
  * Custom hook for fetching and managing Airtable records
@@ -18,7 +10,7 @@ type AirtableFilter = {
 export const useAirtable = () => {
   const [records, setRecords] = useState<AirtableRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState()
+  const [filters, setFilters] = useState<FilterInterface[]>([])
   const [filtersFetched, setFiltersFetched] = useState(false)
   const [filtersLoading, setFiltersLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,11 +50,11 @@ export const useAirtable = () => {
             const filterRecords = await airtableService.fetchRecordsFromTable(tableName);
             return {
               label: tableName,
-              available: true,
-              value: filterRecords
-            } satisfies AirtableFilter;
+              value: filterRecords,
+              available: true
+            } satisfies FilterInterface;
           } catch {
-            return { key, tableName, label: tableName, available: false, value: [] } satisfies AirtableFilter;
+            return { label: tableName, available: false, value: [] } satisfies FilterInterface;
           }
         })
       );

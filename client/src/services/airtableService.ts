@@ -50,10 +50,6 @@ class AirtableService {
 
     return fetchedRecords;
   }
-
-  async fetchFilters() {
-    const filters = Promise.all()
-  }
 }
 
 /**

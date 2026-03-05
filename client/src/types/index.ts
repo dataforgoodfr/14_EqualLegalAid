@@ -2,6 +2,8 @@
  * Type definitions for the ELA application
  */
 
+import type { Base } from "airtable";
+
 export type AiretableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories'
 
 
@@ -28,6 +30,24 @@ export interface AirtableRecord {
   fields: Record<string, AirtableFieldValue>;
 }
 
+export interface BaseFields {
+  Name_EN: string
+  Name_GR: string
+  Caselaws?: string
+}
+
+export interface AuthoritiesFields extends BaseFields {
+  Type_EN: string
+  Type_GR: string
+  Name_Long_EN: string
+  Name_Long_GR: string
+}
+export interface KeywordsFields {
+    Keyword_EN: string
+    Keyword_GR: string
+    SubCategory: string
+    Caselaws: string
+}
 /**
  * Represents an attachment from Airtable (e.g., PDFs)
  */

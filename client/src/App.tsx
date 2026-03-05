@@ -9,12 +9,17 @@ import { FilterPanel } from './components/Filter/FilterPanel/FilterPanel'
  * Main application component
  */
 function App() {
-  const { records, filters, loading, error, refetch } = useAirtable();
+  const {
+    records,
+    filters,
+    loading,
+    error,
+    refetch
+  } = useAirtable();
   const [sortDesc, setSortDesc] = useState(true); // true = recent first (desc), false = oldest first (asc)
   const handleSortToggle = () => {
     setSortDesc(!sortDesc);
   };
-  console.log('filters', filters)
   return (
     <div className="app">
       <Header recordCount={records.length} loading={loading} error={error} onRefresh={refetch} />
@@ -26,9 +31,9 @@ function App() {
         {!loading && !error && (
           <div className='flex xl:gap-10'>
             <div className="flex-auto">
-              <FilterPanel />
+              <FilterPanel filters={filters}/>
             </div>
-            <div className='flex-auto xl:w-[888px]'>
+            <div className='flex-auto xl:w-222'>
               <CaselawList
                 records={records}
                 sortDesc={sortDesc}

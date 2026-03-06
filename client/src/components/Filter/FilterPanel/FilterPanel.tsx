@@ -22,6 +22,7 @@ export const FilterPanel = ({
       placeholder: string
     }
   }
+  console.log('filter: ', filters)
   interface AccordionItemInterface extends AccordionInterface {
     items: any[]
   }

@@ -34,6 +34,7 @@ export interface BaseFields {
   Name_EN: string
   Name_GR: string
   Caselaws?: string
+  Count_Caselaws?: string
 }
 
 export interface AuthoritiesFields extends BaseFields {

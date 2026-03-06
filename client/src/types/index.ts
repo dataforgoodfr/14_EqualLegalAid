@@ -2,32 +2,31 @@
  * Type definitions for the ELA application
  */
 
-import type { Base } from "airtable";
+import type { Base } from 'airtable'
 
 export type AiretableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories'
-
 
 /**
  * Represents possible field value types from Airtable
  */
-export type AirtableFieldValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | AirtableAttachment[]
-  | AirtableUser[]
-  | string[]
-  | number[]
-  | Record<string, unknown>;
+export type AirtableFieldValue
+  = | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | AirtableAttachment[]
+    | AirtableUser[]
+    | string[]
+    | number[]
+    | Record<string, unknown>
 
 /**
  * Represents a record from Airtable
  */
 export interface AirtableRecord {
-  id: string;
-  fields: Record<string, AirtableFieldValue>;
+  id: string
+  fields: Record<string, AirtableFieldValue>
 }
 
 export interface BaseFields {
@@ -44,53 +43,53 @@ export interface AuthoritiesFields extends BaseFields {
   Name_Long_GR: string
 }
 export interface KeywordsFields {
-    Keyword_EN: string
-    Keyword_GR: string
-    SubCategory: string
-    Caselaws: string
+  Keyword_EN: string
+  Keyword_GR: string
+  SubCategory: string
+  Caselaws: string
 }
 /**
  * Represents an attachment from Airtable (e.g., PDFs)
  */
 export interface AirtableAttachment {
-  id: string;
-  url: string;
-  filename: string;
-  size: number;
-  type: string;
+  id: string
+  url: string
+  filename: string
+  size: number
+  type: string
 }
 
 /**
  * Represents a user object from Airtable
  */
 export interface AirtableUser {
-  id?: string;
-  name?: string;
-  email?: string;
+  id?: string
+  name?: string
+  email?: string
 }
 
 /**
  * Configuration for Airtable connection
  */
 export interface AirtableConfig {
-  apiKey: string;
-  baseId: string;
-  tableName: string;
+  apiKey: string
+  baseId: string
+  tableName: string
 }
 
 /**
  * Represents a case law record with structured fields
  */
 export interface Caselaw {
-  title: string;
-  publishedAt: Date;
-  applicationType: string;
-  legalProcedureType: string;
-  asylumProcedure: string;
-  countryOfOrigin: string;
-  competentCourtOrAuthority: string;
-  caselawOutcome: string;
-  keywords: string[];
-  englishPdfLink: string;
-  greekPdfLink: string;
+  title: string
+  publishedAt: Date
+  applicationType: string
+  legalProcedureType: string
+  asylumProcedure: string
+  countryOfOrigin: string
+  competentCourtOrAuthority: string
+  caselawOutcome: string
+  keywords: string[]
+  englishPdfLink: string
+  greekPdfLink: string
 }

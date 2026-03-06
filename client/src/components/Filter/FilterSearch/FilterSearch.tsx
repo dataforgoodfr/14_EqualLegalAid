@@ -1,15 +1,15 @@
-import {Input} from '@/components/ui'
+import { Input } from '@/components/ui'
 interface FilterSearchProps {
-    placeholderContent?: string
+  placeholderContent?: string
 }
 export const FilterSearch = ({
-    placeholderContent = ''
-}:FilterSearchProps) => {
-    return (
-        <div className="filter-search">
-            <Input
-                placeholder={placeholderContent.length > 0 ? placeholderContent : ''}
-            />
-        </div>
-    )
+  placeholderContent = '',
+}: FilterSearchProps) => {
+  return (
+    <div className="filter-search">
+      <Input
+        placeholder={placeholderContent.length > 0 ? placeholderContent : ''}
+      />
+    </div>
+  )
 }

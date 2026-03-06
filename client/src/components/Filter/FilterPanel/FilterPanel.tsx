@@ -1,5 +1,5 @@
-import type {AiretableBaseName} from '../../../types/index'
-import type { FilterInterface } from '../../../types/filter'
+import type { AiretableBaseName } from '@/types/index'
+import type { FilterInterface } from '@/types/filter'
 
 import { FilterItem } from '../FilterItem/FilterItem'
 import {
@@ -7,18 +7,18 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui"
+} from '@/components/ui'
 interface FilterPanelProps {
-  filters : FilterInterface[]
+  filters: FilterInterface[]
 }
 export const FilterPanel = ({
-  filters
-}:FilterPanelProps) => {
+  filters,
+}: FilterPanelProps) => {
   interface AccordionInterface {
-    accordionTriggerLabel: string,
-    airtableBaseName: AiretableBaseName,
+    accordionTriggerLabel: string
+    airtableBaseName: AiretableBaseName
     search: {
-      enabled: boolean,
+      enabled: boolean
       placeholder: string
     }
   }
@@ -26,51 +26,51 @@ export const FilterPanel = ({
   interface AccordionItemInterface extends AccordionInterface {
     items: any[]
   }
-  const ACCORDION_CONFIG:AccordionInterface[] = [
+  const ACCORDION_CONFIG: AccordionInterface[] = [
     {
       accordionTriggerLabel: 'Outcome',
       airtableBaseName: 'Outcomes',
       search: {
         enabled: false,
-        placeholder: 'Search outcome'
-      }
+        placeholder: 'Search outcome',
+      },
     },
     {
       accordionTriggerLabel: 'Country of origin',
       airtableBaseName: 'Countries',
       search: {
         enabled: true,
-        placeholder: 'Search a Country'
-      }
+        placeholder: 'Search a Country',
+      },
     },
     {
       accordionTriggerLabel: 'Competent court',
       airtableBaseName: 'LegalProcedureTypes',
       search: {
         enabled: false,
-        placeholder: 'Search a Competent court'
-      }
+        placeholder: 'Search a Competent court',
+      },
     },
     {
       accordionTriggerLabel: 'Type of legal procedure',
       airtableBaseName: 'LegalProcedureTypes',
       search: {
         enabled: false,
-        placeholder: 'Search a Type of legal procedure'
-      }
-    }
+        placeholder: 'Search a Type of legal procedure',
+      },
+    },
   ]
   const accordionItems: AccordionItemInterface[] = ACCORDION_CONFIG.map((accordionConfigItem) => {
-  const matchedFilter = filters.find((filter) => filter.label === accordionConfigItem.airtableBaseName)
+    const matchedFilter = filters.find(filter => filter.label === accordionConfigItem.airtableBaseName)
 
-  return {
-    ...accordionConfigItem,
-    items: matchedFilter?.value ?? [],
-    available: matchedFilter?.available ?? false,
-  }
-})
+    return {
+      ...accordionConfigItem,
+      items: matchedFilter?.value ?? [],
+      available: matchedFilter?.available ?? false,
+    }
+  })
   return (
-    <Accordion type="multiple" collapsible>
+    <Accordion type="multiple" collapsible={true}>
       {accordionItems.map((accordionItem, accordionItemIndex) => (
         <AccordionItem value={`item-${accordionItemIndex}`}>
           <AccordionTrigger>{ accordionItem.accordionTriggerLabel }</AccordionTrigger>
@@ -85,4 +85,4 @@ export const FilterPanel = ({
       ))}
     </Accordion>
   )
-};
+}

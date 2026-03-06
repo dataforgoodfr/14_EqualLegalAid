@@ -1,4 +1,10 @@
-import type { AirtableAttachment, AirtableUser, AirtableFieldValue, AirtableRecord, Caselaw } from '../types';
+import type {
+  AirtableAttachment,
+  AirtableUser,
+  AirtableFieldValue,
+  AirtableRecord,
+  Caselaw,
+} from '../types';
 
 /**
  * Checks if a value is a PDF URL

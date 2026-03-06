@@ -12,10 +12,10 @@ const OUTCOME_COLORS: Record<string, string> = {
   'Application accepted': 'outcome-granted',
   'Accepted: Remittal for new examination': 'outcome-partial',
   'Application partially accepted': 'outcome-partial',
-  'Admissible': 'outcome-partial',
+  Admissible: 'outcome-partial',
   'Examination on the merits - Hearing of the applicant': 'outcome-neutral',
   'Application rejected': 'outcome-rejected',
-  'Inadmissible': 'outcome-rejected',
+  Inadmissible: 'outcome-rejected',
 };
 
 const getOutcomeClass = (outcome: string): string => {

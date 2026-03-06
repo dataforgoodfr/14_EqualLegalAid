@@ -1,8 +1,8 @@
+export * from './filter'
+
 /**
  * Type definitions for the ELA application
  */
-
-import type { Base } from 'airtable'
 
 export type AiretableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories'
 

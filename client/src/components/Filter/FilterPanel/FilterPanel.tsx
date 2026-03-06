@@ -1,19 +1,14 @@
 import type { AiretableBaseName } from '@/types/index'
-import type { FilterInterface } from '@/types/filter'
-
-import { FilterItem } from '../FilterItem/FilterItem'
+import { useAirtableFilter } from '@/hooks'
+import { FilterItem } from '@/components/Filter'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui'
-interface FilterPanelProps {
-  filters: FilterInterface[]
-}
-export const FilterPanel = ({
-  filters,
-}: FilterPanelProps) => {
+
+export const FilterPanel = () => {
   interface AccordionInterface {
     accordionTriggerLabel: string
     airtableBaseName: AiretableBaseName
@@ -22,10 +17,11 @@ export const FilterPanel = ({
       placeholder: string
     }
   }
-  console.log('filter: ', filters)
+
   interface AccordionItemInterface extends AccordionInterface {
     items: any[]
   }
+  const { filterRecords } = useAirtableFilter()
   const ACCORDION_CONFIG: AccordionInterface[] = [
     {
       accordionTriggerLabel: 'Outcome',
@@ -61,7 +57,7 @@ export const FilterPanel = ({
     },
   ]
   const accordionItems: AccordionItemInterface[] = ACCORDION_CONFIG.map((accordionConfigItem) => {
-    const matchedFilter = filters.find(filter => filter.label === accordionConfigItem.airtableBaseName)
+    const matchedFilter = filterRecords.find(filter => filter.label === accordionConfigItem.airtableBaseName)
 
     return {
       ...accordionConfigItem,

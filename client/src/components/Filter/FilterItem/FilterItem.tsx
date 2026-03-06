@@ -4,19 +4,21 @@ import {
   Checkbox,
   Label,
 } from '@/components/ui'
-import { FilterSearch } from '../FilterSearch/FilterSearch'
-import type { AirtableRecord } from '../../../types/index'
+import { FilterSearch } from '@/components/Filter'
+import type { AirtableRecord } from '@/types/index'
 
 interface FilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
   items: AirtableRecord[]
+  onFilterChange: (caselaws: string, action: boolean) => void
 }
 
 export const FilterItem = ({
   enabledSearch = false,
   searchPlaceholder = '',
   items,
+  onFilterChange,
 }: FilterItemProps) => {
   const filteredItems = items.filter(
     item =>
@@ -27,6 +29,13 @@ export const FilterItem = ({
       Number(b.fields?.Count_Caselaws ?? 0)
       - Number(a.fields?.Count_Caselaws ?? 0),
   )
+
+  const handleCheckboxChange = (id: string, checked: boolean) => {
+    const selectedItem = filteredItems.find(item => item.id === id)
+    const caselawsRelatedToClickedFilter = selectedItem?.fields?.Caselaws as string
+    onFilterChange(caselawsRelatedToClickedFilter, checked)
+  }
+
   return (
     <div className="filter-item p-2">
       {enabledSearch && (
@@ -48,6 +57,7 @@ export const FilterItem = ({
                   id={item.id}
                   name={item.id}
                   className="mr-3"
+                  onCheckedChange={checked => handleCheckboxChange(item.id, checked)}
                 />
                 <Label htmlFor={item.id}>
                   {item.fields?.Name_EN}

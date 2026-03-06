@@ -1,4 +1,9 @@
-import { getAllFieldNames, formatFieldValue, formatColumnHeader, isPdfUrl } from '../utils/formatters';
+import {
+  getAllFieldNames,
+  formatFieldValue,
+  formatColumnHeader,
+  isPdfUrl,
+} from '../utils/formatters';
 import { downloadPdf } from '../utils/pdfHelpers';
 import type { AirtableRecord, AirtableFieldValue } from '../types';
 import './DataTable.css';

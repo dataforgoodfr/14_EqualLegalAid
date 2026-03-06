@@ -5,7 +5,9 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 46, 93, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   animation: cardFadeIn 0.4s ease-out both;
 }
 
@@ -186,7 +188,9 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   letter-spacing: 0.3px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -222,12 +226,24 @@
 }
 
 /* Stagger card animations */
-.caselaw-card:nth-child(1) { animation-delay: 0s; }
-.caselaw-card:nth-child(2) { animation-delay: 0.05s; }
-.caselaw-card:nth-child(3) { animation-delay: 0.1s; }
-.caselaw-card:nth-child(4) { animation-delay: 0.15s; }
-.caselaw-card:nth-child(5) { animation-delay: 0.2s; }
-.caselaw-card:nth-child(6) { animation-delay: 0.25s; }
+.caselaw-card:nth-child(1) {
+  animation-delay: 0s;
+}
+.caselaw-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.caselaw-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.caselaw-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
+.caselaw-card:nth-child(5) {
+  animation-delay: 0.2s;
+}
+.caselaw-card:nth-child(6) {
+  animation-delay: 0.25s;
+}
 
 @media (max-width: 480px) {
   .caselaw-grid {

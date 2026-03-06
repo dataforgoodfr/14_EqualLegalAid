@@ -26,3 +26,11 @@ export function AirtableProvider({ children }: AirtableProviderProps) {
     </AirtableContext.Provider>
   )
 }
+
+export function useAirtableService() {
+  const context = useContext(AirtableContext)
+  if (!context) {
+    throw new Error('useAirtableService must be used inside AirtableProvider')
+  }
+  return context
+}

@@ -1,42 +1,35 @@
 import { useState } from 'react'
-import { useAirtable } from './hooks/useAirtable'
-import { Header, Loading, ErrorMessage, CaselawList } from './components'
+import { useAirtableCaselaw } from '@/hooks'
+import { Header, Loading, ErrorMessage, CaselawList } from '@/components'
 import './App.css'
 import { Button } from './components/ui/button'
-import { FilterPanel } from './components/Filter/FilterPanel/FilterPanel'
-
+import { FilterPanel } from '@/components/Filter'
 /**
  * Main application component
  */
 function App() {
-  const {
-    records,
-    filters,
-    loading,
-    error,
-    refetch,
-  } = useAirtable()
+  const { caselawRecords, loading, error, refetchCaselawRecords } = useAirtableCaselaw()
   const [sortDesc, setSortDesc] = useState(true) // true = recent first (desc), false = oldest first (asc)
   const handleSortToggle = () => {
     setSortDesc(!sortDesc)
   }
-  console.log('records', records)
+
   return (
     <div className="app">
-      <Header recordCount={records.length} loading={loading} error={error} onRefresh={refetch} />
+      <Header recordCount={caselawRecords.length} loading={loading} error={error} onRefresh={refetchCaselawRecords} />
       <Button onClick={handleSortToggle}>Sort</Button>
 
       <main className="main-content">
         {loading && <Loading />}
-        {error && <ErrorMessage message={error} onRetry={refetch} />}
+        {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
         {!loading && !error && (
           <div className="flex xl:gap-10">
             <div className="flex-auto">
-              <FilterPanel filters={filters} />
+              <FilterPanel />
             </div>
             <div className="flex-auto xl:w-222">
               <CaselawList
-                records={records}
+                records={caselawRecords}
                 sortDesc={sortDesc}
               />
             </div>

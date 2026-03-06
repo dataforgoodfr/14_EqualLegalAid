@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import type { AiretableBaseName } from '@/types/index'
 import { useAirtableFilter } from '@/hooks'
 import { FilterItem } from '@/components/Filter'
@@ -9,6 +10,7 @@ import {
 } from '@/components/ui'
 
 export const FilterPanel = () => {
+  const [caselawId, setCaselawId] = useState<string[]>([])
   interface AccordionInterface {
     accordionTriggerLabel: string
     airtableBaseName: AiretableBaseName
@@ -17,7 +19,6 @@ export const FilterPanel = () => {
       placeholder: string
     }
   }
-
   interface AccordionItemInterface extends AccordionInterface {
     items: any[]
   }
@@ -65,6 +66,23 @@ export const FilterPanel = () => {
       available: matchedFilter?.available ?? false,
     }
   })
+  const handleFilterChange = (value: string, needToPushValue: boolean) => {
+    setCaselawId((previousIds) => {
+      if (needToPushValue) {
+        // évite les doublons
+        if (previousIds.includes(value)) {
+          return previousIds
+        }
+
+        return [...previousIds, value]
+      }
+
+      return previousIds.filter(id => id !== value)
+    })
+  }
+  useEffect(() => {
+    console.log('caselawId:', caselawId)
+  }, [caselawId])
   return (
     <Accordion type="multiple" collapsible={true}>
       {accordionItems.map((accordionItem, accordionItemIndex) => (
@@ -75,6 +93,7 @@ export const FilterPanel = () => {
               enabledSearch={accordionItem.search.enabled}
               searchPlaceholder={accordionItem.search.placeholder}
               items={accordionItem.items}
+              onFilterChange={handleFilterChange}
             />
           </AccordionContent>
         </AccordionItem>

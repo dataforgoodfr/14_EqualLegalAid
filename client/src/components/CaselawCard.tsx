@@ -1,9 +1,9 @@
-import type { Caselaw } from '../types';
-import { downloadPdf } from '../utils/pdfHelpers';
-import './CaselawCard.css';
+import type { Caselaw } from '../types'
+import { downloadPdf } from '../utils/pdfHelpers'
+import './CaselawCard.css'
 
 interface CaselawCardProps {
-  caselaw: Caselaw;
+  caselaw: Caselaw
 }
 
 const OUTCOME_COLORS: Record<string, string> = {
@@ -12,22 +12,22 @@ const OUTCOME_COLORS: Record<string, string> = {
   'Application accepted': 'outcome-granted',
   'Accepted: Remittal for new examination': 'outcome-partial',
   'Application partially accepted': 'outcome-partial',
-  Admissible: 'outcome-partial',
+  'Admissible': 'outcome-partial',
   'Examination on the merits - Hearing of the applicant': 'outcome-neutral',
   'Application rejected': 'outcome-rejected',
-  Inadmissible: 'outcome-rejected',
-};
+  'Inadmissible': 'outcome-rejected',
+}
 
 const getOutcomeClass = (outcome: string): string => {
-  return OUTCOME_COLORS[outcome] ?? 'outcome-neutral';
-};
+  return OUTCOME_COLORS[outcome] ?? 'outcome-neutral'
+}
 
 export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   const formattedDate = caselaw.publishedAt.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-  });
+  })
 
   return (
     <article className="caselaw-card">
@@ -83,7 +83,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
 
         {caselaw.keywords.length > 0 && (
           <div className="card-keywords">
-            {caselaw.keywords.map((keyword) => (
+            {caselaw.keywords.map(keyword => (
               <span key={keyword} className="keyword-chip">
                 {keyword}
               </span>
@@ -115,5 +115,5 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
         )}
       </div>
     </article>
-  );
-};
+  )
+}

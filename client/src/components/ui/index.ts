@@ -1,7 +1,7 @@
 export * from './button'
 export * from './accordion'
 
-//Formulaire
+// Formulaire
 export * from './field'
 export * from './label'
 export * from './select'

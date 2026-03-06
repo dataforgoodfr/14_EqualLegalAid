@@ -2,8 +2,8 @@ import {
   Field,
   FieldGroup,
   Checkbox,
-  Label
-} from "@/components/ui"
+  Label,
+} from '@/components/ui'
 import { FilterSearch } from '../FilterSearch/FilterSearch'
 import type { AirtableRecord } from '../../../types/index'
 
@@ -16,17 +16,16 @@ interface FilterItemProps {
 export const FilterItem = ({
   enabledSearch = false,
   searchPlaceholder = '',
-  items
+  items,
 }: FilterItemProps) => {
-
   const filteredItems = items.filter(
-    (item) =>
-      item.fields?.Count_Caselaws &&
-      item.fields.Count_Caselaws !== "0"
+    item =>
+      item.fields?.Count_Caselaws
+      && item.fields.Count_Caselaws !== '0',
   ).sort(
     (a, b) =>
-      Number(b.fields?.Count_Caselaws ?? 0) -
-      Number(a.fields?.Count_Caselaws ?? 0)
+      Number(b.fields?.Count_Caselaws ?? 0)
+      - Number(a.fields?.Count_Caselaws ?? 0),
   )
   return (
     <div className="filter-item p-2">
@@ -38,7 +37,7 @@ export const FilterItem = ({
 
       <div className="filter-item__content py-2">
         <FieldGroup>
-          {filteredItems.map((item) => (
+          {filteredItems.map(item => (
             <Field
               key={item.id}
               className="flex items-center justify-between py-3.5"
@@ -62,4 +61,4 @@ export const FilterItem = ({
       </div>
     </div>
   )
-};
+}

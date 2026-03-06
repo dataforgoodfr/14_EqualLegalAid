@@ -1,22 +1,22 @@
-import Airtable from 'airtable';
-import type { Base, Records, FieldSet } from 'airtable';
+import Airtable from 'airtable'
+import type { Base, Records, FieldSet } from 'airtable'
 import type {
   AirtableRecord,
   AirtableConfig,
   AirtableFieldValue,
-  AiretableBaseName
-} from '../types';
+  AiretableBaseName,
+} from '../types'
 
 /**
  * Service for interacting with Airtable API
  */
 class AirtableService {
-  private base: Base;
-  private tableName: string;
+  private base: Base
+  private tableName: string
 
   constructor(config: AirtableConfig) {
-    this.base = new Airtable({ apiKey: config.apiKey }).base(config.baseId);
-    this.tableName = config.tableName;
+    this.base = new Airtable({ apiKey: config.apiKey }).base(config.baseId)
+    this.tableName = config.tableName
   }
 
   /**
@@ -27,9 +27,9 @@ class AirtableService {
    */
   async fetchRecordsFromTable(
     airtableBaseName: AiretableBaseName = 'Caselaws',
-    maxRecords: number = 100
+    maxRecords: number = 100,
   ): Promise<AirtableRecord[]> {
-    const fetchedRecords: AirtableRecord[] = [];
+    const fetchedRecords: AirtableRecord[] = []
 
     await this.base(airtableBaseName)
       .select({
@@ -43,12 +43,12 @@ class AirtableService {
           fetchedRecords.push({
             id: record.id,
             fields: record.fields as Record<string, AirtableFieldValue>,
-          });
-        });
-        fetchNextPage();
-      });
+          })
+        })
+        fetchNextPage()
+      })
 
-    return fetchedRecords;
+    return fetchedRecords
   }
 }
 
@@ -56,7 +56,7 @@ class AirtableService {
  * Creates and returns an instance of AirtableService
  */
 export const createAirtableService = (config: AirtableConfig): AirtableService => {
-  return new AirtableService(config);
-};
+  return new AirtableService(config)
+}
 
-export default AirtableService;
+export default AirtableService

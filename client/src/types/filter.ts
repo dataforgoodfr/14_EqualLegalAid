@@ -3,4 +3,4 @@ export interface FilterInterface {
   label: AiretableBaseName
   value: any[]
   available: boolean
-} 
+}

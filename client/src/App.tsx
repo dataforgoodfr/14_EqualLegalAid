@@ -20,6 +20,7 @@ function App() {
   const handleSortToggle = () => {
     setSortDesc(!sortDesc);
   };
+  console.log('records', records)
   return (
     <div className="app">
       <Header recordCount={records.length} loading={loading} error={error} onRefresh={refetch} />

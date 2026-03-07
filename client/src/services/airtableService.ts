@@ -5,17 +5,44 @@ import type {
   AirtableFieldValue,
 } from '@/types'
 
+/*
+le cellFormat est la réponse a pas mal de nos problème
+En gros pour les records des caselaw il faut demander la data en version string
+Et pour les filtres on doit demander la data en json. En demandant json on récupère que des id de caselaws dans les filtres ce qui est parfait pour nous.
+*/
+interface FetchRecordsFromTableConfig {
+  tableName: AiretableBaseName
+  selectConfig?: {
+    maxRecords?: number
+    pageSize?: number
+    userLocale?: 'en-us' | 'el-GR'
+    cellFormat?: 'json' | 'string'
+    timeZone?: string
+    view?: string
+    fields?: string[]
+    filterByFormula?: string
+    sort?: Array<{
+      field: string
+      direction?: 'asc' | 'desc'
+    }>
+  }
+}
+
 export function createAirtableService(base: Base) {
-  async function fetchRecordsFromTable(
-    tableName: AiretableBaseName,
-    maxRecords: number = 100): Promise<AirtableRecord[]> {
+  async function fetchRecordsFromTable({
+    tableName,
+    selectConfig,
+  }: FetchRecordsFromTableConfig): Promise<AirtableRecord[]> {
     const fetchedRecords: AirtableRecord[] = []
     await base(tableName)
       .select({
-        maxRecords,
-        cellFormat: 'string',
-        timeZone: 'UTC',
-        userLocale: 'en-us',
+        maxRecords: selectConfig?.maxRecords ?? 100,
+        pageSize: selectConfig?.pageSize ?? 100,
+        cellFormat: selectConfig?.cellFormat ?? 'string',
+        timeZone: selectConfig?.timeZone ?? 'UTC',
+        userLocale: selectConfig?.userLocale ?? 'en-us',
+        filterByFormula: selectConfig?.filterByFormula ?? '',
+        sort: selectConfig?.sort ?? [],
       })
       .eachPage((records: Records<FieldSet>, fetchNextPage: () => void) => {
         records.forEach((record) => {

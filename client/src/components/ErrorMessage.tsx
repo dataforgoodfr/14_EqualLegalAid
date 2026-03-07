@@ -1,8 +1,8 @@
-import './ErrorMessage.css';
+import './ErrorMessage.css'
 
 interface ErrorMessageProps {
-  message: string;
-  onRetry: () => void;
+  message: string
+  onRetry: () => void
 }
 
 /**
@@ -11,8 +11,11 @@ interface ErrorMessageProps {
 export const ErrorMessage = ({ message, onRetry }: ErrorMessageProps) => {
   return (
     <div className="error">
-      <p>Error: {message}</p>
+      <p>
+        Error:
+        {message}
+      </p>
       <button onClick={onRetry}>Retry</button>
     </div>
-  );
-};
+  )
+}

@@ -1,7 +1,6 @@
 import type {
   FilterInterface,
   AiretableBaseName,
-  AirtableRecord,
 } from '@/types'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -28,7 +27,17 @@ export const useAirtableFilter = () => {
       const results = await Promise.all(
         entries.map(async([key, tableName]) => {
           try {
-            const filterRecords = await airtableService.fetchRecordsFromTable(tableName)
+            const filterRecords = await airtableService.fetchRecordsFromTable({
+              tableName: tableName,
+              selectConfig: {
+                cellFormat: 'json',
+                filterByFormula: 'AND({Count_Caselaws} > 0, {Count_Caselaws} != BLANK())',
+                sort: [{
+                  field: 'Count_Caselaws',
+                  direction: 'desc',
+                }],
+              },
+            })
             return {
               label: tableName,
               value: filterRecords,

@@ -11,7 +11,7 @@ interface FilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
   items: AirtableRecord[]
-  onFilterChange: (caselaws: string, action: boolean) => void
+  onFilterChange: (caselaws: string[], action: boolean) => void
 }
 
 export const FilterItem = ({
@@ -20,19 +20,9 @@ export const FilterItem = ({
   items,
   onFilterChange,
 }: FilterItemProps) => {
-  const filteredItems = items.filter(
-    item =>
-      item.fields?.Count_Caselaws
-      && item.fields.Count_Caselaws !== '0',
-  ).sort(
-    (a, b) =>
-      Number(b.fields?.Count_Caselaws ?? 0)
-      - Number(a.fields?.Count_Caselaws ?? 0),
-  )
-
   const handleCheckboxChange = (id: string, checked: boolean) => {
-    const selectedItem = filteredItems.find(item => item.id === id)
-    const caselawsRelatedToClickedFilter = selectedItem?.fields?.Caselaws as string
+    const selectedItem = items.find(item => item.id === id)
+    const caselawsRelatedToClickedFilter = selectedItem?.fields?.Caselaws as string[]
     onFilterChange(caselawsRelatedToClickedFilter, checked)
   }
 
@@ -46,7 +36,7 @@ export const FilterItem = ({
 
       <div className="filter-item__content py-2">
         <FieldGroup>
-          {filteredItems.map(item => (
+          {items.map(item => (
             <Field
               key={item.id}
               className="flex items-center justify-between py-3.5"

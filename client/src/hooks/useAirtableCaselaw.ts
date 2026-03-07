@@ -14,14 +14,7 @@ export const useAirtableCaselaw = () => {
     try {
       setLoading(true)
       setError(null)
-
-      // Pour l’instant, on fetch tout
-      // Ensuite on branchera ici la logique de filtres Airtable
-      const fetchedRecords = await airtableService.fetchRecordsFromTable(
-        APP_CONFIG.defaultBaseName,
-        APP_CONFIG.maxRecords,
-      )
-
+      const fetchedRecords = await airtableService.fetchRecordsFromTable({ tableName: APP_CONFIG.defaultBaseName })
       setCaselawRecords(fetchedRecords)
     }
     catch(err: unknown) {

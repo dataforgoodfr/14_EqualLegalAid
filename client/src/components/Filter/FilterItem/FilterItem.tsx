@@ -5,24 +5,34 @@ import {
   Label,
 } from '@/components/ui'
 import { FilterSearch } from '@/components/Filter'
-import type { AirtableRecord } from '@/types/index'
 
-interface FilterItemProps {
+interface BasicItems {
+  id: string
+  fields: {
+    Name_EN: string
+    Name_GR: string
+    Count_Caselaws: number
+    Caselaws: string[]
+  }
+}
+
+interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
-  items: AirtableRecord[]
+  items: BasicItems[]
   onFilterChange: (caselaws: string[], action: boolean) => void
 }
 
-export const FilterItem = ({
+export const BasicFilterItem = ({
   enabledSearch = false,
   searchPlaceholder = '',
   items,
   onFilterChange,
-}: FilterItemProps) => {
+}: BasicFilterItemProps) => {
+
   const handleCheckboxChange = (id: string, checked: boolean) => {
-    const selectedItem = items.find(item => item.id === id)
-    const caselawsRelatedToClickedFilter = selectedItem?.fields?.Caselaws as string[]
+    const selectedItem: BasicItems = items.find(item => item.id === id)!
+    const caselawsRelatedToClickedFilter = selectedItem.fields.Caselaws as string[]  
     onFilterChange(caselawsRelatedToClickedFilter, checked)
   }
 
@@ -47,14 +57,14 @@ export const FilterItem = ({
                   id={item.id}
                   name={item.id}
                   className="mr-3"
-                  onCheckedChange={checked => handleCheckboxChange(item.id, checked)}
+                  onCheckedChange={(checked) => {handleCheckboxChange(item.id, checked as boolean)}}
                 />
                 <Label htmlFor={item.id}>
-                  {item.fields?.Name_EN}
+                  {item.fields.Name_EN}
                 </Label>
               </div>
 
-              <p>{item.fields?.Count_Caselaws}</p>
+              <p>{String(item.fields.Count_Caselaws)}</p>
             </Field>
           ))}
         </FieldGroup>

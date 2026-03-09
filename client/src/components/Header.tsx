@@ -1,17 +1,17 @@
-import elaLogo from '../assets/ela.png';
-import './Header.css';
+import elaLogo from '../assets/ela.png'
+import './Header.css'
 
 interface HeaderProps {
-  recordCount: number;
-  loading: boolean;
-  error: string | null;
-  onRefresh: () => void;
+  recordSummary?: string
+  loading: boolean
+  error: string | null
+  onRefresh: () => void
 }
 
 /**
  * Application header with logo, title, and actions
  */
-export const Header = ({ recordCount, loading, error, onRefresh }: HeaderProps) => {
+export const Header = ({ recordSummary, loading, error, onRefresh }: HeaderProps) => {
   return (
     <header className="app-header">
       <div className="header-content">
@@ -23,12 +23,8 @@ export const Header = ({ recordCount, loading, error, onRefresh }: HeaderProps) 
           </div>
         </div>
         <div className="header-actions">
-          {!loading && !error && recordCount > 0 && (
-            <div className="record-count">
-              {recordCount} {recordCount === 1 ? 'Record' : 'Records'}
-            </div>
-          )}
-          {!loading && !error && recordCount > 0 && (
+          {!loading && !error && recordSummary && <div className="record-count">{recordSummary}</div>}
+          {!loading && !error && recordSummary && (
             <button onClick={onRefresh} className="refresh-btn">
               🔄 Refresh
             </button>
@@ -36,5 +32,5 @@ export const Header = ({ recordCount, loading, error, onRefresh }: HeaderProps) 
         </div>
       </div>
     </header>
-  );
-};
+  )
+}

@@ -1,23 +1,37 @@
-import { useState } from 'react';
-import { useAirtable } from './hooks/useAirtable';
-import { Header, Loading, ErrorMessage, CaselawList } from './components';
-import './App.css';
-import { Button } from './components/ui/button';
+import { useAirtable } from './hooks/useAirtable'
+import { Header, Loading, ErrorMessage, CaselawList } from './components'
+import './App.css'
+import { Button } from './components/ui/button'
 
 /**
  * Main application component
  */
 function App() {
-  const { records, loading, error, refetch } = useAirtable();
-  const [sortDesc, setSortDesc] = useState(true); // true = recent first (desc), false = oldest first (asc)
+  const {
+    records,
+    loading,
+    error,
+    pagination,
+    sortDirection,
+    setSortDirection,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    setPageSize,
+    refetch,
+  } = useAirtable()
 
   const handleSortToggle = () => {
-    setSortDesc(!sortDesc);
-  };
+    setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc')
+  }
+
+  const recordSummary = !loading && !error
+    ? `${records.length} ${records.length === 1 ? 'record' : 'records'} on page ${pagination.currentPage}${pagination.isLastPageKnown ? ` of ${pagination.knownPageCount}` : ` of ${pagination.knownPageCount}+`}`
+    : undefined
 
   return (
     <div className="App">
-      <Header recordCount={records.length} loading={loading} error={error} onRefresh={refetch} />
+      <Header recordSummary={recordSummary} loading={loading} error={error} onRefresh={refetch} />
 
       <Button onClick={handleSortToggle}>Sort</Button>
       <main className="main-content">
@@ -25,10 +39,10 @@ function App() {
 
         {error && <ErrorMessage message={error} onRetry={refetch} />}
 
-        {!loading && !error && <CaselawList records={records} sortDesc={sortDesc} />}
+        {!loading && !error && <CaselawList records={records} onNextPage={goToNextPage} onPreviousPage={goToPreviousPage} onPageChange={goToPage} onPageSizeChange={setPageSize} pagination={pagination} />}
       </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

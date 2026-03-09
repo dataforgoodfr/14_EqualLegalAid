@@ -54,6 +54,36 @@ export interface AirtableConfig {
   tableName: string;
 }
 
+export type AirtableSortDirection = 'asc' | 'desc';
+
+export interface AirtableSort {
+  field: string;
+  direction: AirtableSortDirection;
+}
+
+export interface AirtablePageRequest {
+  viewName?: string;
+  pageSize: number;
+  offset?: string;
+  sort?: AirtableSort[];
+}
+
+export interface AirtablePageResponse {
+  records: AirtableRecord[];
+  nextOffset?: string;
+}
+
+export interface AirtablePaginationState {
+  currentPage: number;
+  pageSize: number;
+  knownPageCount: number;
+  hasNextPage: boolean;
+  isLastPageKnown: boolean;
+  pageSizeOptions: readonly number[];
+}
+
+export type RecordsView = 'cards' | 'table';
+
 /**
  * Represents a case law record with structured fields
  */

@@ -8,8 +8,6 @@ export interface PaginationControlsProps {
   hasNextPage: boolean
   isLastPageKnown: boolean
   onPageChange: (page: number) => void
-  onNextPage: () => void
-  onPreviousPage: () => void
   pageSize: number
   pageSizeOptions: readonly number[]
   onPageSizeChange: (pageSize: number) => void
@@ -92,8 +90,6 @@ export const PaginationControls = ({
   hasNextPage,
   isLastPageKnown,
   onPageChange,
-  onNextPage,
-  onPreviousPage,
   pageSize,
   pageSizeOptions,
   onPageSizeChange,
@@ -143,7 +139,7 @@ export const PaginationControls = ({
 
           <PaginationItem
             disabled={isFirstPage}
-            onClick={onPreviousPage}
+            onClick={() => onPageChange(currentPage - 1)}
             aria-label="Go to previous page"
           >
             <ChevronLeft />
@@ -171,7 +167,7 @@ export const PaginationControls = ({
 
           <PaginationItem
             disabled={!canGoNext}
-            onClick={onNextPage}
+            onClick={() => onPageChange(currentPage + 1)}
             aria-label="Go to next page"
           >
             <ChevronRight />

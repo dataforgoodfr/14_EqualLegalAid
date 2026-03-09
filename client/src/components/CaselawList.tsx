@@ -9,8 +9,6 @@ interface CaselawListProps {
   records: AirtableRecord[];
   pagination: AirtablePaginationState;
   onPageChange: (page: number) => void;
-  onNextPage: () => void;
-  onPreviousPage: () => void;
   onPageSizeChange: (pageSize: number) => void;
 }
 
@@ -18,8 +16,6 @@ export const CaselawList = ({
   records,
   pagination,
   onPageChange,
-  onNextPage,
-  onPreviousPage,
   onPageSizeChange,
 }: CaselawListProps) => {
   const caselaws = useMemo(() => records.map(toCaselaw), [records]);
@@ -42,8 +38,6 @@ export const CaselawList = ({
         hasNextPage={pagination.hasNextPage}
         isLastPageKnown={pagination.isLastPageKnown}
         onPageChange={onPageChange}
-        onNextPage={onNextPage}
-        onPreviousPage={onPreviousPage}
         pageSize={pagination.pageSize}
         pageSizeOptions={pagination.pageSizeOptions}
         onPageSizeChange={onPageSizeChange}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { createAirtableService } from '../services/airtableService'
 import { AIRTABLE_CONFIG, APP_CONFIG } from '../constants/config'
 import type { AirtablePaginationState, AirtableRecord, AirtableSortDirection } from '../types'
@@ -7,81 +7,109 @@ const INITIAL_OFFSETS: Record<number, string | undefined> = {
   1: undefined,
 }
 
+interface State {
+  records: AirtableRecord[]
+  loading: boolean
+  error: string | null
+  currentPage: number
+  pageSize: number
+  sortDirection: AirtableSortDirection
+  offsetsByPage: Record<number, string | undefined>
+  hasNextPage: boolean
+  isLastPageKnown: boolean
+}
+
+type Action
+  = | { type: 'FETCH_START' }
+    | { type: 'FETCH_SUCCESS', page: number, records: AirtableRecord[], nextOffset?: string, offset?: string, reset: boolean }
+    | { type: 'FETCH_ERROR', error: string }
+    | { type: 'SET_PAGE_SIZE', pageSize: number }
+    | { type: 'SET_SORT_DIRECTION', direction: AirtableSortDirection }
+
+const initialState: State = {
+  records: [],
+  loading: true,
+  error: null,
+  currentPage: 1,
+  pageSize: APP_CONFIG.pagination.defaultPageSize,
+  sortDirection: APP_CONFIG.defaultSortDirection,
+  offsetsByPage: INITIAL_OFFSETS,
+  hasNextPage: false,
+  isLastPageKnown: false,
+}
+
+const buildOffsets = (
+  source: Record<number, string | undefined>,
+  page: number,
+  offset?: string,
+  nextOffset?: string,
+): Record<number, string | undefined> => {
+  const result: Record<number, string | undefined> = { 1: undefined }
+  for (const [key, value] of Object.entries(source)) {
+    if (Number(key) <= page) result[Number(key)] = value
+  }
+  if (page > 1) result[page] = offset
+  if (nextOffset) result[page + 1] = nextOffset
+  return result
+}
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'FETCH_START':
+      return { ...state, loading: true, error: null }
+    case 'FETCH_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        records: action.records,
+        currentPage: action.page,
+        hasNextPage: Boolean(action.nextOffset),
+        isLastPageKnown: !action.nextOffset,
+        offsetsByPage: buildOffsets(
+          action.reset ? INITIAL_OFFSETS : state.offsetsByPage,
+          action.page,
+          action.offset,
+          action.nextOffset,
+        ),
+      }
+    case 'FETCH_ERROR':
+      return { ...state, loading: false, error: action.error }
+    case 'SET_PAGE_SIZE':
+      return { ...state, pageSize: action.pageSize, currentPage: 1, offsetsByPage: INITIAL_OFFSETS }
+    case 'SET_SORT_DIRECTION':
+      return { ...state, sortDirection: action.direction, currentPage: 1, offsetsByPage: INITIAL_OFFSETS }
+  }
+}
+
+const airtableService = createAirtableService(AIRTABLE_CONFIG)
+
 /**
  * Custom hook for fetching and managing Airtable records
  */
 export const useAirtable = () => {
-  const [records, setRecords] = useState<AirtableRecord[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSizeState] = useState<number>(APP_CONFIG.pagination.defaultPageSize)
-  const [sortDirection, setSortDirection]
-    = useState<AirtableSortDirection>(APP_CONFIG.defaultSortDirection)
-  const [offsetsByPage, setOffsetsByPage]
-    = useState<Record<number, string | undefined>>(INITIAL_OFFSETS)
-  const [hasNextPage, setHasNextPage] = useState(false)
-  const [isLastPageKnown, setIsLastPageKnown] = useState(false)
-
-  const sort = useMemo(
-    () => [
-      {
-        field: APP_CONFIG.defaultSortField,
-        direction: sortDirection,
-      },
-    ],
-    [sortDirection],
-  )
+  const [state, dispatch] = useReducer(reducer, initialState)
 
   const fetchPage = useCallback(
-    async(page: number, offset?: string, resetPagination: boolean = false) => {
+    async(page: number, offset?: string, reset: boolean = false) => {
       try {
-        setLoading(true)
-        setError(null)
+        dispatch({ type: 'FETCH_START' })
 
-        const airtableService = createAirtableService(AIRTABLE_CONFIG)
-        const { records: fetchedRecords, nextOffset } = await airtableService.fetchPage({
+        const { records, nextOffset } = await airtableService.fetchPage({
           viewName: APP_CONFIG.defaultView,
-          pageSize,
+          pageSize: state.pageSize,
           offset,
-          sort,
+          sort: [{ field: APP_CONFIG.defaultSortField, direction: state.sortDirection }],
         })
 
-        setRecords(fetchedRecords)
-        setCurrentPage(page)
-        setHasNextPage(Boolean(nextOffset))
-        setIsLastPageKnown(!nextOffset)
-        setOffsetsByPage((previousOffsets) => {
-          const sourceOffsets = resetPagination ? INITIAL_OFFSETS : previousOffsets
-          const nextOffsets = Object.entries(sourceOffsets)
-            .filter(([pageNumber]) => Number(pageNumber) <= page)
-            .reduce<Record<number, string | undefined>>((accumulator, [pageNumber, pageOffset]) => {
-              accumulator[Number(pageNumber)] = pageOffset
-              return accumulator
-            }, { 1: undefined })
-
-          if (page > 1) {
-            nextOffsets[page] = offset
-          }
-
-          if (nextOffset) {
-            nextOffsets[page + 1] = nextOffset
-          }
-
-          return nextOffsets
-        })
+        dispatch({ type: 'FETCH_SUCCESS', page, records, nextOffset, offset, reset })
       }
       catch(err: unknown) {
         const errorMessage
           = err instanceof Error ? err.message : 'Failed to fetch records from Airtable'
-        setError(errorMessage)
-        console.error('Airtable error:', err)
-      }
-      finally {
-        setLoading(false)
+        dispatch({ type: 'FETCH_ERROR', error: errorMessage })
       }
     },
-    [pageSize, sort],
+    [state.pageSize, state.sortDirection],
   )
 
   useEffect(() => {
@@ -90,96 +118,51 @@ export const useAirtable = () => {
 
   const goToPage = useCallback(
     async(page: number) => {
-      if (page < 1 || page === currentPage) {
-        return
-      }
-
-      const offset = page === 1 ? undefined : offsetsByPage[page]
-      if (page > 1 && !offset) {
-        return
-      }
-
+      if (page < 1 || page === state.currentPage) return
+      const offset = page === 1 ? undefined : state.offsetsByPage[page]
+      if (page > 1 && !offset) return
       await fetchPage(page, offset)
     },
-    [currentPage, fetchPage, offsetsByPage],
+    [state.currentPage, state.offsetsByPage, fetchPage],
   )
-
-  const goToNextPage = useCallback(async() => {
-    const nextPage = currentPage + 1
-    const nextOffset = offsetsByPage[nextPage]
-
-    if (!nextOffset) {
-      return
-    }
-
-    await fetchPage(nextPage, nextOffset)
-  }, [currentPage, fetchPage, offsetsByPage])
-
-  const goToPreviousPage = useCallback(async() => {
-    if (currentPage === 1) {
-      return
-    }
-
-    const previousPage = currentPage - 1
-    const previousOffset = previousPage === 1 ? undefined : offsetsByPage[previousPage]
-    await fetchPage(previousPage, previousOffset)
-  }, [currentPage, fetchPage, offsetsByPage])
 
   const setPageSize = useCallback(
-    (nextPageSize: number) => {
-      if (nextPageSize === pageSize) {
-        return
-      }
-
-      setPageSizeState(nextPageSize)
-      setOffsetsByPage(INITIAL_OFFSETS)
-      setCurrentPage(1)
+    (pageSize: number) => {
+      if (pageSize !== state.pageSize) dispatch({ type: 'SET_PAGE_SIZE', pageSize })
     },
-    [pageSize],
+    [state.pageSize],
   )
 
-  const updateSortDirection = useCallback(
-    (nextSortDirection: AirtableSortDirection) => {
-      if (nextSortDirection === sortDirection) {
-        return
-      }
-
-      setSortDirection(nextSortDirection)
-      setOffsetsByPage(INITIAL_OFFSETS)
-      setCurrentPage(1)
+  const setSortDirection = useCallback(
+    (direction: AirtableSortDirection) => {
+      if (direction !== state.sortDirection) dispatch({ type: 'SET_SORT_DIRECTION', direction })
     },
-    [sortDirection],
+    [state.sortDirection],
   )
 
-  const refetchCurrentPage = useCallback(async() => {
-    const currentOffset = currentPage === 1 ? undefined : offsetsByPage[currentPage]
-    await fetchPage(currentPage, currentOffset, currentPage === 1)
-  }, [currentPage, fetchPage, offsetsByPage])
+  const refetch = useCallback(async() => {
+    const offset = state.currentPage === 1 ? undefined : state.offsetsByPage[state.currentPage]
+    await fetchPage(state.currentPage, offset, state.currentPage === 1)
+  }, [state.currentPage, state.offsetsByPage, fetchPage])
 
-  const pagination = useMemo<AirtablePaginationState>(() => {
-    const knownPageCount = Math.max(...Object.keys(offsetsByPage).map(Number))
-
-    return {
-      currentPage,
-      pageSize,
-      knownPageCount,
-      hasNextPage,
-      isLastPageKnown,
-      pageSizeOptions: APP_CONFIG.pagination.pageSizeOptions,
-    }
-  }, [currentPage, hasNextPage, isLastPageKnown, offsetsByPage, pageSize])
+  const pagination = useMemo<AirtablePaginationState>(() => ({
+    currentPage: state.currentPage,
+    pageSize: state.pageSize,
+    knownPageCount: Math.max(...Object.keys(state.offsetsByPage).map(Number)),
+    hasNextPage: state.hasNextPage,
+    isLastPageKnown: state.isLastPageKnown,
+    pageSizeOptions: APP_CONFIG.pagination.pageSizeOptions,
+  }), [state.currentPage, state.pageSize, state.offsetsByPage, state.hasNextPage, state.isLastPageKnown])
 
   return {
-    records,
-    loading,
-    error,
+    records: state.records,
+    loading: state.loading,
+    error: state.error,
     pagination,
-    sortDirection,
-    setSortDirection: updateSortDirection,
+    sortDirection: state.sortDirection,
+    setSortDirection,
     goToPage,
-    goToNextPage,
-    goToPreviousPage,
     setPageSize,
-    refetch: refetchCurrentPage,
+    refetch,
   }
 }

@@ -15,8 +15,6 @@ function App() {
     sortDirection,
     setSortDirection,
     goToPage,
-    goToNextPage,
-    goToPreviousPage,
     setPageSize,
     refetch,
   } = useAirtable()
@@ -39,7 +37,7 @@ function App() {
 
         {error && <ErrorMessage message={error} onRetry={refetch} />}
 
-        {!loading && !error && <CaselawList records={records} onNextPage={goToNextPage} onPreviousPage={goToPreviousPage} onPageChange={goToPage} onPageSizeChange={setPageSize} pagination={pagination} />}
+        {!loading && !error && <CaselawList records={records} onPageChange={goToPage} onPageSizeChange={setPageSize} pagination={pagination} />}
       </main>
     </div>
   )

@@ -7,6 +7,6 @@ services:
         VITE_AIRTABLE_API_KEY: ${VITE_AIRTABLE_API_KEY}
         VITE_AIRTABLE_BASE_ID: ${VITE_AIRTABLE_BASE_ID}
         VITE_AIRTABLE_TABLE_NAME: ${VITE_AIRTABLE_TABLE_NAME}
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     restart: unless-stopped

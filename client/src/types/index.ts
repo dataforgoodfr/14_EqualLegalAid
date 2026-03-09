@@ -6,6 +6,19 @@ export * from './filter'
 
 export type AiretableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories'
 
+
+export enum AiretableBaseNameEnum {
+  Caselaws = 'Caselaws',
+  ApplicationTypes = 'ApplicationTypes',
+  AsylumProcedures = 'AsylumProcedures',
+  LegalProcedureTypes = 'LegalProcedureTypes',
+  Countries = 'Countries',
+  Authorities = 'Authorities',
+  Outcomes = 'Outcomes',
+  Keywords = 'Keywords',
+  SubCategories = 'SubCategories',
+  Categories = 'Categories',
+}
 /**
  * Represents possible field value types from Airtable
  */

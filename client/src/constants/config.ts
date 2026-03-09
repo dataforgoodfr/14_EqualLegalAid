@@ -34,13 +34,13 @@ export const AIRTABLE_BASE_NAME = {
 } as const satisfies Record<string, AiretableBaseName>
 
 export const AIRTABLE_FILTER_BASE_NAME = {
-  applicationTypes: 'ApplicationTypes',
-  asylumProcedures: 'AsylumProcedures',
-  legalProcedureTypes: 'LegalProcedureTypes',
+  // applicationTypes: 'ApplicationTypes',
+  // asylumProcedures: 'AsylumProcedures',
+  // legalProcedureTypes: 'LegalProcedureTypes',
   countries: 'Countries',
-  authorities: 'Authorities',
-  outcomes: 'Outcomes',
-  keywords: 'Keywords',
-  subCategories: 'SubCategories',
-  categories: 'Categories',
+  // authorities: 'Authorities',
+  // outcomes: 'Outcomes',
+  // keywords: 'Keywords',
+  // subCategories: 'SubCategories',
+  // categories: 'Categories',
 } as const satisfies Record<string, AiretableBaseName>

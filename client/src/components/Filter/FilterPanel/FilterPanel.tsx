@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import type { AiretableBaseName } from '@/types/index'
+import { AiretableBaseNameEnum,  type FilterInterface } from '@/types/index'
 import { useAirtableFilter } from '@/hooks'
-import { FilterItem } from '@/components/Filter'
+import { BasicFilterItem } from '@/components/Filter'
 import {
   Accordion,
   AccordionContent,
@@ -9,11 +9,10 @@ import {
   AccordionTrigger,
 } from '@/components/ui'
 
-export const FilterPanel = () => {
-  const [caselawId, setCaselawId] = useState<string[]>([])
-  interface AccordionInterface {
+interface AccordionInterface {
     accordionTriggerLabel: string
-    airtableBaseName: AiretableBaseName
+    airtableBaseName: AiretableBaseNameEnum
+    filterType: FilterTypeEnum
     search: {
       enabled: boolean
       placeholder: string
@@ -22,16 +21,21 @@ export const FilterPanel = () => {
   interface AccordionItemInterface extends AccordionInterface {
     items: any[]
   }
-  const { filterRecords } = useAirtableFilter()
 
-  /*
+  enum FilterTypeEnum {
+    Basic = 'Basic',
+    Other = 'Other',
+  }
+
+/*
     Comme discuter je pense qu'on pourrait délégué cette partie a une table de config des filtres a afficher dans airtable.
     On pourrait recup directement les infos doit on a besoin en venant fetch cette base de donnée
   */
   const ACCORDION_CONFIG: AccordionInterface[] = [
     {
       accordionTriggerLabel: 'Outcome',
-      airtableBaseName: 'Outcomes',
+      airtableBaseName: AiretableBaseNameEnum.Outcomes,
+      filterType: FilterTypeEnum.Basic,
       search: {
         enabled: false,
         placeholder: 'Search outcome',
@@ -39,7 +43,8 @@ export const FilterPanel = () => {
     },
     {
       accordionTriggerLabel: 'Country of origin',
-      airtableBaseName: 'Countries',
+      airtableBaseName: AiretableBaseNameEnum.Countries,
+      filterType: FilterTypeEnum.Basic,
       search: {
         enabled: true,
         placeholder: 'Search a Country',
@@ -47,7 +52,8 @@ export const FilterPanel = () => {
     },
     {
       accordionTriggerLabel: 'Competent court',
-      airtableBaseName: 'LegalProcedureTypes',
+      airtableBaseName: AiretableBaseNameEnum.LegalProcedureTypes,
+      filterType: FilterTypeEnum.Basic,
       search: {
         enabled: false,
         placeholder: 'Search a Competent court',
@@ -55,14 +61,17 @@ export const FilterPanel = () => {
     },
     {
       accordionTriggerLabel: 'Type of legal procedure',
-      airtableBaseName: 'LegalProcedureTypes',
+      airtableBaseName: AiretableBaseNameEnum.LegalProcedureTypes,
+      filterType: FilterTypeEnum.Basic,
       search: {
         enabled: false,
         placeholder: 'Search a Type of legal procedure',
       },
     },
   ]
-  const accordionItems: AccordionItemInterface[] = ACCORDION_CONFIG.map((accordionConfigItem) => {
+
+const createAccordionItems = (filterRecords: FilterInterface[]): AccordionItemInterface[] => {
+ return ACCORDION_CONFIG.map((accordionConfigItem) => {
     const matchedFilter = filterRecords.find(filter => filter.label === accordionConfigItem.airtableBaseName)
 
     return {
@@ -71,19 +80,29 @@ export const FilterPanel = () => {
       available: matchedFilter?.available ?? false,
     }
   })
+}
+
+
+export const FilterPanel = () => {
+  const [caselawId, setCaselawId] = useState<string[]>([])
+  const { filterRecords } = useAirtableFilter()
+  
+  const accordionItems = createAccordionItems(filterRecords)
+
 
   // HandleFilterChange :
   /*
     C'est ici que je viens ajouter dans un tableau tous les ids des caselaw qu'ont a besoin de recupéré après que l'utilisateur clique sur des filtres
   */
-  const handleFilterChange = (values: string[], needToPushValue: boolean) => {
+  const handleFilterChange = (caselawsRelatedToClickedFilter: string[], needToPushValue: boolean) => {
+
     setCaselawId((previousIds) => {
       if (needToPushValue) {
-        const newValues = values.filter(value => !previousIds.includes(value))
+        const newValues = caselawsRelatedToClickedFilter.filter(value => !previousIds.includes(value))
         return [...previousIds, ...newValues]
       }
 
-      return previousIds.filter(id => !values.includes(id))
+      return previousIds.filter(id => !caselawsRelatedToClickedFilter.includes(id))
     })
   }
   useEffect(() => {
@@ -98,13 +117,16 @@ export const FilterPanel = () => {
 
     console.log('caselawId:', caselawId)
   }, [caselawId])
+
   return (
-    <Accordion type="multiple" collapsible={true}>
-      {accordionItems.map((accordionItem, accordionItemIndex) => (
-        <AccordionItem value={`item-${accordionItemIndex}`}>
+    <Accordion type="multiple">
+      {accordionItems.map((accordionItem, accordionItemIndex) => { 
+        if (accordionItem.filterType === FilterTypeEnum.Basic) {
+        return (
+        <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
           <AccordionTrigger>{ accordionItem.accordionTriggerLabel }</AccordionTrigger>
           <AccordionContent>
-            <FilterItem
+            <BasicFilterItem
               enabledSearch={accordionItem.search.enabled}
               searchPlaceholder={accordionItem.search.placeholder}
               items={accordionItem.items}
@@ -112,7 +134,8 @@ export const FilterPanel = () => {
             />
           </AccordionContent>
         </AccordionItem>
-      ))}
+        )}
+})}
     </Accordion>
   )
 }

@@ -10,3 +10,5 @@ services:
     expose:
       - "80"
     restart: unless-stopped
+    labels:
+      - "traefik.http.services.client.loadbalancer.server.port=80"

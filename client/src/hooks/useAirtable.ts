@@ -107,6 +107,7 @@ export const useAirtable = () => {
         const errorMessage
           = err instanceof Error ? err.message : 'Failed to fetch records from Airtable'
         dispatch({ type: 'FETCH_ERROR', error: errorMessage })
+        console.error('Airtable error:', err)
       }
     },
     [state.pageSize, state.sortDirection],

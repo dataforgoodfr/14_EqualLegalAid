@@ -5,9 +5,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Button,
 } from '@/components/ui'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import { ACCORDION_CONFIG, TOGGLE_ACTION_MAP } from '../filtersConfig/config'
+import { useApplyFilters } from '@/hooks/useApplyFilters'
 
 export interface AccordionInterface {
   accordionTriggerLabel: string
@@ -24,6 +26,10 @@ export interface AccordionItemInterface extends AccordionInterface {
   available: boolean
 }
 
+interface FilterPanelProps {
+  onApplyFilters: (caselawIds: string[]) => void
+}
+
 const createAccordionItems = (filterRecords: FilterInterface[]): AccordionItemInterface[] => {
   return ACCORDION_CONFIG.map((accordionConfigItem) => {
     const matchedFilter = filterRecords.find(filter => filter.label === accordionConfigItem.airtableBaseName)
@@ -35,8 +41,9 @@ const createAccordionItems = (filterRecords: FilterInterface[]): AccordionItemIn
   })
 }
 
-export const FilterPanel = () => {
+export const FilterPanel = ({ onApplyFilters }: FilterPanelProps)  => {
   const dispatch = useAppDispatch()
+  const { getSelectedCaselawIds, hasActiveFilters } = useApplyFilters()
 
   const countries = useAppSelector(state => state.filters.countries)
   const outcomes = useAppSelector(state => state.filters.outcomes)
@@ -57,7 +64,14 @@ export const FilterPanel = () => {
     }
   }
 
+ const handleApplyFilters = () => {
+    if (!hasActiveFilters) return
+    const caselawIds = getSelectedCaselawIds()
+    onApplyFilters(caselawIds)
+  }
+
   return (
+    <div>
     <Accordion type="multiple">
       {accordionItems.map((accordionItem, accordionItemIndex) => {
         if (accordionItem.filterType === FilterTypeEnum.Basic) {
@@ -79,5 +93,12 @@ export const FilterPanel = () => {
         }
       })}
     </Accordion>
+    <Button
+        onClick={handleApplyFilters}
+        disabled={!hasActiveFilters}
+      >
+        Filtrer
+      </Button>
+      </div>
   )
 }

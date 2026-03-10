@@ -3,11 +3,9 @@ import {
   type AirtableRecord,
   type BasicValuesInterface,
 } from '@/types'
-
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
-
-import { setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
+import { setApplicationTypesFilter, setAsylumProceduresFilter, setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
 import { useAppDispatch } from './reduxHook'
 
 export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[] =>
@@ -43,7 +41,6 @@ export const useAirtableFilter = () => {
                 sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
               },
             })
-            console.log({in: tableName, records}) // Debug log to check fetched records for each table
             return { label: tableName, value: records, available: true } 
           } 
           catch {
@@ -51,11 +48,12 @@ export const useAirtableFilter = () => {
           }
         }),
       )
-      console.log('Fetched filter records:', results) // Debug log to check fetched data
       // Dispatcher les infos dans le store
   const countriesResult = results.find(r => r.label === AirtableBaseNameEnum.Countries)
   const outcomesResult = results.find(r => r.label === AirtableBaseNameEnum.Outcomes)
   const legalProcedureTypesResult = results.find(r => r.label === AirtableBaseNameEnum.LegalProcedureTypes)
+  const applicationTypesResult = results.find(r => r.label === AirtableBaseNameEnum.ApplicationTypes)
+  const asylumProceduresResult = results.find(r => r.label === AirtableBaseNameEnum.AsylumProcedures)
 
     if (countriesResult) dispatch(setCountriesFilter({
       ...countriesResult,
@@ -65,12 +63,18 @@ export const useAirtableFilter = () => {
       ...outcomesResult,
       value: toBasicValues(outcomesResult.value),
     }))
-
     if (legalProcedureTypesResult) dispatch(setLegalProcedureTypesFilter({
       ...legalProcedureTypesResult,
       value: toBasicValues(legalProcedureTypesResult.value),
     }))
-
+    if (applicationTypesResult) dispatch(setApplicationTypesFilter({
+          ...applicationTypesResult,
+          value: toBasicValues(applicationTypesResult.value),
+        }))
+    if (asylumProceduresResult) dispatch(setAsylumProceduresFilter({
+          ...asylumProceduresResult,
+          value: toBasicValues(asylumProceduresResult.value),
+        }))
       setFilterFetched(true)
     }
     catch (err: unknown) {

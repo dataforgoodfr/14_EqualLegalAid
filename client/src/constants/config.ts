@@ -20,18 +20,18 @@ export const APP_CONFIG = {
   maxRecords: 100,
 } as const satisfies AppConfigInterface
 
-export const AIRTABLE_BASE_NAME = {
-  caselaws: 'Caselaws',
-  applicationTypes: 'ApplicationTypes',
-  asylumProcedures: 'AsylumProcedures',
-  legalProcedureTypes: 'LegalProcedureTypes',
-  countries: 'Countries',
-  authorities: 'Authorities',
-  outcomes: 'Outcomes',
-  keywords: 'Keywords',
-  subCategories: 'SubCategories',
-  categories: 'Categories',
-} as const satisfies Record<string, AirtableBaseName>
+// export const AIRTABLE_BASE_NAME = {
+//   caselaws: 'Caselaws',
+//   applicationTypes: 'ApplicationTypes',
+//   asylumProcedures: 'AsylumProcedures',
+//   legalProcedureTypes: 'LegalProcedureTypes',
+//   countries: 'Countries',
+//   authorities: 'Authorities',
+//   outcomes: 'Outcomes',
+//   keywords: 'Keywords',
+//   subCategories: 'SubCategories',
+//   categories: 'Categories',
+// } as const satisfies Record<string, AirtableBaseName>
 
 //export const AIRTABLE_FILTER_BASE_NAME = {
   // applicationTypes: 'ApplicationTypes',

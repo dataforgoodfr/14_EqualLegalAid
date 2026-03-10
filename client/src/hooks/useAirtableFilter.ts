@@ -1,77 +1,90 @@
-import type {
-  FilterInterface,
-  AiretableBaseName,
+import {
+  AiretableBaseNameEnum,
+  type AirtableRecord,
+  type BasicValuesInterface,
+  type FilterInterface,
 } from '@/types'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
-import { AIRTABLE_FILTER_BASE_NAME } from '@/constants/config'
+
+import { setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
+import { useAppDispatch } from './reduxHook'
+
+export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[] =>
+  records.map((record) => ({
+    id: record.id,
+    fields: record.fields as BasicValuesInterface['fields'],
+  }))
+
 
 export const useAirtableFilter = () => {
   const airtableService = useAirtableService()
+  const dispatch = useAppDispatch()
 
-  const [filterRecords, setFilterRecords] = useState<FilterInterface[]>([])
   const [filterFetched, setFilterFetched] = useState(false)
   const [loadingFilterRecords, setLoadingFilterRecords] = useState(true)
   const [errorFilterRecords, setErrorFilterRecords] = useState<string | null>(null)
 
-  const fetchFilterRecords = useCallback(async() => {
-    if (filterFetched) {
-      return
-    }
+  const fetchFilterRecords = useCallback(async () => {
+    if (filterFetched) return
     try {
       setLoadingFilterRecords(true)
       setErrorFilterRecords(null)
 
-      const entries = Object.entries(AIRTABLE_FILTER_BASE_NAME) as Array<[string, AiretableBaseName]>
+      const entries = Object.entries(AiretableBaseNameEnum)
       const results = await Promise.all(
-        entries.map(async([key, tableName]) => {
+        entries.map(async ([key, tableName]) => {
           try {
-            const filterRecords = await airtableService.fetchRecordsFromTable({
-              tableName: tableName,
+            const records = await airtableService.fetchRecordsFromTable({
+              tableName,
               selectConfig: {
                 cellFormat: 'json',
                 filterByFormula: 'AND({Count_Caselaws} > 0, {Count_Caselaws} != BLANK())',
-                sort: [{
-                  field: 'Count_Caselaws',
-                  direction: 'desc',
-                }],
+                sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
               },
             })
-            return {
-              label: tableName,
-              value: filterRecords,
-              available: true,
-            } satisfies FilterInterface
-          }
+            return { label: tableName, value: records, available: true } 
+          } 
           catch {
-            return { label: tableName, available: false, value: [] } satisfies FilterInterface
+            return { label: tableName, available: false, value: [] } 
           }
         }),
       )
-      setFilterRecords(results)
+      
+      // Dispatcher les infos dans le store
+  const countriesResult = results.find(r => r.label === AiretableBaseNameEnum.Countries)
+  const outcomesResult = results.find(r => r.label === AiretableBaseNameEnum.Outcomes)
+  const legalProcedureTypesResult = results.find(r => r.label === AiretableBaseNameEnum.LegalProcedureTypes)
+
+    if (countriesResult) dispatch(setCountriesFilter({
+      ...countriesResult,
+      value: toBasicValues(countriesResult.value),
+    }))
+    if (outcomesResult) dispatch(setOutcomesFilter({
+      ...outcomesResult,
+      value: toBasicValues(outcomesResult.value),
+    }))
+
+    if (legalProcedureTypesResult) dispatch(setLegalProcedureTypesFilter({
+      ...legalProcedureTypesResult,
+      value: toBasicValues(legalProcedureTypesResult.value),
+    }))
+
       setFilterFetched(true)
     }
-    catch(err: unknown) {
-      const errorMessage
-        = err instanceof Error ? err.message : 'Failed to fetch case laws from Airtable'
-
+    catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch filters'
       setErrorFilterRecords(errorMessage)
-      console.error('Airtable case laws error:', err)
     }
     finally {
       setLoadingFilterRecords(false)
     }
-  }, [airtableService, filterFetched])
+  }, [airtableService, filterFetched, dispatch])
 
   useEffect(() => {
     fetchFilterRecords()
   }, [fetchFilterRecords])
 
-  return {
-    filterRecords,
-    loadingFilterRecords,
-    errorFilterRecords,
-    refetchFilterRecords: fetchFilterRecords,
-  }
+  return { loadingFilterRecords, errorFilterRecords, refetchFilterRecords: fetchFilterRecords }
 }

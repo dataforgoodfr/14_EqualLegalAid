@@ -5,22 +5,13 @@ import {
   Label,
 } from '@/components/ui'
 import { FilterSearch } from '@/components/Filter'
-
-interface BasicItems {
-  id: string
-  fields: {
-    Name_EN: string
-    Name_GR: string
-    Count_Caselaws: number
-    Caselaws: string[]
-  }
-}
+import type { BasicValuesInterface } from '@/types'
 
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
-  items: BasicItems[]
-  onFilterChange: (caselaws: string[], action: boolean) => void
+  items: BasicValuesInterface[]
+  onFilterChange: (id: string, checked: boolean) => void
 }
 
 export const BasicFilterItem = ({
@@ -29,12 +20,6 @@ export const BasicFilterItem = ({
   items,
   onFilterChange,
 }: BasicFilterItemProps) => {
-
-  const handleCheckboxChange = (id: string, checked: boolean) => {
-    const selectedItem: BasicItems = items.find(item => item.id === id)!
-    const caselawsRelatedToClickedFilter = selectedItem.fields.Caselaws as string[]  
-    onFilterChange(caselawsRelatedToClickedFilter, checked)
-  }
 
   return (
     <div className="filter-item p-2">
@@ -57,7 +42,7 @@ export const BasicFilterItem = ({
                   id={item.id}
                   name={item.id}
                   className="mr-3"
-                  onCheckedChange={(checked) => {handleCheckboxChange(item.id, checked as boolean)}}
+                  onCheckedChange={(checked) => onFilterChange(item.id, checked as boolean)}
                 />
                 <Label htmlFor={item.id}>
                   {item.fields.Name_EN}

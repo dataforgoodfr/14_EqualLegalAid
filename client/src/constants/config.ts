@@ -1,7 +1,7 @@
 /**
  * Application configuration constants
  */
-import type { AiretableBaseName } from '../types'
+import type { AirtableBaseName } from '../types'
 export const AIRTABLE_CONFIG = {
   apiKey: import.meta.env.VITE_AIRTABLE_API_KEY,
   baseId: import.meta.env.VITE_AIRTABLE_BASE_ID,
@@ -9,8 +9,8 @@ export const AIRTABLE_CONFIG = {
 } as const
 
 interface AppConfigInterface {
-  defaultBaseName: AiretableBaseName
-  defaultView: AiretableBaseName
+  defaultBaseName: AirtableBaseName
+  defaultView: AirtableBaseName
   maxRecords: number
 }
 
@@ -31,16 +31,16 @@ export const AIRTABLE_BASE_NAME = {
   keywords: 'Keywords',
   subCategories: 'SubCategories',
   categories: 'Categories',
-} as const satisfies Record<string, AiretableBaseName>
+} as const satisfies Record<string, AirtableBaseName>
 
-export const AIRTABLE_FILTER_BASE_NAME = {
+//export const AIRTABLE_FILTER_BASE_NAME = {
   // applicationTypes: 'ApplicationTypes',
   // asylumProcedures: 'AsylumProcedures',
   // legalProcedureTypes: 'LegalProcedureTypes',
-  countries: 'Countries',
+ // countries: 'Countries',
   // authorities: 'Authorities',
   // outcomes: 'Outcomes',
   // keywords: 'Keywords',
   // subCategories: 'SubCategories',
   // categories: 'Categories',
-} as const satisfies Record<string, AiretableBaseName>
+//} as const satisfies Record<string, AirtableBaseName>

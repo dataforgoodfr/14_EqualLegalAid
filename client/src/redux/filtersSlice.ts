@@ -1,4 +1,4 @@
-import { AiretableBaseNameEnum, type FilterInterface } from '@/types'
+import { AirtableBaseNameEnum, type FilterInterface } from '@/types'
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 interface FiltersState {
@@ -21,27 +21,27 @@ export interface ToggleSelectedPayload {
 
 const initialState: FiltersState = {
   countries: {
-    label: AiretableBaseNameEnum.Countries,
+    label: AirtableBaseNameEnum.Countries,
     value: [],
     available: false,
   },
   outcomes: {
-    label: AiretableBaseNameEnum.Outcomes,
+    label: AirtableBaseNameEnum.Outcomes,
     value: [],
     available: false,
   },
   legalProcedureTypes: {
-    label: AiretableBaseNameEnum.LegalProcedureTypes,
+    label: AirtableBaseNameEnum.LegalProcedureTypes,
     value: [],
     available: false,
   },
   applicationTypes: {
-    label: AiretableBaseNameEnum.ApplicationTypes,
+    label: AirtableBaseNameEnum.ApplicationTypes,
     value: [],
     available: false,
   },
   asylumProcedures  : {
-    label: AiretableBaseNameEnum.AsylumProcedures,
+    label: AirtableBaseNameEnum.AsylumProcedures,
     value: [],
     available: false,
   },

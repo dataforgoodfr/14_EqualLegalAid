@@ -1,8 +1,7 @@
 import {
-  AiretableBaseNameEnum,
+  AirtableBaseNameEnum,
   type AirtableRecord,
   type BasicValuesInterface,
-  type FilterInterface,
 } from '@/types'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -32,7 +31,7 @@ export const useAirtableFilter = () => {
       setLoadingFilterRecords(true)
       setErrorFilterRecords(null)
 
-      const entries = Object.entries(AiretableBaseNameEnum)
+      const entries = Object.entries(AirtableBaseNameEnum)
       const results = await Promise.all(
         entries.map(async ([key, tableName]) => {
           try {
@@ -44,6 +43,7 @@ export const useAirtableFilter = () => {
                 sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
               },
             })
+            console.log({in: tableName, records}) // Debug log to check fetched records for each table
             return { label: tableName, value: records, available: true } 
           } 
           catch {
@@ -51,11 +51,11 @@ export const useAirtableFilter = () => {
           }
         }),
       )
-      
+      console.log('Fetched filter records:', results) // Debug log to check fetched data
       // Dispatcher les infos dans le store
-  const countriesResult = results.find(r => r.label === AiretableBaseNameEnum.Countries)
-  const outcomesResult = results.find(r => r.label === AiretableBaseNameEnum.Outcomes)
-  const legalProcedureTypesResult = results.find(r => r.label === AiretableBaseNameEnum.LegalProcedureTypes)
+  const countriesResult = results.find(r => r.label === AirtableBaseNameEnum.Countries)
+  const outcomesResult = results.find(r => r.label === AirtableBaseNameEnum.Outcomes)
+  const legalProcedureTypesResult = results.find(r => r.label === AirtableBaseNameEnum.LegalProcedureTypes)
 
     if (countriesResult) dispatch(setCountriesFilter({
       ...countriesResult,

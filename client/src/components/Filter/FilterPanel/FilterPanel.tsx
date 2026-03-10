@@ -1,4 +1,4 @@
-import { AiretableBaseNameEnum, FilterTypeEnum, type BasicValuesInterface, type FilterInterface } from '@/types/index'
+import { AirtableBaseNameEnum, FilterTypeEnum, type BasicValuesInterface, type FilterInterface } from '@/types/index'
 import { BasicFilterItem } from '../FilterItem/BasicFilterItem'
 import {
   Accordion,
@@ -11,7 +11,7 @@ import { ACCORDION_CONFIG, TOGGLE_ACTION_MAP } from '../filtersConfig/config'
 
 export interface AccordionInterface {
   accordionTriggerLabel: string
-  airtableBaseName: AiretableBaseNameEnum
+  airtableBaseName: AirtableBaseNameEnum
   filterType: FilterTypeEnum
   search: {
     enabled: boolean
@@ -47,7 +47,7 @@ export const FilterPanel = () => {
   const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures])
 
   const handleFilterChange = (
-    airtableBaseName: AiretableBaseNameEnum,
+    airtableBaseName: AirtableBaseNameEnum,
     id: string,
     checked: boolean,
   ) => {

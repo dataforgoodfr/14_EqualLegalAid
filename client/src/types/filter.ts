@@ -1,4 +1,4 @@
-import type { AiretableBaseNameEnum } from './index'
+import type { AirtableBaseNameEnum } from './index'
 
 export  interface BasicValuesInterface {
     id: string
@@ -11,7 +11,7 @@ export  interface BasicValuesInterface {
   }
 
 export interface FilterInterface {
-  label: AiretableBaseNameEnum
+  label: AirtableBaseNameEnum
   value: BasicValuesInterface[]
   available: boolean
 }

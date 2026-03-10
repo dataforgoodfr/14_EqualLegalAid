@@ -1,3 +1,3 @@
-export * from './FilterItem/FilterItem'
+export * from './FilterItem/BasicFilterItem'
 export * from './FilterPanel/FilterPanel'
 export * from './FilterSearch/FilterSearch'

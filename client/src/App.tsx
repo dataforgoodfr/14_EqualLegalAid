@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useAirtableCaselaw } from '@/hooks'
+import { useEffect, useState } from 'react'
+import { useAirtableCaselaw, useAirtableFilter } from '@/hooks'
 import { Header, Loading, ErrorMessage, CaselawList } from '@/components'
 import './App.css'
 import { Button } from './components/ui/button'
@@ -13,6 +13,8 @@ function App() {
   const handleSortToggle = () => {
     setSortDesc(!sortDesc)
   }
+ useAirtableFilter()
+
 
   return (
     <div className="app">

@@ -1,8 +1,8 @@
 import type { Base, Records, FieldSet } from 'airtable'
 import type {
-  AiretableBaseName,
   AirtableRecord,
   AirtableFieldValue,
+  AiretableBaseNameEnum,
 } from '@/types'
 
 /*
@@ -11,7 +11,7 @@ En gros pour les records des caselaw il faut demander la data en version string
 Et pour les filtres on doit demander la data en json. En demandant json on récupère que des id de caselaws dans les filtres ce qui est parfait pour nous.
 */
 interface FetchRecordsFromTableConfig {
-  tableName: AiretableBaseName
+  tableName: AiretableBaseNameEnum
   selectConfig?: {
     maxRecords?: number
     pageSize?: number
@@ -48,7 +48,7 @@ export function createAirtableService(base: Base) {
         records.forEach((record) => {
           fetchedRecords.push({
             id: record.id,
-            fields: record.fields as Record<string, AirtableFieldValue>,
+            fields: record.fields as Record<string, AirtableFieldValue> ,
           })
         })
         fetchNextPage()

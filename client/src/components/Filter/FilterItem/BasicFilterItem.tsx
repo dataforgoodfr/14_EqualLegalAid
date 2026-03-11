@@ -20,7 +20,6 @@ export const BasicFilterItem = ({
   items,
   onFilterChange,
 }: BasicFilterItemProps) => {
-
   return (
     <div className="filter-item p-2">
       {enabledSearch && (
@@ -42,7 +41,7 @@ export const BasicFilterItem = ({
                   id={item.id}
                   name={item.id}
                   className="mr-3"
-                  onCheckedChange={(checked) => onFilterChange(item.id, checked as boolean)}
+                  onCheckedChange={checked => onFilterChange(item.id, checked as boolean)}
                 />
                 <Label htmlFor={item.id}>
                   {item.fields.Name_EN}

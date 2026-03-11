@@ -1,4 +1,4 @@
-import {  AirtableBaseNameEnum, type AirtableRecord } from '@/types'
+import { AirtableBaseNameEnum, type AirtableRecord } from '@/types'
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import { APP_CONFIG } from '@/constants/config'
@@ -42,7 +42,7 @@ export const useAirtableCaselaw = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCaseLawsRecords = useCallback(async () => {
+  const fetchCaseLawsRecords = useCallback(async() => {
     try {
       setLoading(true)
       setError(null)
@@ -51,7 +51,7 @@ export const useAirtableCaselaw = () => {
       })
       setCaselawRecords(fetchedRecords)
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch case laws from Airtable'
       setError(errorMessage)
       console.error('Airtable case laws error:', err)
@@ -61,7 +61,7 @@ export const useAirtableCaselaw = () => {
     }
   }, [airtableService])
 
-  const fetchFilteredCaselaws = useCallback(async (selectedFilters: SelectedFilters) => {
+  const fetchFilteredCaselaws = useCallback(async(selectedFilters: SelectedFilters) => {
     try {
       setLoading(true)
       setError(null)
@@ -76,7 +76,7 @@ export const useAirtableCaselaw = () => {
       })
       setCaselawRecords(fetchedRecords)
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch filtered case laws'
       setError(errorMessage)
       console.error('Airtable filtered case laws error:', err)

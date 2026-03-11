@@ -11,12 +11,10 @@ export interface SelectedFilters {
 
 const getNamesByIds = (
   ids: string[],
-  values: { id: string; fields: { Name_EN: string } }[],
+  values: { id: string, fields: { Name_EN: string } }[],
 ): string[] => values.filter(item => ids.includes(item.id)).map(item => item.fields.Name_EN)
 
-
 export const useApplyFilters = () => {
-
   const countries = useAppSelector(state => state.filters.countries)
   const outcomes = useAppSelector(state => state.filters.outcomes)
   const legalProcedureTypes = useAppSelector(state => state.filters.legalProcedureTypes)
@@ -29,15 +27,14 @@ export const useApplyFilters = () => {
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
 
-  const hasActiveFilters =
-    countriesSelected.length > 0 ||
-    outcomesSelected.length > 0 ||
-    legalProcedureTypesSelected.length > 0 ||
-    applicationTypesSelected.length > 0 ||
-    asylumProceduresSelected.length > 0
+  const hasActiveFilters
+    = countriesSelected.length > 0
+      || outcomesSelected.length > 0
+      || legalProcedureTypesSelected.length > 0
+      || applicationTypesSelected.length > 0
+      || asylumProceduresSelected.length > 0
 
-
-const getSelectedFilters = (): SelectedFilters => ({
+  const getSelectedFilters = (): SelectedFilters => ({
     [AirtableBaseNameEnum.Countries]: getNamesByIds(countriesSelected, countries.value),
     [AirtableBaseNameEnum.Outcomes]: getNamesByIds(outcomesSelected, outcomes.value),
     [AirtableBaseNameEnum.LegalProcedureTypes]: getNamesByIds(legalProcedureTypesSelected, legalProcedureTypes.value),

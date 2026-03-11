@@ -40,7 +40,7 @@ const initialState: FiltersState = {
     value: [],
     available: false,
   },
-  asylumProcedures  : {
+  asylumProcedures: {
     label: AirtableBaseNameEnum.AsylumProcedures,
     value: [],
     available: false,
@@ -77,14 +77,15 @@ const filtersSlice = createSlice({
     resetLegalProcedureTypesFilter: (state) => { state.legalProcedureTypes = initialState.legalProcedureTypes },
     resetApplicationTypesFilter: (state) => { state.applicationTypes = initialState.applicationTypes },
     resetAsylumProceduresFilter: (state) => { state.asylumProcedures = initialState.asylumProcedures },
-    
+
     // --- Selected filter item IDs (id de BasicValuesInterface) ---
     toggleCountriesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
       if (action.payload.checked) {
         if (!state.countriesSelected.includes(action.payload.id)) {
           state.countriesSelected.push(action.payload.id)
         }
-      } else {
+      }
+      else {
         state.countriesSelected = state.countriesSelected.filter(id => id !== action.payload.id)
       }
     },
@@ -93,7 +94,8 @@ const filtersSlice = createSlice({
         if (!state.outcomesSelected.includes(action.payload.id)) {
           state.outcomesSelected.push(action.payload.id)
         }
-      } else {
+      }
+      else {
         state.outcomesSelected = state.outcomesSelected.filter(id => id !== action.payload.id)
       }
     },
@@ -102,16 +104,18 @@ const filtersSlice = createSlice({
         if (!state.legalProcedureTypesSelected.includes(action.payload.id)) {
           state.legalProcedureTypesSelected.push(action.payload.id)
         }
-      } else {
+      }
+      else {
         state.legalProcedureTypesSelected = state.legalProcedureTypesSelected.filter(id => id !== action.payload.id)
       }
     },
-        toggleApplicationTypesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
+    toggleApplicationTypesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
       if (action.payload.checked) {
         if (!state.applicationTypesSelected.includes(action.payload.id)) {
           state.applicationTypesSelected.push(action.payload.id)
         }
-      } else {
+      }
+      else {
         state.applicationTypesSelected = state.applicationTypesSelected.filter(id => id !== action.payload.id)
       }
     },
@@ -120,7 +124,8 @@ const filtersSlice = createSlice({
         if (!state.asylumProceduresSelected.includes(action.payload.id)) {
           state.asylumProceduresSelected.push(action.payload.id)
         }
-      } else {
+      }
+      else {
         state.asylumProceduresSelected = state.asylumProceduresSelected.filter(id => id !== action.payload.id)
       }
     },

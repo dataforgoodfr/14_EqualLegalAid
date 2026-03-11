@@ -33,14 +33,14 @@ export const APP_CONFIG = {
 //   categories: 'Categories',
 // } as const satisfies Record<string, AirtableBaseName>
 
-//export const AIRTABLE_FILTER_BASE_NAME = {
-  // applicationTypes: 'ApplicationTypes',
-  // asylumProcedures: 'AsylumProcedures',
-  // legalProcedureTypes: 'LegalProcedureTypes',
- // countries: 'Countries',
-  // authorities: 'Authorities',
-  // outcomes: 'Outcomes',
-  // keywords: 'Keywords',
-  // subCategories: 'SubCategories',
-  // categories: 'Categories',
-//} as const satisfies Record<string, AirtableBaseName>
+// export const AIRTABLE_FILTER_BASE_NAME = {
+// applicationTypes: 'ApplicationTypes',
+// asylumProcedures: 'AsylumProcedures',
+// legalProcedureTypes: 'LegalProcedureTypes',
+// countries: 'Countries',
+// authorities: 'Authorities',
+// outcomes: 'Outcomes',
+// keywords: 'Keywords',
+// subCategories: 'SubCategories',
+// categories: 'Categories',
+// } as const satisfies Record<string, AirtableBaseName>

@@ -1,4 +1,10 @@
-import { AirtableBaseNameEnum, FilterTypeEnum, type BasicValuesInterface, type FilterInterface } from '@/types/index'
+import {
+  AirtableBaseNameEnum,
+  FilterTypeEnum,
+  type BasicValuesInterface,
+  type FilterInterface,
+} from '@/types/index'
+import { setSearchInGivenFilter } from '@/redux/filtersSlice'
 import {
   Accordion,
   AccordionContent,
@@ -13,6 +19,7 @@ import {
   TOGGLE_ACTION_MAP,
 } from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
+import { useState } from 'react'
 
 export interface AccordionInterface {
   accordionTriggerLabel: string
@@ -59,7 +66,7 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
   const legalProcedureTypesSelected = useAppSelector(state => state.filters.legalProcedureTypesSelected)
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
-
+  const [filterSearchValue, setFilerSearchValue] = useState('')
   const SELECTED_IDS_MAP = {
     [AirtableBaseNameEnum.Countries]: countriesSelected,
     [AirtableBaseNameEnum.Outcomes]: outcomesSelected,
@@ -75,11 +82,6 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
     id: string,
     checked: boolean,
   ) => {
-    console.log('handleFilterChange', {
-      airtableBaseName,
-      id,
-      checked,
-    })
     const action = TOGGLE_ACTION_MAP[airtableBaseName]
     if (action) {
       dispatch(action({ id, checked }))
@@ -90,12 +92,23 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
     if (!hasActiveFilters) return
     onApplyFilters(getSelectedFilters())
   }
+  const handleFilterSearch = (airtableBaseName: AirtableBaseNameEnum, value: string) => {
+    const filterSearchKey = `${airtableBaseName}-${value}`
+    if (filterSearchValue === filterSearchKey) {
+      return
+    }
+    setFilerSearchValue(filterSearchKey)
+    dispatch(setSearchInGivenFilter({
+      airtableBaseName,
+      value,
+    }))
+  }
 
   return (
     <>
       <Accordion type="multiple">
         {accordionItems.map((accordionItem, accordionItemIndex) => {
-          if (accordionItem.filterType === FilterTypeEnum.Basic) {
+          if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
             return (
               <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
                 <AccordionTrigger>{accordionItem.accordionTriggerLabel}</AccordionTrigger>
@@ -105,8 +118,8 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
                     searchPlaceholder={accordionItem.search.placeholder}
                     items={accordionItem.items}
                     selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
-                    onFilterChange={(id, checked) =>
-                      handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                    onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                    onSearchChange={value => handleFilterSearch(accordionItem.airtableBaseName, value as string)}
                   />
                 </AccordionContent>
               </AccordionItem>

@@ -6,7 +6,7 @@ import {
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import { setApplicationTypesFilter, setAsylumProceduresFilter, setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
-import { useAppDispatch } from './reduxHook'
+import { useAppDispatch, useAppSelector } from './reduxHook'
 
 export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[] =>
   records.map(record => ({
@@ -18,9 +18,13 @@ export const useAirtableFilter = () => {
   const airtableService = useAirtableService()
   const dispatch = useAppDispatch()
 
+  const searchInGivenFilter = useAppSelector(
+    state => state.filters.searchInGivenFilter,
+  )
   const [filterFetched, setFilterFetched] = useState(false)
   const [loadingFilterRecords, setLoadingFilterRecords] = useState(true)
   const [errorFilterRecords, setErrorFilterRecords] = useState<string | null>(null)
+  const [readyToUserSearchInFilter, setReadyToUserSearchInFilter] = useState(false)
 
   const fetchFilterRecords = useCallback(async() => {
     if (filterFetched) return
@@ -36,7 +40,7 @@ export const useAirtableFilter = () => {
               tableName,
               selectConfig: {
                 cellFormat: 'json',
-                filterByFormula: 'AND({Count_Caselaws} > 0, {Count_Caselaws} != BLANK())',
+                filterByFormula: 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)',
                 sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
               },
             })
@@ -85,9 +89,66 @@ export const useAirtableFilter = () => {
     }
   }, [airtableService, filterFetched, dispatch])
 
+  const fetchFilterRecordsForSpecificUserSearch = useCallback(async() => {
+    const { value, airtableBaseName } = searchInGivenFilter
+    const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({Name_EN})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
+
+    try {
+      setLoadingFilterRecords(true)
+      setErrorFilterRecords(null)
+      const records = await airtableService.fetchRecordsFromTable({
+        tableName: airtableBaseName,
+        selectConfig: {
+          cellFormat: 'json',
+          filterByFormula,
+          sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
+        },
+      })
+
+      const formattedFilter = {
+        label: airtableBaseName,
+        value: toBasicValues(records),
+        available: true,
+      }
+
+      switch (airtableBaseName) {
+        case AirtableBaseNameEnum.Countries:
+          dispatch(setCountriesFilter(formattedFilter))
+          break
+        case AirtableBaseNameEnum.Outcomes:
+          dispatch(setOutcomesFilter(formattedFilter))
+          break
+        case AirtableBaseNameEnum.LegalProcedureTypes:
+          dispatch(setLegalProcedureTypesFilter(formattedFilter))
+          break
+        case AirtableBaseNameEnum.ApplicationTypes:
+          dispatch(setApplicationTypesFilter(formattedFilter))
+          break
+        case AirtableBaseNameEnum.AsylumProcedures:
+          dispatch(setAsylumProceduresFilter(formattedFilter))
+          break
+      }
+    }
+    catch(err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch specific filter'
+      setErrorFilterRecords(errorMessage)
+    }
+    finally {
+      setLoadingFilterRecords(false)
+    }
+  }, [airtableService, dispatch, searchInGivenFilter])
+
   useEffect(() => {
     fetchFilterRecords()
   }, [fetchFilterRecords])
+
+  useEffect(() => {
+    if (!readyToUserSearchInFilter) {
+      setReadyToUserSearchInFilter(true)
+      return
+    }
+    fetchFilterRecordsForSpecificUserSearch()
+  }, [fetchFilterRecordsForSpecificUserSearch, searchInGivenFilter, readyToUserSearchInFilter])
 
   return { loadingFilterRecords, errorFilterRecords, refetchFilterRecords: fetchFilterRecords }
 }

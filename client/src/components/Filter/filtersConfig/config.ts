@@ -1,7 +1,7 @@
-import { AirtableBaseNameEnum, FilterTypeEnum } from "@/types";
-import type { AccordionInterface } from "../FilterPanel/FilterPanel";
-import { toggleCountriesSelected, toggleLegalProcedureTypesSelected, toggleOutcomesSelected, type ToggleSelectedPayload } from "@/redux/filtersSlice";
-import type { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import { AirtableBaseNameEnum, FilterTypeEnum } from '@/types'
+import type { AccordionInterface } from '../FilterPanel/FilterPanel'
+import { toggleCountriesSelected, toggleLegalProcedureTypesSelected, toggleOutcomesSelected, type ToggleSelectedPayload } from '@/redux/filtersSlice'
+import type { ActionCreatorWithPayload } from '@reduxjs/toolkit'
 
 export const ACCORDION_CONFIG: AccordionInterface[] = [
   {
@@ -22,7 +22,7 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     filterType: FilterTypeEnum.Basic,
     search: { enabled: false, placeholder: 'Search' },
   },
-  {     
+  {
     accordionTriggerLabel: 'Asylum procedure',
     airtableBaseName: AirtableBaseNameEnum.AsylumProcedures,
     filterType: FilterTypeEnum.Basic,
@@ -35,7 +35,6 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     search: { enabled: false, placeholder: 'Search a Type of legal procedure' },
   },
 ]
-
 
 export const TOGGLE_ACTION_MAP: Partial<Record<AirtableBaseNameEnum, ActionCreatorWithPayload<ToggleSelectedPayload>>> = {
   [AirtableBaseNameEnum.Countries]: toggleCountriesSelected,

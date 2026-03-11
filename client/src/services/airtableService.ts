@@ -48,7 +48,7 @@ export function createAirtableService(base: Base) {
         records.forEach((record) => {
           fetchedRecords.push({
             id: record.id,
-            fields: record.fields as Record<string, AirtableFieldValue> ,
+            fields: record.fields as Record<string, AirtableFieldValue>,
           })
         })
         fetchNextPage()

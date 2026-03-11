@@ -25,7 +25,7 @@ function App() {
         {!loading && !error && (
           <div className="flex xl:gap-10">
             <div className="flex-auto">
-              <FilterPanel onApplyFilters={fetchFilteredCaselaws}/>
+              <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
             </div>
             <div className="flex-auto xl:w-222">
               <CaselawList

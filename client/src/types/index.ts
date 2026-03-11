@@ -6,7 +6,6 @@ export * from './filter'
 
 export type AirtableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories'
 
-
 export enum AirtableBaseNameEnum {
   Caselaws = 'Caselaws',
   ApplicationTypes = 'ApplicationTypes',

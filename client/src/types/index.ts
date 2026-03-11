@@ -97,8 +97,8 @@ export interface AirtableConfig {
 export interface Caselaw {
   title: string
   publishedAt: Date
-  applicationType: string
-  legalProcedureType: string
+  applicationTypes: string
+  legalProcedureTypes: string
   asylumProcedure: string
   countryOfOrigin: string
   competentCourtOrAuthority: string

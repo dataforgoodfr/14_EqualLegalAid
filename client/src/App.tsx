@@ -14,14 +14,10 @@ function App() {
 
   useAirtableFilter()
 
-   const handleSortToggle = () => {
-    setSortDesc(!sortDesc)
-  }
-
   return (
     <div className="app">
       <Header recordCount={caselawRecords.length} loading={loading} error={error} onRefresh={refetchCaselawRecords} />
-      <Button onClick={handleSortToggle}>Sort</Button>
+      <Button onClick={() => setSortDesc(!sortDesc)}>Sort</Button>
 
       <main className="main-content">
         {loading && <Loading />}

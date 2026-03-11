@@ -61,16 +61,16 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
         </div>
 
         <div className="card-details">
-          {caselaw.applicationType && (
+          {caselaw.applicationTypes && (
             <div className="detail-row">
               <span className="detail-label">Application</span>
-              <span className="detail-value">{caselaw.applicationType}</span>
+              <span className="detail-value">{caselaw.applicationTypes}</span>
             </div>
           )}
-          {caselaw.legalProcedureType && (
+          {caselaw.legalProcedureTypes && (
             <div className="detail-row">
               <span className="detail-label">Procedure</span>
-              <span className="detail-value">{caselaw.legalProcedureType}</span>
+              <span className="detail-value">{caselaw.legalProcedureTypes}</span>
             </div>
           )}
           {caselaw.asylumProcedure && (

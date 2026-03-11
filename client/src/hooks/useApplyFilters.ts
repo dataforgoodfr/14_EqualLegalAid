@@ -1,10 +1,22 @@
 import { useAppSelector } from '@/hooks/reduxHook'
+import { AirtableBaseNameEnum } from '@/types'
 
-/*
-  Ce hook lit les filtres sélectionnés dans Redux et calcule la liste dédupliquée
-  des IDs de caselaws correspondants, en croisant avec les values de chaque filtre.
-*/
+export interface SelectedFilters {
+  [AirtableBaseNameEnum.Countries]: string[]
+  [AirtableBaseNameEnum.Outcomes]: string[]
+  [AirtableBaseNameEnum.LegalProcedureTypes]: string[]
+  [AirtableBaseNameEnum.ApplicationTypes]: string[]
+  [AirtableBaseNameEnum.AsylumProcedures]: string[]
+}
+
+const getNamesByIds = (
+  ids: string[],
+  values: { id: string; fields: { Name_EN: string } }[],
+): string[] => values.filter(item => ids.includes(item.id)).map(item => item.fields.Name_EN)
+
+
 export const useApplyFilters = () => {
+
   const countries = useAppSelector(state => state.filters.countries)
   const outcomes = useAppSelector(state => state.filters.outcomes)
   const legalProcedureTypes = useAppSelector(state => state.filters.legalProcedureTypes)
@@ -20,26 +32,18 @@ export const useApplyFilters = () => {
   const hasActiveFilters =
     countriesSelected.length > 0 ||
     outcomesSelected.length > 0 ||
-    legalProcedureTypesSelected.length > 0
+    legalProcedureTypesSelected.length > 0 ||
+    applicationTypesSelected.length > 0 ||
+    asylumProceduresSelected.length > 0
 
-  const getSelectedCaselawIds = (): string[] => {
-    const groups = [
-      { selected: countriesSelected, filterValues: countries.value },
-      { selected: outcomesSelected, filterValues: outcomes.value },
-      { selected: legalProcedureTypesSelected, filterValues: legalProcedureTypes.value },
-      { selected: applicationTypesSelected, filterValues: applicationTypes.value },
-      { selected: asylumProceduresSelected, filterValues: asylumProcedures.value },
-    ]
 
-    const caselawIds = groups.flatMap(({ selected, filterValues }) =>
-      filterValues
-        .filter(item => selected.includes(item.id))
-        .flatMap(item => item.fields.Caselaws),
-    )
+const getSelectedFilters = (): SelectedFilters => ({
+    [AirtableBaseNameEnum.Countries]: getNamesByIds(countriesSelected, countries.value),
+    [AirtableBaseNameEnum.Outcomes]: getNamesByIds(outcomesSelected, outcomes.value),
+    [AirtableBaseNameEnum.LegalProcedureTypes]: getNamesByIds(legalProcedureTypesSelected, legalProcedureTypes.value),
+    [AirtableBaseNameEnum.ApplicationTypes]: getNamesByIds(applicationTypesSelected, applicationTypes.value),
+    [AirtableBaseNameEnum.AsylumProcedures]: getNamesByIds(asylumProceduresSelected, asylumProcedures.value),
+  })
 
-    // Déduplique les ids
-    return [...new Set(caselawIds)]
-  }
-
-  return { getSelectedCaselawIds, hasActiveFilters }
+  return { getSelectedFilters, hasActiveFilters }
 }

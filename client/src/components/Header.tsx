@@ -1,4 +1,4 @@
-import elaLogo from '../assets/ela.png'
+import elaLogo from '@/assets/ela.png'
 import './Header.css'
 
 interface HeaderProps {

@@ -1,11 +1,15 @@
+import type {
+  AirtableRecord,
+  AirtableFieldValue,
+} from '@/types'
+
 import {
   getAllFieldNames,
   formatFieldValue,
   formatColumnHeader,
   isPdfUrl,
-} from '../utils/formatters'
-import { downloadPdf } from '../utils/pdfHelpers'
-import type { AirtableRecord, AirtableFieldValue } from '../types'
+  downloadPdf,
+} from '@/utils'
 import './DataTable.css'
 
 interface DataTableProps {

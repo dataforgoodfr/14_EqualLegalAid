@@ -1,5 +1,4 @@
 import { AirtableBaseNameEnum, FilterTypeEnum, type BasicValuesInterface, type FilterInterface } from '@/types/index'
-import { BasicFilterItem } from '../FilterItem/BasicFilterItem'
 import {
   Accordion,
   AccordionContent,
@@ -8,7 +7,11 @@ import {
   Button,
 } from '@/components/ui'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
-import { ACCORDION_CONFIG, TOGGLE_ACTION_MAP } from '../filtersConfig/config'
+import {
+  BasicFilterItem,
+  ACCORDION_CONFIG,
+  TOGGLE_ACTION_MAP,
+} from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
 
 export interface AccordionInterface {
@@ -51,6 +54,20 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
   const applicationTypes = useAppSelector(state => state.filters.applicationTypes)
   const asylumProcedures = useAppSelector(state => state.filters.asylumProcedures)
 
+  const countriesSelected = useAppSelector(state => state.filters.countriesSelected)
+  const outcomesSelected = useAppSelector(state => state.filters.outcomesSelected)
+  const legalProcedureTypesSelected = useAppSelector(state => state.filters.legalProcedureTypesSelected)
+  const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
+  const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
+
+  const SELECTED_IDS_MAP = {
+    [AirtableBaseNameEnum.Countries]: countriesSelected,
+    [AirtableBaseNameEnum.Outcomes]: outcomesSelected,
+    [AirtableBaseNameEnum.LegalProcedureTypes]: legalProcedureTypesSelected,
+    [AirtableBaseNameEnum.ApplicationTypes]: applicationTypesSelected,
+    [AirtableBaseNameEnum.AsylumProcedures]: asylumProceduresSelected,
+  }
+
   const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures])
 
   const handleFilterChange = (
@@ -58,6 +75,11 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
     id: string,
     checked: boolean,
   ) => {
+    console.log('handleFilterChange', {
+      airtableBaseName,
+      id,
+      checked,
+    })
     const action = TOGGLE_ACTION_MAP[airtableBaseName]
     if (action) {
       dispatch(action({ id, checked }))
@@ -70,7 +92,7 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
   }
 
   return (
-    <div>
+    <>
       <Accordion type="multiple">
         {accordionItems.map((accordionItem, accordionItemIndex) => {
           if (accordionItem.filterType === FilterTypeEnum.Basic) {
@@ -82,6 +104,7 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
                     enabledSearch={accordionItem.search.enabled}
                     searchPlaceholder={accordionItem.search.placeholder}
                     items={accordionItem.items}
+                    selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
                     onFilterChange={(id, checked) =>
                       handleFilterChange(accordionItem.airtableBaseName, id, checked)}
                   />
@@ -97,6 +120,6 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
       >
         Filtrer
       </Button>
-    </div>
+    </>
   )
 }

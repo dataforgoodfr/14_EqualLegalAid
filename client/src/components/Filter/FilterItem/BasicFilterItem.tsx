@@ -11,6 +11,7 @@ interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
   items: BasicValuesInterface[]
+  selectedIds: string[]
   onFilterChange: (id: string, checked: boolean) => void
 }
 
@@ -18,6 +19,7 @@ export const BasicFilterItem = ({
   enabledSearch = false,
   searchPlaceholder = '',
   items,
+  selectedIds = [],
   onFilterChange,
 }: BasicFilterItemProps) => {
   return (
@@ -41,6 +43,7 @@ export const BasicFilterItem = ({
                   id={item.id}
                   name={item.id}
                   className="mr-3"
+                  checked={selectedIds.includes(item.id)}
                   onCheckedChange={checked => onFilterChange(item.id, checked as boolean)}
                 />
                 <Label htmlFor={item.id}>

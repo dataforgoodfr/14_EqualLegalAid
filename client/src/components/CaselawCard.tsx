@@ -1,5 +1,5 @@
-import type { Caselaw } from '../types'
-import { downloadPdf } from '../utils/pdfHelpers'
+import type { Caselaw } from '@/types'
+import { downloadPdf } from '@/utils/pdfHelpers'
 import './CaselawCard.css'
 
 interface CaselawCardProps {

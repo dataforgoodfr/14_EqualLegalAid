@@ -1,6 +1,11 @@
 import { AirtableBaseNameEnum, FilterTypeEnum } from '@/types'
-import type { AccordionInterface } from '../FilterPanel/FilterPanel'
-import { toggleCountriesSelected, toggleLegalProcedureTypesSelected, toggleOutcomesSelected, type ToggleSelectedPayload } from '@/redux/filtersSlice'
+import type { AccordionInterface } from '@/components/Filter'
+import {
+  type ToggleSelectedPayload,
+  toggleCountriesSelected,
+  toggleLegalProcedureTypesSelected,
+  toggleOutcomesSelected,
+} from '@/redux/filtersSlice'
 import type { ActionCreatorWithPayload } from '@reduxjs/toolkit'
 
 export const ACCORDION_CONFIG: AccordionInterface[] = [

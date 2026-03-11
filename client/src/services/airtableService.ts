@@ -5,11 +5,6 @@ import type {
   AirtableBaseName,
 } from '@/types'
 
-/*
-le cellFormat est la réponse a pas mal de nos problème
-En gros pour les records des caselaw il faut demander la data en version string
-Et pour les filtres on doit demander la data en json. En demandant json on récupère que des id de caselaws dans les filtres ce qui est parfait pour nous.
-*/
 interface FetchRecordsFromTableConfig {
   tableName: AirtableBaseName
   selectConfig?: {

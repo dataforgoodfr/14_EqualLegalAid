@@ -111,8 +111,8 @@ export const toCaselaw = (record: AirtableRecord): Caselaw => {
   return {
     title: str('Title'),
     publishedAt: str('PublishedAt') ? new Date(str('PublishedAt')) : new Date(),
-    applicationType: str('ApplicationType'),
-    legalProcedureType: str('LegalProcedureType'),
+    applicationTypes: str('ApplicationTypes'),
+    legalProcedureTypes: str('LegalProcedureTypes'),
     asylumProcedure: str('AsylumProcedure'),
     countryOfOrigin: str('CountryOfOrigin'),
     competentCourtOrAuthority: str('CompetentCourtOrAuthority'),

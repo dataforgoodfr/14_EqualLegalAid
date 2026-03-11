@@ -1,7 +1,39 @@
-import type { AirtableRecord } from '@/types'
+import {  AirtableBaseNameEnum, type AirtableRecord } from '@/types'
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import { APP_CONFIG } from '@/constants/config'
+import type { SelectedFilters } from './useApplyFilters'
+
+// Mapping entre les filtres Redux et les colonnes de la table Caselaws
+const FILTER_COLUMN_MAP: Record<keyof SelectedFilters, string> = {
+  [AirtableBaseNameEnum.Countries]: 'CountryOfOrigin',
+  [AirtableBaseNameEnum.Outcomes]: 'CaselawOutcome',
+  [AirtableBaseNameEnum.LegalProcedureTypes]: 'LegalProcedureTypes',
+  [AirtableBaseNameEnum.ApplicationTypes]: 'ApplicationTypes',
+  [AirtableBaseNameEnum.AsylumProcedures]: 'AsylumProcedures',
+}
+
+/*
+  Pour chaque filtre actif, on génère un OR sur les IDs sélectionnés.
+  Tous les filtres actifs sont reliés par un AND.
+
+  Exemple avec 2 pays et 1 outcome :
+  AND(
+    OR(FIND('rec1', {CountryOfOrigin}), FIND('rec2', {CountryOfOrigin})),
+    FIND('rec3', {CaselawOutcome})
+  )
+*/
+const buildFilterFormula = (selectedFilters: SelectedFilters): string => {
+  const andClauses = (Object.entries(selectedFilters) as [keyof SelectedFilters, string[]][])
+    .filter(([, ids]) => ids.length > 0)
+    .map(([filterKey, ids]) => {
+      const column = FILTER_COLUMN_MAP[filterKey]
+      const orClauses = ids.map(id => `SEARCH('${id}', {${column}})`).join(',')
+      return ids.length > 1 ? `OR(${orClauses})` : orClauses
+    })
+
+  return andClauses.length > 1 ? `AND(${andClauses.join(',')})` : andClauses[0]
+}
 
 export const useAirtableCaselaw = () => {
   const airtableService = useAirtableService()
@@ -29,12 +61,12 @@ export const useAirtableCaselaw = () => {
     }
   }, [airtableService])
 
-  const fetchFilteredCaselaws = useCallback(async (caselawIds: string[]) => {
+  const fetchFilteredCaselaws = useCallback(async (selectedFilters: SelectedFilters) => {
     try {
       setLoading(true)
       setError(null)
 
-      const formula = `OR(${caselawIds.map(id => `RECORD_ID()='${id}'`).join(',')})`
+      const formula = buildFilterFormula(selectedFilters)
 
       const fetchedRecords = await airtableService.fetchRecordsFromTable({
         tableName: APP_CONFIG.defaultBaseName,

@@ -60,7 +60,7 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
 
-  const SELECTED_IDS_MAP = {
+  const SELECTED_IDS_MAP: Partial<Record<AirtableBaseNameEnum, string[]>> = {
     [AirtableBaseNameEnum.Countries]: countriesSelected,
     [AirtableBaseNameEnum.Outcomes]: outcomesSelected,
     [AirtableBaseNameEnum.LegalProcedureTypes]: legalProcedureTypesSelected,

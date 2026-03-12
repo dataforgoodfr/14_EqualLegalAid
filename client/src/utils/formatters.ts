@@ -31,12 +31,12 @@ export const formatFieldValue = (value: AirtableFieldValue): string => {
   // Handle arrays
   if (Array.isArray(value)) {
     // Array of attachments
-    if (value.length > 0 && value[0]?.filename) {
-      return value.map((att: AirtableAttachment) => att.filename).join(', ')
+    if (value.length > 0 && typeof value[0] === 'object' && value[0] !== null && 'filename' in value[0]) {
+      return (value as AirtableAttachment[]).map(att => att.filename).join(', ')
     }
     // Array of user objects
-    if (value.length > 0 && value[0]?.name) {
-      return value.map((user: AirtableUser) => user.name || user.email || 'Unknown').join(', ')
+    if (value.length > 0 && typeof value[0] === 'object' && value[0] !== null && 'name' in value[0]) {
+      return (value as AirtableUser[]).map(user => user.name || user.email || 'Unknown').join(', ')
     }
     // Other arrays
     return value.map(v => String(v)).join(', ')
@@ -45,12 +45,12 @@ export const formatFieldValue = (value: AirtableFieldValue): string => {
   // Handle objects
   if (typeof value === 'object') {
     // User object with name
-    if (value.name) {
+    if (typeof value.name === 'string') {
       return value.name
     }
     // User object with email
-    if (value.email) {
-      return value.email
+    if (typeof value.email === 'string') {
+      return value.email;
     }
     // Stringify other objects
     return JSON.stringify(value)

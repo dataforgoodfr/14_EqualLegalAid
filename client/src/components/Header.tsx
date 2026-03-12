@@ -1,11 +1,11 @@
-import elaLogo from '../assets/ela.png';
-import './Header.css';
+import elaLogo from '@/assets/ela.png'
+import './Header.css'
 
 interface HeaderProps {
-  recordCount: number;
-  loading: boolean;
-  error: string | null;
-  onRefresh: () => void;
+  recordCount: number
+  loading: boolean
+  error: string | null
+  onRefresh: () => void
 }
 
 /**
@@ -25,7 +25,9 @@ export const Header = ({ recordCount, loading, error, onRefresh }: HeaderProps) 
         <div className="header-actions">
           {!loading && !error && recordCount > 0 && (
             <div className="record-count">
-              {recordCount} {recordCount === 1 ? 'Record' : 'Records'}
+              {recordCount}
+              {' '}
+              {recordCount === 1 ? 'Record' : 'Records'}
             </div>
           )}
           {!loading && !error && recordCount > 0 && (
@@ -36,5 +38,5 @@ export const Header = ({ recordCount, loading, error, onRefresh }: HeaderProps) 
         </div>
       </div>
     </header>
-  );
-};
+  )
+}

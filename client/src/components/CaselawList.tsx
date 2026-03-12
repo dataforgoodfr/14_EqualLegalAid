@@ -1,18 +1,18 @@
-import type { AirtableRecord } from '../types';
-import { CaselawCard } from './CaselawCard';
-import './CaselawCard.css';
-import { sortPerDate } from '../utils/sortPerDate';
+import './CaselawCard.css'
+import type { AirtableRecord } from '@/types'
+import { CaselawCard } from '@/components/CaselawCard'
+import { sortPerDate } from '@/utils/sortPerDate'
 
 interface CaselawListProps {
-  records: AirtableRecord[];
-  sortDesc?: boolean;
+  records: AirtableRecord[]
+  sortDesc?: boolean
 }
 
 export const CaselawList = ({ records, sortDesc = true }: CaselawListProps) => {
-  const caselaws = sortPerDate(records, sortDesc);
+  const caselaws = sortPerDate(records, sortDesc)
 
   if (caselaws.length === 0) {
-    return <p className="caselaw-empty">No records found</p>;
+    return <p className="caselaw-empty">No records found</p>
   }
 
   return (
@@ -21,5 +21,5 @@ export const CaselawList = ({ records, sortDesc = true }: CaselawListProps) => {
         <CaselawCard key={index} caselaw={caselaw} />
       ))}
     </div>
-  );
-};
+  )
+}

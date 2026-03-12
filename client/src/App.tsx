@@ -1,34 +1,49 @@
-import { useState } from 'react';
-import { useAirtable } from './hooks/useAirtable';
-import { Header, Loading, ErrorMessage, CaselawList } from './components';
-import './App.css';
-import { Button } from './components/ui/button';
-
+import { useState } from 'react'
+import { useAirtableFilter } from '@/hooks'
+import { Header, Loading, ErrorMessage, CaselawList } from '@/components'
+import './App.css'
+import { Button } from './components/ui/button'
+import { FilterPanel } from '@/components/Filter'
+import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 /**
  * Main application component
  */
 function App() {
-  const { records, loading, error, refetch } = useAirtable();
-  const [sortDesc, setSortDesc] = useState(true); // true = recent first (desc), false = oldest first (asc)
+  const {
+    caselawRecords,
+    loading,
+    error,
+    refetchCaselawRecords,
+    fetchFilteredCaselaws,
+  } = useAirtableCaselaw()
+  const [sortDesc, setSortDesc] = useState(true) // true = recent first (desc), false = oldest first (asc)
 
-  const handleSortToggle = () => {
-    setSortDesc(!sortDesc);
-  };
+  useAirtableFilter()
 
   return (
-    <div className="App">
-      <Header recordCount={records.length} loading={loading} error={error} onRefresh={refetch} />
+    <div className="app">
+      <Header recordCount={caselawRecords.length} loading={loading} error={error} onRefresh={refetchCaselawRecords} />
+      <Button onClick={() => setSortDesc(!sortDesc)}>Sort</Button>
 
-      <Button onClick={handleSortToggle}>Sort</Button>
       <main className="main-content">
         {loading && <Loading />}
-
-        {error && <ErrorMessage message={error} onRetry={refetch} />}
-
-        {!loading && !error && <CaselawList records={records} sortDesc={sortDesc} />}
+        {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
+        <div className="flex xl:gap-10">
+          <div className="flex-auto">
+            <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
+          </div>
+          <div className="flex-auto xl:w-222">
+            {!loading && !error && (
+              <CaselawList
+                records={caselawRecords}
+                sortDesc={sortDesc}
+              />
+            )}
+          </div>
+        </div>
       </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

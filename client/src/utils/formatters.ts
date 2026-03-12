@@ -45,12 +45,12 @@ export const formatFieldValue = (value: AirtableFieldValue): string => {
   // Handle objects
   if (typeof value === 'object') {
     // User object with name
-    if (value.name) {
-      return value.name as string
+    if (typeof value.name === 'string') {
+      return value.name
     }
     // User object with email
-    if (value.email) {
-      return value.email as string
+    if (typeof value.email === 'string') {
+      return value.email
     }
     // Stringify other objects
     return JSON.stringify(value)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   AirtableBaseNameEnum,
   FilterTypeEnum,
@@ -5,6 +6,9 @@ import {
   type FilterInterface,
 } from '@/types/index'
 import { setSearchInGivenFilter } from '@/redux/filtersSlice'
+=======
+import { AirtableBaseNameEnum, FilterTypeEnum, type BasicValuesInterface, type FilterInterface } from '@/types/index'
+>>>>>>> origin/main
 import {
   Accordion,
   AccordionContent,
@@ -19,7 +23,10 @@ import {
   TOGGLE_ACTION_MAP,
 } from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
+<<<<<<< HEAD
 import { useState } from 'react'
+=======
+>>>>>>> origin/main
 
 export interface AccordionInterface {
   accordionTriggerLabel: string
@@ -67,7 +74,7 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
   const [filterSearchValue, setFilerSearchValue] = useState('')
-  const SELECTED_IDS_MAP = {
+  const SELECTED_IDS_MAP: Partial<Record<AirtableBaseNameEnum, string[]>> = {
     [AirtableBaseNameEnum.Countries]: countriesSelected,
     [AirtableBaseNameEnum.Outcomes]: outcomesSelected,
     [AirtableBaseNameEnum.LegalProcedureTypes]: legalProcedureTypesSelected,

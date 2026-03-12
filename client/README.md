@@ -68,7 +68,11 @@ git pull
 # create a new branch and start working there
 git branch name_of_the_new_branch
 git checkout name_of_the_new_branch
-# make a pull request
+# push the modification of your branch
+git add *
+git commit -m "commit message"
+git push origin name_of_the_new_branch
+# Finally, make a pull request to ask reviewers to fusion your code with the main branch
 gh pr create --base main --head my-feature-branch --title "Add new feature" --body "This PR adds the new feature." --reviewer reviewer-name
 ```
 

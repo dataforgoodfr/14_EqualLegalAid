@@ -4,6 +4,7 @@ import {
   Checkbox,
   Label,
 } from '@/components/ui'
+import type { Dispatch, SetStateAction } from 'react'
 import { FilterSearch } from '@/components/Filter'
 import type { BasicValuesInterface } from '@/types'
 
@@ -13,6 +14,7 @@ interface BasicFilterItemProps {
   items: BasicValuesInterface[]
   selectedIds: string[]
   onFilterChange: (id: string, checked: boolean) => void
+  onSearchChange: Dispatch<SetStateAction<string>>
 }
 
 export const BasicFilterItem = ({
@@ -21,12 +23,16 @@ export const BasicFilterItem = ({
   items,
   selectedIds = [],
   onFilterChange,
+  onSearchChange,
 }: BasicFilterItemProps) => {
   return (
     <div className="filter-item p-2">
       {enabledSearch && (
         <div className="filter-item__search my-4">
-          <FilterSearch placeholderContent={searchPlaceholder} />
+          <FilterSearch
+            placeholderContent={searchPlaceholder}
+            onSearch={value => onSearchChange(value)}
+          />
         </div>
       )}
 

@@ -4,26 +4,25 @@ import {
   Checkbox,
   Label,
 } from '@/components/ui'
-import type { Dispatch, SetStateAction } from 'react'
 import { FilterSearch } from '@/components/Filter'
-import type { BasicValuesInterface } from '@/types'
+import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
 
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
+  airtableBaseName: AirtableBaseNameEnum
   items: BasicValuesInterface[]
   selectedIds: string[]
   onFilterChange: (id: string, checked: boolean) => void
-  onSearchChange: Dispatch<SetStateAction<string>>
 }
 
 export const BasicFilterItem = ({
   enabledSearch = false,
   searchPlaceholder = '',
   items,
+  airtableBaseName,
   selectedIds = [],
   onFilterChange,
-  onSearchChange,
 }: BasicFilterItemProps) => {
   return (
     <div className="filter-item p-2">
@@ -31,7 +30,7 @@ export const BasicFilterItem = ({
         <div className="filter-item__search my-4">
           <FilterSearch
             placeholderContent={searchPlaceholder}
-            onSearch={value => onSearchChange(value)}
+            airtableBaseName={airtableBaseName}
           />
         </div>
       )}

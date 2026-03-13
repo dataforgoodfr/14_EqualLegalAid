@@ -31,10 +31,15 @@ export const useAirtableFilter = () => {
     try {
       setLoadingFilterRecords(true)
       setErrorFilterRecords(null)
-
-      const entries = Object.entries(AirtableBaseNameEnum)
+      const entries: AirtableBaseNameEnum[] = [
+        AirtableBaseNameEnum.Countries,
+        AirtableBaseNameEnum.Outcomes,
+        AirtableBaseNameEnum.LegalProcedureTypes,
+        AirtableBaseNameEnum.ApplicationTypes,
+        AirtableBaseNameEnum.AsylumProcedures,
+      ]
       const results = await Promise.all(
-        entries.map(async([key, tableName]) => {
+        entries.map(async(tableName) => {
           try {
             const records = await airtableService.fetchRecordsFromTable({
               tableName,

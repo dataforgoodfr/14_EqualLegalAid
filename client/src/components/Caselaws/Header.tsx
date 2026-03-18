@@ -23,18 +23,6 @@ export const Header = ({ recordCount, loading, error, onRefresh }: HeaderProps) 
           </div>
         </div>
         <div className="header-actions">
-          {!loading && !error && recordCount > 0 && (
-            <div className="record-count">
-              {recordCount}
-              {' '}
-              {recordCount === 1 ? 'Record' : 'Records'}
-            </div>
-          )}
-          {!loading && !error && recordCount > 0 && (
-            <button onClick={onRefresh} className="refresh-btn">
-              🔄 Refresh
-            </button>
-          )}
         </div>
       </div>
     </header>

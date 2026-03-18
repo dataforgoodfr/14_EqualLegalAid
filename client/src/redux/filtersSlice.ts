@@ -2,6 +2,7 @@ import {
   AirtableBaseNameEnum,
   type FilterInterface,
   type searchInGivenFilterInterface,
+  type FilterTagInterface,
 } from '@/types'
 import {
   createSlice,
@@ -20,6 +21,7 @@ interface FiltersState {
   asylumProcedures: FilterInterface
   asylumProceduresSelected: string[]
   searchInGivenFilter: searchInGivenFilterInterface
+  filterTags: FilterTagInterface[]
 }
 
 export interface ToggleSelectedPayload {
@@ -63,6 +65,7 @@ const initialState: FiltersState = {
   legalProcedureTypesSelected: [],
   applicationTypesSelected: [],
   asylumProceduresSelected: [],
+  filterTags: [],
 }
 
 const filtersSlice = createSlice({
@@ -73,6 +76,18 @@ const filtersSlice = createSlice({
     setSearchInGivenFilter: (state, action: PayloadAction<searchInGivenFilterInterface>) => {
       if (action.payload.needFetch) {
         state.searchInGivenFilter = action.payload
+      }
+    },
+    setFilterTag: (state, action: PayloadAction<{ itemChecked: boolean, item: FilterTagInterface }>) => {
+      const { itemChecked, item } = action.payload
+      if (itemChecked) {
+        const alreadyExists = state.filterTags.some(tag => tag.id === item.id)
+        if (!alreadyExists) {
+          state.filterTags.push(item)
+        }
+      }
+      else {
+        state.filterTags = state.filterTags.filter(tag => tag.id !== item.id)
       }
     },
     setCountriesFilter: (state, action: PayloadAction<FilterInterface>) => {
@@ -107,6 +122,7 @@ const filtersSlice = createSlice({
         state.countriesSelected = state.countriesSelected.filter(id => id !== action.payload.id)
       }
     },
+
     toggleOutcomesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
       if (action.payload.checked) {
         if (!state.outcomesSelected.includes(action.payload.id)) {
@@ -117,6 +133,7 @@ const filtersSlice = createSlice({
         state.outcomesSelected = state.outcomesSelected.filter(id => id !== action.payload.id)
       }
     },
+
     toggleLegalProcedureTypesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
       if (action.payload.checked) {
         if (!state.legalProcedureTypesSelected.includes(action.payload.id)) {
@@ -127,6 +144,7 @@ const filtersSlice = createSlice({
         state.legalProcedureTypesSelected = state.legalProcedureTypesSelected.filter(id => id !== action.payload.id)
       }
     },
+
     toggleApplicationTypesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
       if (action.payload.checked) {
         if (!state.applicationTypesSelected.includes(action.payload.id)) {
@@ -137,6 +155,7 @@ const filtersSlice = createSlice({
         state.applicationTypesSelected = state.applicationTypesSelected.filter(id => id !== action.payload.id)
       }
     },
+
     toggleAsylumProceduresSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
       if (action.payload.checked) {
         if (!state.asylumProceduresSelected.includes(action.payload.id)) {
@@ -147,6 +166,7 @@ const filtersSlice = createSlice({
         state.asylumProceduresSelected = state.asylumProceduresSelected.filter(id => id !== action.payload.id)
       }
     },
+
     resetAllSelected: (state) => {
       state.countriesSelected = []
       state.outcomesSelected = []
@@ -158,6 +178,7 @@ const filtersSlice = createSlice({
 })
 
 export const {
+  setFilterTag,
   setCountriesFilter,
   setOutcomesFilter,
   setLegalProcedureTypesFilter,

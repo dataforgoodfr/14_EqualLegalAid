@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useAirtableFilter } from '@/hooks'
 import { Header, Loading, ErrorMessage, CaselawList, AsylumApplicationsPage } from '@/components'
 import './App.css'
-import { Button } from './components/ui/button'
-import { FilterPanel } from '@/components/Filter'
+import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 
 type Tab = 'caselaw' | 'statistics'
@@ -26,11 +25,15 @@ function App() {
 
   return (
     <div className="app">
-      <div className="sticky top-0 z-50">
-        <Header recordCount={caselawRecords.length} loading={loading} error={error} onRefresh={refetchCaselawRecords} />
+      <Header
+        recordCount={caselawRecords.length}
+        loading={loading}
+        error={error}
+        onRefresh={refetchCaselawRecords}
+      />
 
-        {/* Tab navigation */}
-        <nav className="flex gap-1 border-b border-border bg-background px-6 pt-2">
+      {/* Tab navigation */}
+      <nav className="sticky top-0 z-10 flex gap-1 border-b border-border bg-background px-6 pt-2">
         {([
           { id: 'caselaw', label: 'Caselaw Database' },
           { id: 'statistics', label: 'EU Asylum Statistics' },
@@ -49,28 +52,30 @@ function App() {
           </button>
         ))}
       </nav>
-      </div>
 
-      <main className="main-content">
+      <main className="main-content py-5">
         {activeTab === 'caselaw' && (
-          <>
-            <Button onClick={() => setSortDesc(!sortDesc)}>Sort</Button>
-            {loading && <Loading />}
-            {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
-            <div className="flex xl:gap-10">
-              <div className="flex-auto">
-                <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
-              </div>
-              <div className="flex-auto xl:w-222">
-                {!loading && !error && (
-                  <CaselawList
-                    records={caselawRecords}
-                    sortDesc={sortDesc}
-                  />
-                )}
-              </div>
+          <div className="flex xl:gap-10">
+            <div className="flex-auto">
+              <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
             </div>
-          </>
+            <div className="flex-auto xl:w-222">
+              {loading && <Loading />}
+              {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
+              {!loading && !error && (
+                <FilterAction
+                  count={caselawRecords.length}
+                  setSort={value => setSortDesc(value)}
+                />
+              )}
+              {!loading && !error && (
+                <CaselawList
+                  records={caselawRecords}
+                  sortDesc={sortDesc}
+                />
+              )}
+            </div>
+          </div>
         )}
 
         {activeTab === 'statistics' && <AsylumApplicationsPage />}

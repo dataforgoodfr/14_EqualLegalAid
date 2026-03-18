@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import {
   AirtableBaseNameEnum,
   FilterTypeEnum,
@@ -9,7 +10,6 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  Button,
 } from '@/components/ui'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import {
@@ -50,7 +50,8 @@ const createAccordionItems = (filterRecords: FilterInterface[]): AccordionItemIn
 
 export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
   const dispatch = useAppDispatch()
-  const { getSelectedFilters, hasActiveFilters } = useApplyFilters()
+  const { getSelectedFilters } = useApplyFilters()
+  const isMounted = useRef(false)
 
   const countries = useAppSelector(state => state.filters.countries)
   const outcomes = useAppSelector(state => state.filters.outcomes)
@@ -74,6 +75,14 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
 
   const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures])
 
+  useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true
+      return
+    }
+    onApplyFilters(getSelectedFilters())
+  }, [countriesSelected, outcomesSelected, legalProcedureTypesSelected, applicationTypesSelected, asylumProceduresSelected])
+
   const handleFilterChange = (
     airtableBaseName: AirtableBaseNameEnum,
     id: string,
@@ -85,40 +94,27 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
     }
   }
 
-  const handleApplyFilters = () => {
-    if (!hasActiveFilters) return
-    onApplyFilters(getSelectedFilters())
-  }
-
   return (
-    <>
-      <Accordion type="multiple">
-        {accordionItems.map((accordionItem, accordionItemIndex) => {
-          if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
-            return (
-              <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
-                <AccordionTrigger>{accordionItem.accordionTriggerLabel}</AccordionTrigger>
-                <AccordionContent>
-                  <BasicFilterItem
-                    enabledSearch={accordionItem.search.enabled}
-                    searchPlaceholder={accordionItem.search.placeholder}
-                    items={accordionItem.items}
-                    airtableBaseName={accordionItem.airtableBaseName}
-                    selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
-                    onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            )
-          }
-        })}
-      </Accordion>
-      <Button
-        onClick={handleApplyFilters}
-        disabled={!hasActiveFilters}
-      >
-        Filtrer
-      </Button>
-    </>
+    <Accordion type="multiple">
+      {accordionItems.map((accordionItem, accordionItemIndex) => {
+        if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
+          return (
+            <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
+              <AccordionTrigger>{accordionItem.accordionTriggerLabel}</AccordionTrigger>
+              <AccordionContent>
+                <BasicFilterItem
+                  enabledSearch={accordionItem.search.enabled}
+                  searchPlaceholder={accordionItem.search.placeholder}
+                  items={accordionItem.items}
+                  airtableBaseName={accordionItem.airtableBaseName}
+                  selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
+                  onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )
+        }
+      })}
+    </Accordion>
   )
 }

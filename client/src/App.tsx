@@ -31,29 +31,54 @@ function App() {
         error={error}
         onRefresh={refetchCaselawRecords}
       />
-      <main className="main-content py-5">
-        {loading && <Loading />}
-        {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
-        <div className="flex xl:gap-10">
-          <div className="flex-auto">
-            <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
-          </div>
-          <div className="flex-auto xl:w-222">
-            {!loading && !error && (
-              <FilterAction
-                count={caselawRecords.length}
-                setSort={value => setSortDesc(value)}
-              />
-            )}
 
-            {!loading && !error && (
-              <CaselawList
-                records={caselawRecords}
-                sortDesc={sortDesc}
-              />
-            )}
+      {/* Tab navigation */}
+      <nav className="sticky top-0 z-10 flex gap-1 border-b border-border bg-background px-6 pt-2">
+        {([
+          { id: 'caselaw', label: 'Caselaw Database' },
+          { id: 'statistics', label: 'EU Asylum Statistics' },
+        ] as { id: Tab; label: string }[]).map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={[
+              'rounded-t-md px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === tab.id
+                ? 'border border-b-0 border-border bg-background text-foreground'
+                : 'text-muted-foreground hover:text-foreground',
+            ].join(' ')}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      <main className="main-content py-5">
+        {activeTab === 'caselaw' && (
+          <div className="flex xl:gap-10">
+            <div className="flex-auto">
+              <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
+            </div>
+            <div className="flex-auto xl:w-222">
+              {loading && <Loading />}
+              {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
+              {!loading && !error && (
+                <FilterAction
+                  count={caselawRecords.length}
+                  setSort={value => setSortDesc(value)}
+                />
+              )}
+              {!loading && !error && (
+                <CaselawList
+                  records={caselawRecords}
+                  sortDesc={sortDesc}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'statistics' && <AsylumApplicationsPage />}
       </main>
     </div>
   )

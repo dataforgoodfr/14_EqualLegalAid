@@ -8,9 +8,9 @@ import type { SelectedFilters } from './useApplyFilters'
 const FILTER_COLUMN_MAP: Record<keyof SelectedFilters, string> = {
   [AirtableBaseNameEnum.Countries]: 'CountryOfOrigin',
   [AirtableBaseNameEnum.Outcomes]: 'CaselawOutcome',
-  [AirtableBaseNameEnum.LegalProcedureTypes]: 'LegalProcedureTypes',
-  [AirtableBaseNameEnum.ApplicationTypes]: 'ApplicationTypes',
-  [AirtableBaseNameEnum.AsylumProcedures]: 'AsylumProcedures',
+  [AirtableBaseNameEnum.LegalProcedureTypes]: 'LegalProcedureType',
+  [AirtableBaseNameEnum.ApplicationTypes]: 'ApplicationType',
+  [AirtableBaseNameEnum.AsylumProcedures]: 'AsylumProcedure',
 }
 
 /*

@@ -21,7 +21,6 @@ const OUTCOME_COLORS: Record<string, string> = {
 
 export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? 'var(--color-outcome-neutral)'
-  console.log('caselaw', caselaw)
 
   const formattedDate = caselaw.publishedAt.toLocaleDateString('en-GB', {
     day: 'numeric',

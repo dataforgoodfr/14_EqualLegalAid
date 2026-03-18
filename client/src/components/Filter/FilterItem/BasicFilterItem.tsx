@@ -6,7 +6,8 @@ import {
 } from '@/components/ui'
 import { FilterSearch } from '@/components/Filter'
 import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
-
+import { useAppDispatch } from '@/hooks/reduxHook'
+import { setFilterTag } from '@/redux/filtersSlice'
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
@@ -24,6 +25,18 @@ export const BasicFilterItem = ({
   selectedIds = [],
   onFilterChange,
 }: BasicFilterItemProps) => {
+  const dispatch = useAppDispatch()
+  const handleFilterChange = (id: string, name: string, checked: boolean) => {
+    onFilterChange(id, checked as boolean)
+    dispatch(setFilterTag({
+      item: {
+        filterStateName: airtableBaseName,
+        id: id,
+        name,
+      },
+      itemChecked: checked,
+    }))
+  }
   return (
     <div className="filter-item p-2">
       {enabledSearch && (
@@ -49,7 +62,7 @@ export const BasicFilterItem = ({
                   name={item.id}
                   className="mr-3"
                   checked={selectedIds.includes(item.id)}
-                  onCheckedChange={checked => onFilterChange(item.id, checked as boolean)}
+                  onCheckedChange={checked => handleFilterChange(item.id, item.fields.Name_EN, checked as boolean)}
                 />
                 <Label htmlFor={item.id}>
                   {item.fields.Name_EN}

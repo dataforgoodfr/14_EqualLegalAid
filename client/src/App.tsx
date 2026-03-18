@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useAirtableFilter } from '@/hooks'
 import { Header, Loading, ErrorMessage, CaselawList, AsylumApplicationsPage } from '@/components'
 import './App.css'
-import { Button } from './components/ui/button'
 import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 
@@ -32,7 +31,7 @@ function App() {
         error={error}
         onRefresh={refetchCaselawRecords}
       />
-      <main className="main-content">
+      <main className="main-content py-5">
         {loading && <Loading />}
         {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
         <div className="flex xl:gap-10">

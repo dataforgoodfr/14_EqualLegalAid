@@ -15,6 +15,11 @@ export interface FilterInterface {
   value: BasicValuesInterface[]
   available: boolean
 }
+export interface FilterTagInterface {
+  name: string
+  id: string
+  filterStateName: AirtableBaseNameEnum
+}
 export interface searchInGivenFilterInterface {
   value: string
   airtableBaseName: AirtableBaseNameEnum

@@ -8,19 +8,19 @@ interface CaselawCardProps {
 }
 
 const OUTCOME_COLORS: Record<string, string> = {
-  'Refugee Status granted': '#14AE5C',
-  'Subsidiary Protection granted': '#14AE5C',
-  'Application accepted': '#14AE5C',
-  'Accepted: Remittal for new examination': '#F59E0B',
-  'Application partially accepted': '#F59E0B',
-  'Admissible': '#F59E0B',
-  'Examination on the merits - Hearing of the applicant': '#6B7280',
-  'Application rejected': '#EC221F',
-  'Inadmissible': '#EC221F',
+  'Refugee Status granted': 'var(--color-outcome-accepted)',
+  'Subsidiary Protection granted': 'var(--color-outcome-accepted)',
+  'Application accepted': 'var(--color-outcome-accepted)',
+  'Accepted: Remittal for new examination': 'var(--color-outcome-partial)',
+  'Application partially accepted': 'var(--color-outcome-partial)',
+  'Admissible': 'var(--color-outcome-partial)',
+  'Examination on the merits - Hearing of the applicant': 'var(--color-outcome-neutral)',
+  'Application rejected': 'var(--color-outcome-rejected)',
+  'Inadmissible': 'var(--color-outcome-rejected)',
 }
 
 export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
-  const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? '#6B7280'
+  const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? 'var(--color-outcome-neutral)'
   console.log('caselaw', caselaw)
 
   const formattedDate = caselaw.publishedAt.toLocaleDateString('en-GB', {

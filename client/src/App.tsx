@@ -26,10 +26,11 @@ function App() {
 
   return (
     <div className="app">
-      <Header recordCount={caselawRecords.length} loading={loading} error={error} onRefresh={refetchCaselawRecords} />
+      <div className="sticky top-0 z-50">
+        <Header recordCount={caselawRecords.length} loading={loading} error={error} onRefresh={refetchCaselawRecords} />
 
-      {/* Tab navigation */}
-      <nav className="flex gap-1 border-b border-border px-6 pt-2">
+        {/* Tab navigation */}
+        <nav className="flex gap-1 border-b border-border bg-background px-6 pt-2">
         {([
           { id: 'caselaw', label: 'Caselaw Database' },
           { id: 'statistics', label: 'EU Asylum Statistics' },
@@ -48,6 +49,7 @@ function App() {
           </button>
         ))}
       </nav>
+      </div>
 
       <main className="main-content">
         {activeTab === 'caselaw' && (

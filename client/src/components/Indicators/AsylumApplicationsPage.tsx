@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -52,6 +52,12 @@ export function AsylumApplicationsPage() {
     const set = new Set(records.map(r => r.name_country))
     return Array.from(set).filter(Boolean).sort()
   }, [records])
+
+  useEffect(() => {
+    if (!selectedCountry && countries.length > 0) {
+      setSelectedCountry(countries[0])
+    }
+  }, [countries, selectedCountry])
 
   const chartData = useMemo(() => {
     const filtered = records.filter(r => r.name_country === selectedCountry)

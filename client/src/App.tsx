@@ -25,12 +25,7 @@ function App() {
 
   return (
     <div className="app">
-      <Header
-        recordCount={caselawRecords.length}
-        loading={loading}
-        error={error}
-        onRefresh={refetchCaselawRecords}
-      />
+      <Header />
 
       {/* Tab navigation */}
       <nav className="sticky top-0 z-10 flex gap-1 border-b border-border bg-background px-6 pt-2">

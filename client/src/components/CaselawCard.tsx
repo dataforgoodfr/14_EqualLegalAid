@@ -1,28 +1,28 @@
 import type { Caselaw } from '@/types'
 import { downloadPdf } from '@/utils/pdfHelpers'
-import './CaselawCard.css'
+import { Button } from '@/components/ui'
+import { Download } from 'lucide-react'
 
 interface CaselawCardProps {
   caselaw: Caselaw
 }
 
 const OUTCOME_COLORS: Record<string, string> = {
-  'Refugee Status granted': 'outcome-granted',
-  'Subsidiary Protection granted': 'outcome-granted',
-  'Application accepted': 'outcome-granted',
-  'Accepted: Remittal for new examination': 'outcome-partial',
-  'Application partially accepted': 'outcome-partial',
-  'Admissible': 'outcome-partial',
-  'Examination on the merits - Hearing of the applicant': 'outcome-neutral',
-  'Application rejected': 'outcome-rejected',
-  'Inadmissible': 'outcome-rejected',
-}
-
-const getOutcomeClass = (outcome: string): string => {
-  return OUTCOME_COLORS[outcome] ?? 'outcome-neutral'
+  'Refugee Status granted': '#14AE5C',
+  'Subsidiary Protection granted': '#14AE5C',
+  'Application accepted': '#14AE5C',
+  'Accepted: Remittal for new examination': '#F59E0B',
+  'Application partially accepted': '#F59E0B',
+  'Admissible': '#F59E0B',
+  'Examination on the merits - Hearing of the applicant': '#6B7280',
+  'Application rejected': '#EC221F',
+  'Inadmissible': '#EC221F',
 }
 
 export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
+  const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? '#6B7280'
+  console.log('caselaw', caselaw)
+
   const formattedDate = caselaw.publishedAt.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
@@ -30,89 +30,100 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   })
 
   return (
-    <article className="caselaw-card">
-      <div className={`card-outcome-stripe ${getOutcomeClass(caselaw.caselawOutcome)}`} />
+    <article className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(0,46,93,0.08)]">
 
-      <div className="card-body">
-        <div className="card-header">
-          <h3 className="card-title">{caselaw.title || 'Untitled Case'}</h3>
-          <span className={`outcome-badge ${getOutcomeClass(caselaw.caselawOutcome)}`}>
-            {caselaw.caselawOutcome || 'Unknown Status'}
-          </span>
-        </div>
+      {/* Body */}
+      <div className="flex min-w-0 flex-col gap-3 p-5 px-6">
 
-        <div className="card-meta">
-          <span className="meta-item">
-            <span className="meta-label">Published</span>
-            <span className="meta-value">{formattedDate}</span>
+        {/* Outcome badge */}
+        <span
+          className="self-start rounded-[20px] px-[0.65rem] py-[0.3rem] text-[0.72rem] font-semibold tracking-[0.4px] whitespace-nowrap text-white uppercase"
+          style={{ backgroundColor: outcomeColor }}
+        >
+          {caselaw.caselawOutcome || 'Unknown Status'}
+        </span>
+
+        {/* Title */}
+        <h3 className="m-0 text-base leading-[1.35] font-semibold text-[var(--primary-color)]">
+          {caselaw.title || 'Untitled Case'}
+        </h3>
+
+        {/* Published + Country — same line */}
+        <div className="flex flex-wrap gap-5">
+          <span className="flex flex-col gap-0.5">
+            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Published</span>
+            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{formattedDate}</span>
           </span>
           {caselaw.countryOfOrigin && (
-            <span className="meta-item">
-              <span className="meta-label">Country</span>
-              <span className="meta-value">{caselaw.countryOfOrigin}</span>
-            </span>
-          )}
-          {caselaw.competentCourtOrAuthority && (
-            <span className="meta-item">
-              <span className="meta-label">Court</span>
-              <span className="meta-value">{caselaw.competentCourtOrAuthority}</span>
+            <span className="flex flex-col gap-0.5">
+              <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Country</span>
+              <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.countryOfOrigin}</span>
             </span>
           )}
         </div>
 
-        <div className="card-details">
-          {caselaw.applicationTypes && (
-            <div className="detail-row">
-              <span className="detail-label">Application</span>
-              <span className="detail-value">{caselaw.applicationTypes}</span>
-            </div>
-          )}
-          {caselaw.legalProcedureTypes && (
-            <div className="detail-row">
-              <span className="detail-label">Procedure</span>
-              <span className="detail-value">{caselaw.legalProcedureTypes}</span>
-            </div>
-          )}
-          {caselaw.asylumProcedure && (
-            <div className="detail-row">
-              <span className="detail-label">Asylum Procedure</span>
-              <span className="detail-value">{caselaw.asylumProcedure}</span>
-            </div>
-          )}
-        </div>
+        {/* Court */}
+        {caselaw.competentCourtOrAuthority && (
+          <span className="flex flex-col gap-0.5">
+            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Court</span>
+            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.competentCourtOrAuthority}</span>
+          </span>
+        )}
 
+        {/* Application */}
+        {caselaw.competentCourtOrAuthority && (
+          <span className="flex flex-col gap-0.5">
+            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Application</span>
+            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.applicationTypes || ''}</span>
+          </span>
+        )}
+
+        {/* Asylum Procedure */}
+        {caselaw.asylumProcedure && (
+          <span className="flex flex-col gap-0.5">
+            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Asylum Procedure</span>
+            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.asylumProcedure}</span>
+          </span>
+        )}
+
+        {/* Keywords */}
         {caselaw.keywords.length > 0 && (
-          <div className="card-keywords">
+          <div className="flex flex-wrap gap-[0.4rem] pr-[25%]">
             {caselaw.keywords.map(keyword => (
-              <span key={keyword} className="keyword-chip">
+              <span
+                key={keyword}
+                className="rounded-[12px] bg-black px-[0.55rem] py-[0.2rem] text-[0.72rem] font-medium text-white"
+              >
                 {keyword}
               </span>
             ))}
           </div>
         )}
 
-        {(caselaw.englishPdfLink || caselaw.greekPdfLink) && (
-          <div className="card-actions">
-            {caselaw.englishPdfLink && (
-              <button
-                className="btn-pdf btn-pdf-en"
-                onClick={() => downloadPdf(caselaw.englishPdfLink)}
-                title="Download English PDF"
-              >
-                EN PDF
-              </button>
-            )}
-            {caselaw.greekPdfLink && (
-              <button
-                className="btn-pdf btn-pdf-el"
-                onClick={() => downloadPdf(caselaw.greekPdfLink)}
-                title="Download Greek PDF"
-              >
-                EL PDF
-              </button>
-            )}
-          </div>
-        )}
+        {/* PDF actions — always visible, disabled when no link */}
+        <div className="flex justify-end gap-2 pt-1">
+          <Button
+            size="xs"
+            disabled={!caselaw.englishPdfLink}
+            className="border border-black bg-white text-black shadow-[0_2px_6px_rgba(0,0,0,0.1)] hover:-translate-y-px hover:shadow-[0_4px_10px_rgba(0,0,0,0.15)] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => caselaw.englishPdfLink && downloadPdf(caselaw.englishPdfLink)}
+            title="Download English PDF"
+          >
+            <Download size={12} />
+            Download English PDF
+          </Button>
+          <Button
+            size="xs"
+            disabled={!caselaw.greekPdfLink}
+            className="border border-black bg-white text-black shadow-[0_2px_6px_rgba(0,0,0,0.1)] hover:-translate-y-px hover:shadow-[0_4px_10px_rgba(0,0,0,0.15)] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => caselaw.greekPdfLink && downloadPdf(caselaw.greekPdfLink)}
+            title="Download Greek PDF"
+          >
+            <Download size={12} />
+            Download Greek PDF
+          </Button>
+        </div>
+
       </div>
     </article>
   )

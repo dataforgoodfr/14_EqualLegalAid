@@ -18,6 +18,7 @@ export interface FilterInterface {
 export interface searchInGivenFilterInterface {
   value: string
   airtableBaseName: AirtableBaseNameEnum
+  needFetch: boolean
 }
 
 export enum FilterTypeEnum {

@@ -56,6 +56,7 @@ const initialState: FiltersState = {
   searchInGivenFilter: {
     value: '',
     airtableBaseName: AirtableBaseNameEnum.Countries,
+    needFetch: false,
   },
   countriesSelected: [],
   outcomesSelected: [],
@@ -70,7 +71,9 @@ const filtersSlice = createSlice({
   reducers: {
     // --- Available filter data (fetched from Airtable) ---
     setSearchInGivenFilter: (state, action: PayloadAction<searchInGivenFilterInterface>) => {
-      state.searchInGivenFilter = action.payload
+      if (action.payload.needFetch) {
+        state.searchInGivenFilter = action.payload
+      }
     },
     setCountriesFilter: (state, action: PayloadAction<FilterInterface>) => {
       state.countries = action.payload

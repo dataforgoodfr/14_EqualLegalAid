@@ -5,7 +5,7 @@ import {
 import { Input } from '@/components/ui'
 import { useDebounce } from '@/hooks'
 import type { AirtableBaseNameEnum } from '@/types'
-import { useAppDispatch } from '@/hooks/reduxHook'
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxHook'
 import { setSearchInGivenFilter } from '@/redux/filtersSlice'
 import { Spinner } from '@/components/Spinner/Spinner'
 import { Search as SearchIcon } from 'lucide-react'
@@ -17,23 +17,30 @@ export const FilterSearch = ({
   placeholderContent = '',
   airtableBaseName,
 }: FilterSearchProps) => {
-  const [searchValue, setSearchValue] = useState('')
-
+  const storeSearch = useAppSelector(state => state.filters.searchInGivenFilter)
+  const [prevValue, setPrevValue] = useState('')
+  const [searchValue, setSearchValue] = useState(storeSearch.airtableBaseName === airtableBaseName ? storeSearch.value : '')
+  const [needToSearch, setNeedToSearch] = useState(false)
   const searchDebouceValue = useDebounce(searchValue, 500)
 
   const dispatch = useAppDispatch()
   const loading = searchValue !== searchDebouceValue
   const handleSearchChange = (value: string) => {
-    setSearchValue(value)
+    if (prevValue !== value) {
+      setPrevValue(value)
+      setNeedToSearch(true)
+      setSearchValue(value)
+    }
   }
   useEffect(() => {
     dispatch(
       setSearchInGivenFilter({
         airtableBaseName,
         value: searchDebouceValue,
+        needFetch: needToSearch,
       }),
     )
-  }, [searchDebouceValue, airtableBaseName, dispatch])
+  }, [searchDebouceValue, airtableBaseName, dispatch, prevValue, searchValue, needToSearch])
   return (
     <div className="filter-search relative">
       <Input

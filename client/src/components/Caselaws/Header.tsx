@@ -1,17 +1,10 @@
 import elaLogo from '@/assets/ela.png'
 import './Header.css'
 
-interface HeaderProps {
-  recordCount: number
-  loading: boolean
-  error: string | null
-  onRefresh: () => void
-}
-
 /**
  * Application header with logo, title, and actions
  */
-export const Header = ({ recordCount, loading, error, onRefresh }: HeaderProps) => {
+export const Header = () => {
   return (
     <header className="app-header">
       <div className="header-content">

@@ -23,6 +23,8 @@ const FILTER_COLUMN_MAP: Record<keyof SelectedFilters, string> = {
     FIND('rec3', {CaselawOutcome})
   )
 */
+const PUBLISHED_FILTER = '{Published} = TRUE()'
+
 const buildFilterFormula = (selectedFilters: SelectedFilters): string => {
   const andClauses = (Object.entries(selectedFilters) as [keyof SelectedFilters, string[]][])
     .filter(([, ids]) => ids.length > 0)
@@ -32,7 +34,8 @@ const buildFilterFormula = (selectedFilters: SelectedFilters): string => {
       return ids.length > 1 ? `OR(${orClauses})` : orClauses
     })
 
-  return andClauses.length > 1 ? `AND(${andClauses.join(',')})` : andClauses[0]
+  const clauses = [PUBLISHED_FILTER, ...andClauses]
+  return clauses.length > 1 ? `AND(${clauses.join(',')})` : clauses[0]
 }
 
 export const useAirtableCaselaw = () => {
@@ -48,6 +51,7 @@ export const useAirtableCaselaw = () => {
       setError(null)
       const fetchedRecords = await airtableService.fetchRecordsFromTable({
         tableName: APP_CONFIG.defaultBaseName,
+        selectConfig: { filterByFormula: PUBLISHED_FILTER },
       })
       setCaselawRecords(fetchedRecords)
     }

@@ -1,5 +1,5 @@
 import type { AirtableRecord } from '@/types'
-import { CaselawCard } from '@/components/CaselawCard'
+import { CaselawCard } from '@/components/Caselaws/CaselawCard'
 import { sortPerDate } from '@/utils/sortPerDate'
 
 interface CaselawListProps {

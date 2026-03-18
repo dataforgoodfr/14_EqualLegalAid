@@ -1,10 +1,10 @@
 /**
  * Component exports
  */
-export { Header } from './Header'
+export { Header } from './Caselaws/Header'
 export { Loading } from './Loading'
-export { ErrorMessage } from './ErrorMessage'
-export { DataTable } from './DataTable'
-export { CaselawCard } from './CaselawCard'
-export { CaselawList } from './CaselawList'
-export { AsylumApplicationsPage } from './AsylumApplicationsPage'
+export { ErrorMessage } from './Caselaws/ErrorMessage'
+export { DataTable } from './Caselaws/DataTable'
+export { CaselawCard } from './Caselaws/CaselawCard'
+export { CaselawList } from './Caselaws/CaselawList'
+export { AsylumApplicationsPage } from './Indicators/AsylumApplicationsPage'

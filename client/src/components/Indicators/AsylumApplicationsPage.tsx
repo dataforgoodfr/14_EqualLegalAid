@@ -20,10 +20,8 @@ import {
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { useAsylumApplications } from '@/hooks/useAsylumApplications'
-import { Loading } from './Loading'
-import { ErrorMessage } from './ErrorMessage'
-
-const ALL_COUNTRIES = '__ALL__'
+import { Loading } from '../Loading'
+import { ErrorMessage } from '../Caselaws/ErrorMessage'
 
 const chartConfig = {
   first_time_applicants: {
@@ -48,7 +46,7 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 export function AsylumApplicationsPage() {
   const { records, loading, error } = useAsylumApplications()
-  const [selectedCountry, setSelectedCountry] = useState<string>(ALL_COUNTRIES)
+  const [selectedCountry, setSelectedCountry] = useState<string>()
 
   const countries = useMemo(() => {
     const set = new Set(records.map(r => r.name_country))
@@ -56,9 +54,7 @@ export function AsylumApplicationsPage() {
   }, [records])
 
   const chartData = useMemo(() => {
-    const filtered = selectedCountry === ALL_COUNTRIES
-      ? records
-      : records.filter(r => r.name_country === selectedCountry)
+    const filtered = records.filter(r => r.name_country === selectedCountry)
 
     const byYear = new Map<number, {
       year: number
@@ -123,7 +119,6 @@ export function AsylumApplicationsPage() {
             <SelectValue placeholder="Select a country" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_COUNTRIES}>All countries</SelectItem>
             {countries.map(c => (
               <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
@@ -197,7 +192,7 @@ export function AsylumApplicationsPage() {
               value={latestYear.subsequent_applicants.toLocaleString()}
               sub={firstTimeRatio ? `${(100 - parseFloat(firstTimeRatio)).toFixed(1)}% of total` : undefined}
             />
-            {selectedCountry !== ALL_COUNTRIES && latestYear.percentage > 0 && (
+            {latestYear.percentage > 0 && (
               <StatCard
                 label="% of country population"
                 value={`${latestYear.percentage.toFixed(3)}%`}

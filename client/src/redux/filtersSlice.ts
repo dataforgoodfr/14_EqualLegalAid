@@ -1,5 +1,12 @@
-import { AirtableBaseNameEnum, type FilterInterface } from '@/types'
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import {
+  AirtableBaseNameEnum,
+  type FilterInterface,
+  type searchInGivenFilterInterface,
+} from '@/types'
+import {
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit'
 
 interface FiltersState {
   countries: FilterInterface
@@ -12,6 +19,7 @@ interface FiltersState {
   applicationTypesSelected: string[]
   asylumProcedures: FilterInterface
   asylumProceduresSelected: string[]
+  searchInGivenFilter: searchInGivenFilterInterface
 }
 
 export interface ToggleSelectedPayload {
@@ -45,6 +53,11 @@ const initialState: FiltersState = {
     value: [],
     available: false,
   },
+  searchInGivenFilter: {
+    value: '',
+    airtableBaseName: AirtableBaseNameEnum.Countries,
+    needFetch: false,
+  },
   countriesSelected: [],
   outcomesSelected: [],
   legalProcedureTypesSelected: [],
@@ -57,6 +70,11 @@ const filtersSlice = createSlice({
   initialState,
   reducers: {
     // --- Available filter data (fetched from Airtable) ---
+    setSearchInGivenFilter: (state, action: PayloadAction<searchInGivenFilterInterface>) => {
+      if (action.payload.needFetch) {
+        state.searchInGivenFilter = action.payload
+      }
+    },
     setCountriesFilter: (state, action: PayloadAction<FilterInterface>) => {
       state.countries = action.payload
     },
@@ -70,7 +88,7 @@ const filtersSlice = createSlice({
       state.applicationTypes = action.payload
     },
     setAsylumProceduresFilter: (state, action: PayloadAction<FilterInterface>) => {
-      state.applicationTypes = action.payload
+      state.asylumProcedures = action.payload
     },
     resetCountriesFilter: (state) => { state.countries = initialState.countries },
     resetOutcomesFilter: (state) => { state.outcomes = initialState.outcomes },
@@ -145,6 +163,7 @@ export const {
   setLegalProcedureTypesFilter,
   setApplicationTypesFilter,
   setAsylumProceduresFilter,
+  setSearchInGivenFilter,
   resetCountriesFilter,
   resetOutcomesFilter,
   resetApplicationTypesFilter,

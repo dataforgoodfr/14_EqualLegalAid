@@ -1,4 +1,9 @@
-import { AirtableBaseNameEnum, FilterTypeEnum, type BasicValuesInterface, type FilterInterface } from '@/types/index'
+import {
+  AirtableBaseNameEnum,
+  FilterTypeEnum,
+  type BasicValuesInterface,
+  type FilterInterface,
+} from '@/types/index'
 import {
   Accordion,
   AccordionContent,
@@ -13,7 +18,6 @@ import {
   TOGGLE_ACTION_MAP,
 } from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
-
 export interface AccordionInterface {
   accordionTriggerLabel: string
   airtableBaseName: AirtableBaseNameEnum
@@ -75,11 +79,6 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
     id: string,
     checked: boolean,
   ) => {
-    console.log('handleFilterChange', {
-      airtableBaseName,
-      id,
-      checked,
-    })
     const action = TOGGLE_ACTION_MAP[airtableBaseName]
     if (action) {
       dispatch(action({ id, checked }))
@@ -95,7 +94,7 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
     <>
       <Accordion type="multiple">
         {accordionItems.map((accordionItem, accordionItemIndex) => {
-          if (accordionItem.filterType === FilterTypeEnum.Basic) {
+          if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
             return (
               <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
                 <AccordionTrigger>{accordionItem.accordionTriggerLabel}</AccordionTrigger>
@@ -104,9 +103,9 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
                     enabledSearch={accordionItem.search.enabled}
                     searchPlaceholder={accordionItem.search.placeholder}
                     items={accordionItem.items}
+                    airtableBaseName={accordionItem.airtableBaseName}
                     selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
-                    onFilterChange={(id, checked) =>
-                      handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                    onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
                   />
                 </AccordionContent>
               </AccordionItem>

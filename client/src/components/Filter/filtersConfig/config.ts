@@ -13,7 +13,7 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     accordionTriggerLabel: 'Outcome',
     airtableBaseName: AirtableBaseNameEnum.Outcomes,
     filterType: FilterTypeEnum.Basic,
-    search: { enabled: false, placeholder: 'Search outcome' },
+    search: { enabled: true, placeholder: 'Search outcome' },
   },
   {
     accordionTriggerLabel: 'Country of origin',

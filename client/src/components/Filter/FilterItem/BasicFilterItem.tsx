@@ -5,11 +5,12 @@ import {
   Label,
 } from '@/components/ui'
 import { FilterSearch } from '@/components/Filter'
-import type { BasicValuesInterface } from '@/types'
+import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
 
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
+  airtableBaseName: AirtableBaseNameEnum
   items: BasicValuesInterface[]
   selectedIds: string[]
   onFilterChange: (id: string, checked: boolean) => void
@@ -19,6 +20,7 @@ export const BasicFilterItem = ({
   enabledSearch = false,
   searchPlaceholder = '',
   items,
+  airtableBaseName,
   selectedIds = [],
   onFilterChange,
 }: BasicFilterItemProps) => {
@@ -26,7 +28,10 @@ export const BasicFilterItem = ({
     <div className="filter-item p-2">
       {enabledSearch && (
         <div className="filter-item__search my-4">
-          <FilterSearch placeholderContent={searchPlaceholder} />
+          <FilterSearch
+            placeholderContent={searchPlaceholder}
+            airtableBaseName={airtableBaseName}
+          />
         </div>
       )}
 

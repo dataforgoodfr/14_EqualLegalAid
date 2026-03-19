@@ -62,7 +62,7 @@ export function AsylumApplicationsPage() {
   const chartData = useMemo(() => {
     const filtered = records.filter(r => r.name_country === selectedCountry)
 
-    const byYear = new Map<number, {
+    const nonZeroByYear = new Map<number, {
       year: number
       first_time_applicants: number
       subsequent_applicants: number
@@ -71,31 +71,40 @@ export function AsylumApplicationsPage() {
       percentage: number
     }>()
 
-    for (const r of filtered) {
-      const existing = byYear.get(r.year)
-      if (existing) {
-        existing.first_time_applicants += r.first_time_applicants
-        existing.subsequent_applicants += r.subsequent_applicants
-        existing.total_applicants += r.total_applicants
-        existing.total_country_population += r.total_country_population
-        existing.percentage += r.percentage
-      }
-      else {
-        const total_applicants = r.total_applicants
-        if (total_applicants !== 0) {
-          byYear.set(r.year, {
-            year: r.year,
-            first_time_applicants: r.first_time_applicants,
-            subsequent_applicants: r.subsequent_applicants,
-            total_applicants: r.total_applicants,
-            total_country_population: r.total_country_population,
-            percentage: r.percentage,
+    for (const record of filtered) {
+      const first_time_applicants = record.first_time_applicants
+      const subsequent_applicants = record.subsequent_applicants
+      const total_applicants = first_time_applicants + subsequent_applicants
+
+      // we do nothing if there is no applicants in one record
+      if (total_applicants > 0) {
+        const year = record.year
+        const percentage = record.percentage
+        const total_country_population = record.total_country_population
+
+        const existing = nonZeroByYear.get(record.year)
+        if (existing) {
+          // we already have one record for this year and update it
+          existing.first_time_applicants += first_time_applicants
+          existing.subsequent_applicants += subsequent_applicants
+          existing.total_applicants += total_applicants
+          existing.total_country_population += total_country_population
+          existing.percentage += percentage
+        }
+        else {
+          nonZeroByYear.set(year, {
+            year: year,
+            first_time_applicants: first_time_applicants,
+            subsequent_applicants: subsequent_applicants,
+            total_applicants: total_applicants,
+            total_country_population: total_country_population,
+            percentage: percentage,
           })
         }
       }
     }
 
-    return Array.from(byYear.values()).sort((a, b) => a.year - b.year)
+    return Array.from(nonZeroByYear.values()).sort((a, b) => a.year - b.year)
   }, [records, selectedCountry])
 
   const latestYear = chartData.at(-1)

@@ -2,6 +2,8 @@ import { AirtableBaseNameEnum, FilterTypeEnum } from '@/types'
 import type { AccordionInterface } from '@/components/Filter'
 import {
   type ToggleSelectedPayload,
+  toggleApplicationTypesSelected,
+  toggleAsylumProceduresSelected,
   toggleCountriesSelected,
   toggleLegalProcedureTypesSelected,
   toggleOutcomesSelected,
@@ -45,4 +47,6 @@ export const TOGGLE_ACTION_MAP: Partial<Record<AirtableBaseNameEnum, ActionCreat
   [AirtableBaseNameEnum.Countries]: toggleCountriesSelected,
   [AirtableBaseNameEnum.Outcomes]: toggleOutcomesSelected,
   [AirtableBaseNameEnum.LegalProcedureTypes]: toggleLegalProcedureTypesSelected,
+  [AirtableBaseNameEnum.ApplicationTypes]: toggleApplicationTypesSelected,
+  [AirtableBaseNameEnum.AsylumProcedures]: toggleAsylumProceduresSelected,
 }

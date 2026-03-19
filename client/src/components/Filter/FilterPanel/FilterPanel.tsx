@@ -93,10 +93,11 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
       dispatch(action({ id, checked }))
     }
   }
-
   return (
     <Accordion type="multiple">
       {accordionItems.map((accordionItem, accordionItemIndex) => {
+        console.log('rendering FilterPanel', SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? [])
+
         if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
           return (
             <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>

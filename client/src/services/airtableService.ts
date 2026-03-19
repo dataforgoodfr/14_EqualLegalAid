@@ -1,58 +1,57 @@
-import Airtable from 'airtable';
-import type { Base, Records, FieldSet } from 'airtable';
-import type { AirtableRecord, AirtableConfig, AirtableFieldValue } from '@/types';
+import type { Base, Records, FieldSet } from 'airtable'
+import type {
+  AirtableRecord,
+  AirtableFieldValue,
+  AirtableBaseName,
+} from '@/types'
 
-/**
- * Service for interacting with Airtable API
- */
-class AirtableService {
-  private base: Base;
-  private tableName: string;
-
-  constructor(config: AirtableConfig) {
-    this.base = new Airtable({ apiKey: config.apiKey }).base(config.baseId);
-    this.tableName = config.tableName;
+interface FetchRecordsFromTableConfig {
+  tableName: AirtableBaseName
+  selectConfig?: {
+    maxRecords?: number
+    pageSize?: number
+    userLocale?: 'en-us' | 'el-GR'
+    cellFormat?: 'json' | 'string'
+    timeZone?: string
+    view?: string
+    fields?: string[]
+    filterByFormula?: string
+    sort?: Array<{
+      field: string
+      direction?: 'asc' | 'desc'
+    }>
   }
+}
 
-  /**
-   * Fetches records from Airtable
-   * @param viewName - The name of the view to fetch from (default: 'Caselaws')
-   * @param maxRecords - Maximum number of records to fetch (default: 100)
-   * @returns Promise with array of Airtable records
-   */
-  async fetchRecords(
-    viewName: string = 'Caselaws',
-    maxRecords: number = 100
-  ): Promise<AirtableRecord[]> {
-    const fetchedRecords: AirtableRecord[] = [];
-
-    await this.base(this.tableName)
+export function createAirtableService(base: Base) {
+  async function fetchRecordsFromTable({
+    tableName,
+    selectConfig,
+  }: FetchRecordsFromTableConfig): Promise<AirtableRecord[]> {
+    const fetchedRecords: AirtableRecord[] = []
+    await base(tableName)
       .select({
-        view: viewName,
-        maxRecords: maxRecords,
-        cellFormat: 'string',
-        timeZone: 'UTC',
-        userLocale: 'en-us',
+        maxRecords: selectConfig?.maxRecords ?? 100,
+        pageSize: selectConfig?.pageSize ?? 100,
+        cellFormat: selectConfig?.cellFormat ?? 'string',
+        timeZone: selectConfig?.timeZone ?? 'UTC',
+        userLocale: selectConfig?.userLocale ?? 'en-us',
+        filterByFormula: selectConfig?.filterByFormula ?? '',
+        sort: selectConfig?.sort ?? [],
       })
       .eachPage((records: Records<FieldSet>, fetchNextPage: () => void) => {
         records.forEach((record) => {
           fetchedRecords.push({
             id: record.id,
             fields: record.fields as Record<string, AirtableFieldValue>,
-          });
-        });
-        fetchNextPage();
-      });
+          })
+        })
+        fetchNextPage()
+      })
 
-    return fetchedRecords;
+    return fetchedRecords
+  }
+  return {
+    fetchRecordsFromTable,
   }
 }
-
-/**
- * Creates and returns an instance of AirtableService
- */
-export const createAirtableService = (config: AirtableConfig): AirtableService => {
-  return new AirtableService(config);
-};
-
-export default AirtableService;

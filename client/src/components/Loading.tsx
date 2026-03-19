@@ -1,4 +1,4 @@
-import './Loading.css';
+import './Loading.css'
 
 /**
  * Loading spinner component
@@ -9,5 +9,5 @@ export const Loading = () => {
       <div className="loading-spinner"></div>
       <div className="loading-text">Loading...</div>
     </div>
-  );
-};
+  )
+}

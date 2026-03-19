@@ -34,12 +34,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatCard({ label, value, sub }: { label: string, value: string, sub?: string }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4 shadow-xs">
-      <p className="text-xs text-muted-foreground">{label}</p>
+    <div className="border-border bg-background rounded-xl border p-4 shadow-xs">
+      <p className="text-muted-foreground text-xs">{label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-      {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+      {sub && <p className="text-muted-foreground mt-0.5 text-xs">{sub}</p>}
     </div>
   )
 }
@@ -81,14 +81,17 @@ export function AsylumApplicationsPage() {
         existing.percentage += r.percentage
       }
       else {
-        byYear.set(r.year, {
-          year: r.year,
-          first_time_applicants: r.first_time_applicants,
-          subsequent_applicants: r.subsequent_applicants,
-          total_applicants: r.total_applicants,
-          total_country_population: r.total_country_population,
-          percentage: r.percentage,
-        })
+        const total_applicants = r.total_applicants
+        if (total_applicants !== 0) {
+          byYear.set(r.year, {
+            year: r.year,
+            first_time_applicants: r.first_time_applicants,
+            subsequent_applicants: r.subsequent_applicants,
+            total_applicants: r.total_applicants,
+            total_country_population: r.total_country_population,
+            percentage: r.percentage,
+          })
+        }
       }
     }
 
@@ -112,7 +115,7 @@ export function AsylumApplicationsPage() {
         <h1 className="text-2xl font-bold" style={{ color: '#04356C' }}>
           EU Asylum Applications
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           First-time and subsequent applicants per year
         </p>
       </div>
@@ -135,53 +138,55 @@ export function AsylumApplicationsPage() {
       {/* Chart */}
       {chartData.length === 0
         ? (
-            <p className="text-sm text-muted-foreground">No data for this selection.</p>
-          )
+          <p className="text-muted-foreground text-sm">No data for this selection.</p>
+        )
         : (
-            <ChartContainer config={chartConfig} className="h-80 w-full">
-              <BarChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="year"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
-                />
-                <ChartTooltip
-                  content={(
-                    <ChartTooltipContent
-                      labelFormatter={label => `Year: ${label}`}
-                    />
-                  )}
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Bar
-                  dataKey="first_time_applicants"
-                  stackId="a"
-                  fill="var(--color-first_time_applicants)"
-                  radius={[0, 0, 0, 0]}
-                />
-                <Bar
-                  dataKey="subsequent_applicants"
-                  stackId="a"
-                  fill="var(--color-subsequent_applicants)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ChartContainer>
-          )}
+          <ChartContainer config={chartConfig} className="h-80 w-full">
+            <BarChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="year"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
+              />
+              <ChartTooltip
+                content={(
+                  <ChartTooltipContent
+                    labelFormatter={label => `Year: ${label}`}
+                  />
+                )}
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+              <Bar
+                dataKey="first_time_applicants"
+                stackId="a"
+                fill="var(--color-first_time_applicants)"
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="subsequent_applicants"
+                stackId="a"
+                fill="var(--color-subsequent_applicants)"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ChartContainer>
+        )}
 
       {/* Stat cards — only meaningful for a single country */}
       {latestYear && (
         <div>
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Latest data · {latestYear.year}
+          <p className="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
+            Latest data ·
+            {' '}
+            {latestYear.year}
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <StatCard

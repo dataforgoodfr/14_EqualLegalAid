@@ -27,7 +27,6 @@ export const BasicFilterItem = ({
 }: BasicFilterItemProps) => {
   const dispatch = useAppDispatch()
   const handleFilterChange = (id: string, name: string, checked: boolean) => {
-   console.log(id, name, checked, 'BasicFilterItem handleFilterChange') // Debug log to check values on change
     onFilterChange(id, checked)
     dispatch(setFilterTag({
       item: {
@@ -38,7 +37,6 @@ export const BasicFilterItem = ({
       itemChecked: checked,
     }))
   }
-  console.log(items, airtableBaseName, 'rendering BasicFilterItem') // Debug log to check rendering and props
   return (
     <div className="filter-item p-2">
       {enabledSearch && (

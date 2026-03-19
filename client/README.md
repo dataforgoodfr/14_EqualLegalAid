@@ -40,6 +40,10 @@ Most of the following extensions are used to keep the unity of the formatting ru
 
 Then, to make use the VS code configuration of this project, you should open VS Code on the root folder (not on the client sub-folder).
 
+To do so, you can run the command `code .` from the root directory (on Linux).
+
+Or, you can create a link of the folder `.vscode` and put it in `client` and `client/src`, allowing you to keep the same configuration even if you open vs code in a sub folder ( for a cleaner view in the file explorer ).
+
 ## Running the App
 
 Start the development server :

@@ -68,3 +68,4 @@ venv/
 env/
 ENV/
 .venv
+client/src/.vscode

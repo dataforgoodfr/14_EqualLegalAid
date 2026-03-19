@@ -17,6 +17,8 @@ out/
 .env.test.local
 .env.production.local
 *.local
+*.local.*
+client/src/.vscode
 
 # Logs
 *.log
@@ -68,4 +70,3 @@ venv/
 env/
 ENV/
 .venv
-client/src/.vscode

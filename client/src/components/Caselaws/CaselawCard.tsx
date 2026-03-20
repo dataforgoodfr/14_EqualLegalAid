@@ -1,6 +1,6 @@
 import type { Caselaw } from '@/types'
 import { downloadPdf } from '@/utils/pdfHelpers'
-import { Button } from '@/components/ui'
+import { Badge, Button, CardInfo, CardTitle } from '@/components/ui'
 import { Download } from 'lucide-react'
 
 interface CaselawCardProps {
@@ -35,66 +35,35 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
       <div className="flex min-w-0 flex-col gap-3 p-5 px-6">
 
         {/* Outcome badge */}
-        <span
-          className="self-start rounded-[20px] px-[0.65rem] py-[0.3rem] text-[0.72rem] font-semibold tracking-[0.4px] whitespace-nowrap text-white uppercase"
-          style={{ backgroundColor: outcomeColor }}
-        >
-          {caselaw.caselawOutcome || 'Unknown Status'}
-        </span>
+        <Badge
+          label={caselaw.caselawOutcome || 'Unknown Status'}
+          color={outcomeColor}
+          uppercase
+        />
 
         {/* Title */}
-        <h3 className="m-0 text-base leading-[1.35] font-semibold text-[var(--primary-color)]">
-          {caselaw.title || 'Untitled Case'}
-        </h3>
+        <CardTitle title={caselaw.title || 'Untitled Case'} />
 
         {/* Published + Country — same line */}
         <div className="flex flex-wrap gap-5">
-          <span className="flex flex-col gap-0.5">
-            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Published</span>
-            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{formattedDate}</span>
-          </span>
-          {caselaw.countryOfOrigin && (
-            <span className="flex flex-col gap-0.5">
-              <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Country</span>
-              <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.countryOfOrigin}</span>
-            </span>
-          )}
+          <CardInfo title="Published" info={formattedDate} />
+          {caselaw.countryOfOrigin && <CardInfo title="Country" info={caselaw.countryOfOrigin} />}
         </div>
 
         {/* Court */}
-        {caselaw.competentCourtOrAuthority && (
-          <span className="flex flex-col gap-0.5">
-            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Court</span>
-            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.competentCourtOrAuthority}</span>
-          </span>
-        )}
+        {caselaw.competentCourtOrAuthority && <CardInfo title="Court" info={caselaw.competentCourtOrAuthority} />}
 
         {/* Application */}
-        {caselaw.competentCourtOrAuthority && (
-          <span className="flex flex-col gap-0.5">
-            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Application</span>
-            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.applicationTypes || ''}</span>
-          </span>
-        )}
+        {caselaw.competentCourtOrAuthority && <CardInfo title="Application" info={caselaw.applicationTypes || ''} />}
 
         {/* Asylum Procedure */}
-        {caselaw.asylumProcedure && (
-          <span className="flex flex-col gap-0.5">
-            <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">Asylum Procedure</span>
-            <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{caselaw.asylumProcedure}</span>
-          </span>
-        )}
+        {caselaw.asylumProcedure && <CardInfo title="Asylum Procedure" info={caselaw.asylumProcedure} />}
 
         {/* Keywords */}
         {caselaw.keywords.length > 0 && (
           <div className="flex flex-wrap gap-[0.4rem] pr-[25%]">
             {caselaw.keywords.map(keyword => (
-              <span
-                key={keyword}
-                className="rounded-[12px] bg-black px-[0.55rem] py-[0.2rem] text-[0.72rem] font-medium text-white"
-              >
-                {keyword}
-              </span>
+              <Badge key={keyword} label={keyword} />
             ))}
           </div>
         )}

@@ -1,11 +1,14 @@
 import { useState, type Dispatch, type SetStateAction } from 'react'
 import type { FilterTagInterface } from '@/types'
-import { Button } from '@/components/ui'
+import { Button, Input } from '@/components/ui'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import { X } from 'lucide-react'
 import { setFilterTag } from '@/redux/filtersSlice'
-import { TOGGLE_ACTION_MAP } from '@/components/Filter'
+import {
+  TOGGLE_ACTION_MAP,
+  FilterActionSearch,
+} from '@/components/Filter'
 interface FilterActionProps {
   count: number
   setSort: Dispatch<SetStateAction<boolean>>
@@ -65,6 +68,7 @@ export const FilterAction = ({
           {' '}
           {recentFirst ? 'Newest' : 'Oldest'}
         </Button>
+        <FilterActionSearch />
       </div>
       {filterTags.length > 0 && createFilterTags(filterTags)}
     </div>

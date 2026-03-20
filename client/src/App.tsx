@@ -28,11 +28,11 @@ function App() {
       <Header />
 
       {/* Tab navigation */}
-      <nav className="sticky top-0 z-10 flex gap-1 border-b border-border bg-background px-6 pt-2">
+      <nav className="border-border bg-background sticky top-0 z-10 flex gap-1 border-b px-6 pt-2">
         {([
           { id: 'caselaw', label: 'Caselaw Database' },
           { id: 'statistics', label: 'EU Asylum Statistics' },
-        ] as { id: Tab; label: string }[]).map(tab => (
+        ] as { id: Tab, label: string }[]).map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}

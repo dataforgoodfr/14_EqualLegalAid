@@ -93,7 +93,6 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
       dispatch(action({ id, checked }))
     }
   }
-
   return (
     <Accordion type="multiple">
       {accordionItems.map((accordionItem, accordionItemIndex) => {

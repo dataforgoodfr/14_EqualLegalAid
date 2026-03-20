@@ -27,7 +27,7 @@ export const BasicFilterItem = ({
 }: BasicFilterItemProps) => {
   const dispatch = useAppDispatch()
   const handleFilterChange = (id: string, name: string, checked: boolean) => {
-    onFilterChange(id, checked as boolean)
+    onFilterChange(id, checked)
     dispatch(setFilterTag({
       item: {
         filterStateName: airtableBaseName,

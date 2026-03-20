@@ -21,7 +21,6 @@ const OUTCOME_COLORS: Record<string, string> = {
 
 export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? 'var(--color-outcome-neutral)'
-
   const formattedDate = caselaw.publishedAt.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
@@ -70,26 +69,36 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
 
         {/* PDF actions — always visible, disabled when no link */}
         <div className="flex justify-end gap-2 pt-1">
-          <Button
-            size="xs"
-            disabled={!caselaw.englishPdfLink}
-            className="border border-black bg-white text-black shadow-[0_2px_6px_rgba(0,0,0,0.1)] hover:-translate-y-px hover:shadow-[0_4px_10px_rgba(0,0,0,0.15)] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-40"
-            onClick={() => caselaw.englishPdfLink && downloadPdf(caselaw.englishPdfLink)}
-            title="Download English PDF"
-          >
-            <Download size={12} />
-            Download English PDF
-          </Button>
-          <Button
-            size="xs"
-            disabled={!caselaw.greekPdfLink}
-            className="border border-black bg-white text-black shadow-[0_2px_6px_rgba(0,0,0,0.1)] hover:-translate-y-px hover:shadow-[0_4px_10px_rgba(0,0,0,0.15)] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-40"
-            onClick={() => caselaw.greekPdfLink && downloadPdf(caselaw.greekPdfLink)}
-            title="Download Greek PDF"
-          >
-            <Download size={12} />
-            Download Greek PDF
-          </Button>
+          {caselaw.englishPdfLink.pdfURL.length && (
+            <Button
+              size="xs"
+              variant="outline"
+              asChild
+            >
+              <a
+                href={caselaw.englishPdfLink.pdfURL}
+                target="_blank"
+              >
+                <Download size={12} />
+                Download English PDF
+              </a>
+            </Button>
+          )}
+          {caselaw.greekPdfLink.pdfURL.length && (
+            <Button
+              size="xs"
+              variant="outline"
+              asChild
+            >
+              <a
+                href={caselaw.greekPdfLink.pdfURL}
+                target="_blank"
+              >
+                <Download size={12} />
+                Download Greek PDF
+              </a>
+            </Button>
+          )}
         </div>
 
       </div>

@@ -89,6 +89,8 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
     checked: boolean,
   ) => {
     const action = TOGGLE_ACTION_MAP[airtableBaseName]
+    console.log('TOGGLE_ACTION_MAP', TOGGLE_ACTION_MAP)
+    console.log('action', action)
     if (action) {
       dispatch(action({ id, checked }))
     }

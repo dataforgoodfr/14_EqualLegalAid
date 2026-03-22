@@ -1,6 +1,6 @@
-import { useState, type Dispatch, type SetStateAction } from 'react'
+import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 import type { FilterTagInterface } from '@/types'
-import { Button, Input } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import { X } from 'lucide-react'
@@ -12,13 +12,17 @@ import {
 interface FilterActionProps {
   count: number
   setSort: Dispatch<SetStateAction<boolean>>
+  setFindSpecificCaseLaw: (value: string) => void
 }
 
 export const FilterAction = ({
   count = 1,
   setSort,
+  setFindSpecificCaseLaw,
 }: FilterActionProps) => {
   const [recentFirst, setRecentFirst] = useState(true)
+  const [searchCaseLaw, setSearchCaselaw] = useState('')
+  const isFirstRender = useRef(true)
   const handleSort = () => {
     setRecentFirst(!recentFirst)
     setSort(!recentFirst)
@@ -55,6 +59,13 @@ export const FilterAction = ({
     )
   }
   const filterTags = useAppSelector(state => state.filters.filterTags)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    setFindSpecificCaseLaw(searchCaseLaw)
+  }, [searchCaseLaw, setFindSpecificCaseLaw])
   return (
     <div className="filter-action">
       <p className="text-gray-count mb-6 text-xl font-semibold">
@@ -68,7 +79,9 @@ export const FilterAction = ({
           {' '}
           {recentFirst ? 'Newest' : 'Oldest'}
         </Button>
-        <FilterActionSearch />
+        <FilterActionSearch
+          setSearchCaselaw={setSearchCaselaw}
+        />
       </div>
       {filterTags.length > 0 && createFilterTags(filterTags)}
     </div>

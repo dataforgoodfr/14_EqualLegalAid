@@ -111,3 +111,21 @@ export interface Caselaw {
   englishPdfLink: PdfObjectInterface
   greekPdfLink: PdfObjectInterface
 }
+
+export interface FetchRecordsFromTableConfig {
+  tableName: AirtableBaseName
+  selectConfig?: {
+    maxRecords?: number
+    pageSize?: number
+    userLocale?: 'en-us' | 'el-GR'
+    cellFormat?: 'json' | 'string'
+    timeZone?: string
+    view?: string
+    fields?: string[]
+    filterByFormula?: string
+    sort?: Array<{
+      field: string
+      direction?: 'asc' | 'desc'
+    }>
+  }
+}

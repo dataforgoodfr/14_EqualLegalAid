@@ -1,23 +1,31 @@
-import { useState, useEffect } from 'react'
+import {
+  type Dispatch,
+  type SetStateAction,
+  useState,
+  useEffect,
+} from 'react'
 import { Input } from '@/components/ui'
 import { Search as SearchIcon } from 'lucide-react'
 import { useDebounce } from '@/hooks'
-export const FilterActionSearch = () => {
+interface FilterActionSearchProps {
+  setSearchCaselaw: Dispatch<SetStateAction<string>>
+}
+export const FilterActionSearch = ({
+  setSearchCaselaw,
+}: FilterActionSearchProps) => {
   const [searchValue, setSearchValue] = useState('')
   const [prevValue, setPrevValue] = useState('')
   const searchDebouceValue = useDebounce(searchValue, 500)
 
   const handleSearchChange = (value: string) => {
     if (prevValue !== value) {
-      console.log('ici')
       setPrevValue(value)
       setSearchValue(value)
-      console.log('value', value)
     }
   }
   useEffect(() => {
-    console.log('searchDebouceValue', searchDebouceValue)
-  }, [searchDebouceValue])
+    setSearchCaselaw(searchDebouceValue)
+  }, [searchDebouceValue, setSearchCaselaw])
   return (
     <>
       <div className="border-input flex rounded-md border px-4">

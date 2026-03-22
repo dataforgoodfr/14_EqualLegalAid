@@ -28,7 +28,9 @@ export const FilterActionSearch = ({
   }, [searchDebouceValue, setSearchCaselaw])
   return (
     <>
-      <div className="border-input flex rounded-md border px-4">
+      <div
+        className="border-input flex w-full rounded-md border px-4"
+      >
         <label
           htmlFor="filterActionSearch"
           className="flex items-center font-medium"

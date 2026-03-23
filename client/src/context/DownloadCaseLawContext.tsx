@@ -4,12 +4,8 @@ import {
   useContext,
   useState,
 } from 'react'
-import type { PdfObjectInterface } from '@/types'
+import type { SelectedCaselawItem } from '@/types'
 import { downloadSelectedCaselawAsZip } from '@/utils'
-export interface SelectedCaselawItem {
-  id: string
-  pdf: PdfObjectInterface
-}
 
 type DownloadCaselawContextType = {
   selectedCaselaw: SelectedCaselawItem[]
@@ -17,6 +13,8 @@ type DownloadCaselawContextType = {
   isSelected: (id: string) => boolean
   startDownloadPdf: () => void
   clearSelection: () => void
+  handleDownloadMode: () => void
+  isDownloadMode: boolean
 }
 
 const DownloadCaselawContext
@@ -30,7 +28,7 @@ export function DownloadCaselawProvider({
   const [selectedCaselaw, setSelectedCaselaw] = useState<
     SelectedCaselawItem[]
   >([])
-
+  const [isDownloadMode, setIsDownloadMode] = useState(false)
   const setCaselawSelection = (
     item: SelectedCaselawItem,
     selected: boolean,
@@ -60,7 +58,10 @@ export function DownloadCaselawProvider({
 
   const startDownloadPdf = () => {
     downloadSelectedCaselawAsZip(selectedCaselaw)
-    console.log('startDownloadPdf', selectedCaselaw)
+    clearSelection()
+  }
+  const handleDownloadMode = () => {
+    setIsDownloadMode(!isDownloadMode)
   }
   return (
     <DownloadCaselawContext.Provider
@@ -69,7 +70,9 @@ export function DownloadCaselawProvider({
         startDownloadPdf,
         setCaselawSelection,
         isSelected,
+        isDownloadMode,
         clearSelection,
+        handleDownloadMode,
       }}
     >
       {children}

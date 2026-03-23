@@ -13,7 +13,6 @@ import {
 interface FilterActionProps {
   count: number
   setSort: Dispatch<SetStateAction<boolean>>
-  setDownloadMode: Dispatch<SetStateAction<boolean>>
   setFindSpecificCaseLaw: (value: string) => void
 }
 
@@ -21,17 +20,15 @@ export const FilterAction = ({
   count = 1,
   setSort,
   setFindSpecificCaseLaw,
-  setDownloadMode,
 }: FilterActionProps) => {
   const [recentFirst, setRecentFirst] = useState(true)
   const [searchCaseLaw, setSearchCaselaw] = useState('')
-  const [enabledDownloadMode, setEnabledDownloadMode] = useState(false)
   const isFirstRender = useRef(true)
   const handleSort = () => {
     setRecentFirst(!recentFirst)
     setSort(!recentFirst)
   }
-  const { selectedCaselaw, clearSelection, startDownloadPdf } = useDownloadCaselaw()
+  const { selectedCaselaw, clearSelection, startDownloadPdf, handleDownloadMode, isDownloadMode } = useDownloadCaselaw()
   const dispatch = useAppDispatch()
   const handleClick = (filterTag: FilterTagInterface) => {
     const action = TOGGLE_ACTION_MAP[filterTag.filterStateName]
@@ -46,10 +43,7 @@ export const FilterAction = ({
       itemChecked: false,
     }))
   }
-  const handleDownloadMode = () => {
-    setEnabledDownloadMode(!enabledDownloadMode)
-    setDownloadMode(enabledDownloadMode)
-  }
+
   const createFilterTags = (filterTags: FilterTagInterface[]) => {
     return (
       <div className="mt-4 flex flex-wrap">
@@ -93,7 +87,8 @@ export const FilterAction = ({
         />
         <div>
           <Button
-            variant="outline"
+            variant={isDownloadMode ? 'default' : 'outline'}
+            className="cursor-pointer"
             onClick={handleDownloadMode}
           >
             <SquareMousePointer className="mr-2" />
@@ -101,11 +96,12 @@ export const FilterAction = ({
           </Button>
         </div>
       </div>
-      {enabledDownloadMode && selectedCaselaw.length > 0 && (
+      {isDownloadMode && (
         <div className="mt-4 flex gap-4">
           <Button
             onClick={startDownloadPdf}
             className="w-[50%]"
+            disabled={selectedCaselaw.length === 0}
           >
             Download selected caselaw (
             {selectedCaselaw.length}
@@ -115,6 +111,7 @@ export const FilterAction = ({
             className="w-[50%]"
             variant="secondary"
             onClick={clearSelection}
+            disabled={selectedCaselaw.length === 0}
           >
             Clear selected caselaw
           </Button>

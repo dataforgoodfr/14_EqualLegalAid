@@ -21,7 +21,6 @@ function App() {
   } = useAirtableCaselaw()
   const [sortDesc, setSortDesc] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('caselaw')
-  const [downloadMode, setDownloadMode] = useState(false)
 
   useAirtableFilter()
 
@@ -61,7 +60,6 @@ function App() {
                 count={caselawRecords.length}
                 setSort={value => setSortDesc(value)}
                 setFindSpecificCaseLaw={findSpecificCaseLawBasedOnId}
-                setDownloadMode={() => setDownloadMode(!downloadMode)}
               />
               {loading && <Loading />}
               {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
@@ -69,7 +67,6 @@ function App() {
                 <CaselawList
                   records={caselawRecords}
                   sortDesc={sortDesc}
-                  downloadMode={downloadMode}
                 />
               )}
             </div>

@@ -1,11 +1,11 @@
-import type { Caselaw } from '@/types'
+import { useState } from 'react'
+import type { Caselaw, SelectedCaselawItem } from '@/types'
 import { Badge, Button, CardInfo, CardTitle, Checkbox, Field, Label } from '@/components/ui'
 import { Download } from 'lucide-react'
-import { useDownloadCaselaw, type SelectedCaselawItem } from '@/context/'
-import { isPdfUrl } from '@/utils'
+import { useDownloadCaselaw } from '@/context/'
+import { cn } from '@/lib/utils'
 interface CaselawCardProps {
   caselaw: Caselaw
-  downloadMode: boolean
 }
 
 const OUTCOME_COLORS: Record<string, string> = {
@@ -20,16 +20,22 @@ const OUTCOME_COLORS: Record<string, string> = {
   'Inadmissible': 'var(--color-outcome-rejected)',
 }
 
-export const CaselawCard = ({ caselaw, downloadMode }: CaselawCardProps) => {
+export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? 'var(--color-outcome-neutral)'
   const formattedDate = caselaw.publishedAt.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   })
-  const { setCaselawSelection, isSelected } = useDownloadCaselaw()
-  const handleSelecteItem = (checked: boolean) => {
-    console.log('handleSelecteItem', checked, caselaw)
+  const { setCaselawSelection, isSelected, isDownloadMode } = useDownloadCaselaw()
+  const [isCardSelected, setIsCardSelected] = useState(isSelected(caselaw.title))
+
+  const handleSelecteItem = () => {
+    const selected = !isCardSelected
+    if (!isDownloadMode) {
+      return
+    }
+    setIsCardSelected(selected)
     const selectedObject: SelectedCaselawItem = {
       id: caselaw.title,
       pdf: {
@@ -37,27 +43,22 @@ export const CaselawCard = ({ caselaw, downloadMode }: CaselawCardProps) => {
         pdfURL: caselaw.englishPdfLink.pdfURL,
       },
     }
-    setCaselawSelection(selectedObject, checked)
+    setCaselawSelection(selectedObject, selected)
   }
   return (
-    <article className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(0,46,93,0.08)]">
+    <article
+      className={cn(
+        ' overflow-hidden rounded-xl  bg-white shadow-[0_2px_12px_rgba(0,46,93,0.08)] transition-all',
+        isDownloadMode && 'cursor-pointer border-2 border-input',
+        isDownloadMode && isSelected(caselaw.title) && 'scale-95 border-black bg-input',
+      )}
+      onClick={handleSelecteItem}
+    >
 
       {/* Body */}
       <div className="p-5 px-6">
         <div className="relative flex min-w-0 flex-col gap-3 ">
-          {downloadMode && (
-            <div className="absolute top-0 right-0">
-              <Field orientation="horizontal">
-                <Checkbox
-                  id={`${caselaw.title}-download-caselaw`}
-                  name={`${caselaw.title}-download-caselaw`}
-                  onCheckedChange={checked => handleSelecteItem(checked)}
-                  checked={isSelected(caselaw.title)}
-                />
-                <Label htmlFor={`${caselaw.title}-download-caselaw`}>Download</Label>
-              </Field>
-            </div>
-          )}
+
           {/* Outcome badge */}
           <Badge
             label={caselaw.caselawOutcome || 'Unknown Status'}

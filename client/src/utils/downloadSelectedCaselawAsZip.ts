@@ -1,11 +1,6 @@
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
-import type { PdfObjectInterface } from '@/types'
-
-interface SelectedCaselawItem {
-  id: string
-  pdf: PdfObjectInterface
-}
+import type { SelectedCaselawItem } from '@/types'
 
 function sanitizeFileName(name: string) {
   return name.replace(/[<>:"/\\|?*]+/g, '_')

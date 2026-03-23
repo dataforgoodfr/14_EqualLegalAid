@@ -129,3 +129,8 @@ export interface FetchRecordsFromTableConfig {
     }>
   }
 }
+
+export interface SelectedCaselawItem {
+  id: string
+  pdf: PdfObjectInterface
+}

@@ -5,10 +5,9 @@ import { sortPerDate } from '@/utils/sortPerDate'
 interface CaselawListProps {
   records: AirtableRecord[]
   sortDesc?: boolean
-  downloadMode: boolean
 }
 
-export const CaselawList = ({ records, sortDesc = true, downloadMode = false }: CaselawListProps) => {
+export const CaselawList = ({ records, sortDesc = true }: CaselawListProps) => {
   const caselaws = sortPerDate(records, sortDesc)
   if (caselaws.length === 0) {
     return <p className="py-12 text-center text-[var(--text-light)]">No records found</p>
@@ -20,7 +19,6 @@ export const CaselawList = ({ records, sortDesc = true, downloadMode = false }: 
         <CaselawCard
           key={index}
           caselaw={caselaw}
-          downloadMode={downloadMode}
         />
       ))}
     </div>

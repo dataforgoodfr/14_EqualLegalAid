@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useAirtableFilter } from '@/hooks'
-import { Header, Loading, ErrorMessage, CaselawList, AsylumApplicationsPage } from '@/components'
+import { Header, Loading, ErrorMessage, CaselawList, AsylumApplicationsPage, MapPage } from '@/components'
 import './App.css'
 import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 
-type Tab = 'caselaw' | 'statistics'
+type Tab = 'caselaw' | 'statistics' | 'map'
 
 /**
  * Main application component
@@ -32,6 +32,7 @@ function App() {
         {([
           { id: 'caselaw', label: 'Caselaw Database' },
           { id: 'statistics', label: 'EU Asylum Statistics' },
+          { id: 'map', label: 'Map Chart Test Page' },
         ] as { id: Tab, label: string }[]).map(tab => (
           <button
             key={tab.id}
@@ -74,6 +75,8 @@ function App() {
         )}
 
         {activeTab === 'statistics' && <AsylumApplicationsPage />}
+
+        {activeTab === 'map' && <MapPage />}
       </main>
     </div>
   )

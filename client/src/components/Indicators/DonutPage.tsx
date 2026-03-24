@@ -17,15 +17,13 @@ function DonutPageDetails({ records, loading, error }: { records: AsylumApplicat
 
 function DonutPageDetailsDev() {
   const data = [
-    { name: 'Group A', value: 400 },
-    { name: 'Group B', value: 300 },
-    { name: 'Group C', value: 300 },
+    { name: 'Group A', value: 400, color: 'red' },
+    { name: 'Group B', value: 300, color: 'black' },
+    { name: 'Group C', value: 300, color: 'yellow' },
   ]
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
-
   function customShapeFunction(props: PieSectorShapeProps) {
-    return <Sector {...props} fill={COLORS[props.index % COLORS.length]} />
+    return <Sector {...props} fill={data[props.index].color} />
   }
 
   return (

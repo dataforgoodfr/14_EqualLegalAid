@@ -1,6 +1,6 @@
 import { useAsylumApplications } from '@/hooks/useAsylumApplications'
 import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
-import { PieChart, Pie, Tooltip } from 'recharts'
+import { PieChart, Pie, Tooltip, Sector, type PieSectorShapeProps } from 'recharts'
 
 export function DonutPage() {
   // const { records, loading, error } = useAsylumApplications()
@@ -22,6 +22,12 @@ function DonutPageDetailsDev() {
     { name: 'Group C', value: 300 },
   ]
 
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
+
+  function customShapeFunction(props: PieSectorShapeProps) {
+    return <Sector {...props} fill={COLORS[props.index % COLORS.length]} />
+  }
+
   return (
     <PieChart
       style={{ width: '100%', height: '100%', maxWidth: '500px', maxHeight: '80vh', aspectRatio: 1 }}
@@ -34,6 +40,7 @@ function DonutPageDetailsDev() {
         cy="50%"
         outerRadius="100%"
         innerRadius="50%"
+        shape={customShapeFunction}
       />
       <Tooltip />
     </PieChart>

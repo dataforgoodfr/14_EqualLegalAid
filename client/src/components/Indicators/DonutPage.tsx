@@ -17,7 +17,8 @@ function DonutPageDetails({ records, loading, error }: { records: AsylumApplicat
 
 function GeneralPie() {
   function customShapeFunction(props: PieSectorShapeProps) {
-    return <Sector {...props} fill={data[props.index].color} />
+    const link = props.index.toString()
+    return <a href={link}><Sector {...props} fill={data[props.index].color} /></a>
   }
   const data = [
     { name: 'Group A', value: 400, color: 'red' },

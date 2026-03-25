@@ -75,6 +75,11 @@ function DetailPie() {
 }
 
 function DonutPageDetailsDev() {
+  // the display will depend on the URL
+  const pathName: string = window.location.pathname
+  const urlNumber: number = parseInt(pathName.slice(1))
+  console.log({ urlNumber })
+
   return (
     <>
       <GeneralPie />

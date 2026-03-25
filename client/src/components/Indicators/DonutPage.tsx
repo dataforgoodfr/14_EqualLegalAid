@@ -15,16 +15,15 @@ function DonutPageDetails({ records, loading, error }: { records: AsylumApplicat
   )
 }
 
-function DonutPageDetailsDev() {
+function GeneralPie() {
+  function customShapeFunction(props: PieSectorShapeProps) {
+    return <Sector {...props} fill={data[props.index].color} />
+  }
   const data = [
     { name: 'Group A', value: 400, color: 'red' },
     { name: 'Group B', value: 300, color: 'black' },
     { name: 'Group C', value: 300, color: 'yellow' },
   ]
-
-  function customShapeFunction(props: PieSectorShapeProps) {
-    return <Sector {...props} fill={data[props.index].color} />
-  }
 
   return (
     <PieChart
@@ -42,5 +41,43 @@ function DonutPageDetailsDev() {
       />
       <Tooltip />
     </PieChart>
+  )
+}
+
+function DetailPie() {
+  function customShapeFunction(props: PieSectorShapeProps) {
+    return <Sector {...props} fill={data[props.index].color} />
+  }
+  const data = [
+    { name: 'Group A', value: 400, color: 'red' },
+    { name: 'Group B', value: 300, color: 'black' },
+    { name: 'Group C', value: 300, color: 'yellow' },
+  ]
+
+  return (
+    <PieChart
+      style={{ width: '100%', height: '100%', maxWidth: '500px', maxHeight: '80vh', aspectRatio: 1 }}
+      responsive
+    >
+      <Pie
+        data={data}
+        dataKey="value"
+        cx="50%"
+        cy="50%"
+        outerRadius="100%"
+        innerRadius="50%"
+        shape={customShapeFunction}
+      />
+      <Tooltip />
+    </PieChart>
+  )
+}
+
+function DonutPageDetailsDev() {
+  return (
+    <>
+      <GeneralPie />
+      <DetailPie />
+    </>
   )
 }

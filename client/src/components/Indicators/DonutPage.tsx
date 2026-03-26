@@ -15,10 +15,13 @@ function DonutPageDetails({ records, loading, error }: { records: AsylumApplicat
   )
 }
 
+function onclick(index: number) {
+  console.log(index)
+}
+
 function GeneralPie() {
   function customShapeFunction(props: PieSectorShapeProps) {
-    const link = props.index.toString()
-    return <a href={link}><Sector {...props} fill={data[props.index].color} /></a>
+    return <a onClick={() => { onclick(props.index) }}><Sector {...props} fill={data[props.index].color} /></a>
   }
   const data = [
     { name: 'Group A', value: 400, color: 'red' },
@@ -75,11 +78,6 @@ function DetailPie() {
 }
 
 function DonutPageDetailsDev() {
-  // the display will depend on the URL
-  const pathName: string = window.location.pathname
-  const urlNumber: number = parseInt(pathName.slice(1))
-  console.log({ urlNumber })
-
   return (
     <>
       <GeneralPie />

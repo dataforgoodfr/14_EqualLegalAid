@@ -90,6 +90,11 @@ export interface AirtableConfig {
   tableName: string
 }
 
+export interface PdfObjectInterface {
+  pdfFileName: string
+  pdfURL: string
+}
+
 /**
  * Represents a case law record with structured fields
  */
@@ -103,6 +108,29 @@ export interface Caselaw {
   competentCourtOrAuthority: string
   caselawOutcome: string
   keywords: string[]
-  englishPdfLink: string
-  greekPdfLink: string
+  englishPdfLink: PdfObjectInterface
+  greekPdfLink: PdfObjectInterface
+}
+
+export interface FetchRecordsFromTableConfig {
+  tableName: AirtableBaseName
+  selectConfig?: {
+    maxRecords?: number
+    pageSize?: number
+    userLocale?: 'en-us' | 'el-GR'
+    cellFormat?: 'json' | 'string'
+    timeZone?: string
+    view?: string
+    fields?: string[]
+    filterByFormula?: string
+    sort?: Array<{
+      field: string
+      direction?: 'asc' | 'desc'
+    }>
+  }
+}
+
+export interface SelectedCaselawItem {
+  id: string
+  pdf: PdfObjectInterface
 }

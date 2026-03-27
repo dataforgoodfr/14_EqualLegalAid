@@ -1,8 +1,9 @@
-import type { Caselaw } from '@/types'
-import { downloadPdf } from '@/utils/pdfHelpers'
-import { Badge, Button, CardInfo, CardTitle } from '@/components/ui'
+import { useState } from 'react'
+import type { Caselaw, SelectedCaselawItem } from '@/types'
+import { Badge, Button, CardInfo, CardTitle, Checkbox, Field, Label } from '@/components/ui'
 import { Download } from 'lucide-react'
-
+import { useDownloadCaselaw } from '@/context/'
+import { cn } from '@/lib/utils'
 interface CaselawCardProps {
   caselaw: Caselaw
 }
@@ -21,75 +22,110 @@ const OUTCOME_COLORS: Record<string, string> = {
 
 export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? 'var(--color-outcome-neutral)'
-
   const formattedDate = caselaw.publishedAt.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   })
+  const { setCaselawSelection, isSelected, isDownloadMode } = useDownloadCaselaw()
+  const [isCardSelected, setIsCardSelected] = useState(isSelected(caselaw.title))
 
+  const handleSelecteItem = () => {
+    const selected = !isCardSelected
+    if (!isDownloadMode) {
+      return
+    }
+    setIsCardSelected(selected)
+    const selectedObject: SelectedCaselawItem = {
+      id: caselaw.title,
+      pdf: {
+        pdfFileName: caselaw.englishPdfLink.pdfFileName,
+        pdfURL: caselaw.englishPdfLink.pdfURL,
+      },
+    }
+    setCaselawSelection(selectedObject, selected)
+  }
   return (
-    <article className="overflow-hidden rounded-xl bg-white shadow-[0_2px_12px_rgba(0,46,93,0.08)]">
+    <article
+      className={cn(
+        ' overflow-hidden rounded-xl  bg-white shadow-[0_2px_12px_rgba(0,46,93,0.08)] transition-all',
+        isDownloadMode && 'cursor-pointer border-2 border-input',
+        isDownloadMode && isSelected(caselaw.title) && 'scale-95 border-black bg-input',
+      )}
+      onClick={handleSelecteItem}
+    >
 
       {/* Body */}
-      <div className="flex min-w-0 flex-col gap-3 p-5 px-6">
+      <div className="p-5 px-6">
+        <div className="relative flex min-w-0 flex-col gap-3 ">
 
-        {/* Outcome badge */}
-        <Badge
-          label={caselaw.caselawOutcome || 'Unknown Status'}
-          color={outcomeColor}
-          uppercase
-        />
+          {/* Outcome badge */}
+          <Badge
+            label={caselaw.caselawOutcome || 'Unknown Status'}
+            color={outcomeColor}
+            uppercase
+          />
 
-        {/* Title */}
-        <CardTitle title={caselaw.title || 'Untitled Case'} />
+          {/* Title */}
+          <CardTitle title={caselaw.title || 'Untitled Case'} />
 
-        {/* Published + Country — same line */}
-        <div className="flex flex-wrap gap-5">
-          <CardInfo title="Published" info={formattedDate} />
-          {caselaw.countryOfOrigin && <CardInfo title="Country" info={caselaw.countryOfOrigin} />}
-        </div>
-
-        {/* Court */}
-        {caselaw.competentCourtOrAuthority && <CardInfo title="Court" info={caselaw.competentCourtOrAuthority} />}
-
-        {/* Application */}
-        {caselaw.competentCourtOrAuthority && <CardInfo title="Application" info={caselaw.applicationTypes || ''} />}
-
-        {/* Asylum Procedure */}
-        {caselaw.asylumProcedure && <CardInfo title="Asylum Procedure" info={caselaw.asylumProcedure} />}
-
-        {/* Keywords */}
-        {caselaw.keywords.length > 0 && (
-          <div className="flex flex-wrap gap-[0.4rem] pr-[25%]">
-            {caselaw.keywords.map(keyword => (
-              <Badge key={keyword} label={keyword} />
-            ))}
+          {/* Published + Country — same line */}
+          <div className="flex flex-wrap gap-5">
+            <CardInfo title="Published" info={formattedDate} />
+            {caselaw.countryOfOrigin && <CardInfo title="Country" info={caselaw.countryOfOrigin} />}
           </div>
-        )}
 
-        {/* PDF actions — always visible, disabled when no link */}
-        <div className="flex justify-end gap-2 pt-1">
-          <Button
-            size="xs"
-            disabled={!caselaw.englishPdfLink}
-            className="border border-black bg-white text-black shadow-[0_2px_6px_rgba(0,0,0,0.1)] hover:-translate-y-px hover:shadow-[0_4px_10px_rgba(0,0,0,0.15)] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-40"
-            onClick={() => caselaw.englishPdfLink && downloadPdf(caselaw.englishPdfLink)}
-            title="Download English PDF"
-          >
-            <Download size={12} />
-            Download English PDF
-          </Button>
-          <Button
-            size="xs"
-            disabled={!caselaw.greekPdfLink}
-            className="border border-black bg-white text-black shadow-[0_2px_6px_rgba(0,0,0,0.1)] hover:-translate-y-px hover:shadow-[0_4px_10px_rgba(0,0,0,0.15)] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-40"
-            onClick={() => caselaw.greekPdfLink && downloadPdf(caselaw.greekPdfLink)}
-            title="Download Greek PDF"
-          >
-            <Download size={12} />
-            Download Greek PDF
-          </Button>
+          {/* Court */}
+          {caselaw.competentCourtOrAuthority && <CardInfo title="Court" info={caselaw.competentCourtOrAuthority} />}
+
+          {/* Application */}
+          {caselaw.competentCourtOrAuthority && <CardInfo title="Application" info={caselaw.applicationTypes || ''} />}
+
+          {/* Asylum Procedure */}
+          {caselaw.asylumProcedure && <CardInfo title="Asylum Procedure" info={caselaw.asylumProcedure} />}
+
+          {/* Keywords */}
+          {caselaw.keywords.length > 0 && (
+            <div className="flex flex-wrap gap-[0.4rem] pr-[25%]">
+              {caselaw.keywords.map(keyword => (
+                <Badge key={keyword} label={keyword} />
+              ))}
+            </div>
+          )}
+
+          {/* PDF actions — always visible, disabled when no link */}
+          <div className="flex justify-end gap-2 pt-1">
+            {caselaw.englishPdfLink.pdfURL.length && (
+              <Button
+                size="xs"
+                variant="outline"
+                asChild
+              >
+                <a
+                  href={caselaw.englishPdfLink.pdfURL}
+                  target="_blank"
+                >
+                  <Download size={12} />
+                  Download English PDF
+                </a>
+              </Button>
+            )}
+            {caselaw.greekPdfLink.pdfURL.length && (
+              <Button
+                size="xs"
+                variant="outline"
+                asChild
+              >
+                <a
+                  href={caselaw.greekPdfLink.pdfURL}
+                  target="_blank"
+                >
+                  <Download size={12} />
+                  Download Greek PDF
+                </a>
+              </Button>
+            )}
+          </div>
         </div>
 
       </div>

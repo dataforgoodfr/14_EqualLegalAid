@@ -4,7 +4,8 @@ import type {
   AirtableFieldValue,
   AirtableRecord,
   Caselaw,
-} from '../types'
+  PdfObjectInterface,
+} from '@/types'
 
 /**
  * Checks if a value is a PDF URL
@@ -108,6 +109,24 @@ export const toCaselaw = (record: AirtableRecord): Caselaw => {
     .map(k => k.trim())
     .filter(Boolean)
 
+  const getPdfObject = (pdflink: string): PdfObjectInterface => {
+    const parts = pdflink.split(' (')
+
+    if (parts.length !== 2) {
+      return {
+        pdfFileName: '',
+        pdfURL: '',
+      }
+    }
+
+    const pdfFileName = parts[0].trim()
+    const pdfURL = parts[1].replace(')', '').trim()
+
+    return {
+      pdfFileName,
+      pdfURL,
+    }
+  }
   return {
     title: str('Title'),
     publishedAt: str('PublishedAt') ? new Date(str('PublishedAt')) : new Date(),
@@ -118,7 +137,7 @@ export const toCaselaw = (record: AirtableRecord): Caselaw => {
     competentCourtOrAuthority: str('CompetentCourtOrAuthority'),
     caselawOutcome: str('CaselawOutcome'),
     keywords,
-    englishPdfLink: str('EnglishPdfLink'),
-    greekPdfLink: str('GreekPdfLink'),
+    englishPdfLink: getPdfObject(str('English_Pdf')),
+    greekPdfLink: getPdfObject(str('Greek_Pdf')),
   }
 }

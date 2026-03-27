@@ -5,12 +5,14 @@ import App from './App.tsx'
 import { AirtableProvider } from '@/providers'
 import { store } from './redux/store.ts'
 import { Provider } from 'react-redux'
-
+import { DownloadCaselawProvider } from '@/context/'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
       <AirtableProvider>
-        <App />
+        <DownloadCaselawProvider>
+          <App />
+        </DownloadCaselawProvider>
       </AirtableProvider>
     </Provider>
   </StrictMode>,

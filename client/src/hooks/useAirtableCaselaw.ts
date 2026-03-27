@@ -1,4 +1,4 @@
-import { AirtableBaseNameEnum, type AirtableRecord } from '@/types'
+import { AirtableBaseNameEnum, type AirtableRecord, type FetchRecordsFromTableConfig } from '@/types'
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import { APP_CONFIG } from '@/constants/config'
@@ -45,13 +45,21 @@ export const useAirtableCaselaw = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCaseLawsRecords = useCallback(async() => {
+  const fetchCaseLawsRecords = useCallback(async(config?: Omit<FetchRecordsFromTableConfig, 'tableName'>) => {
     try {
       setLoading(true)
       setError(null)
+      const userFilterByFormula = config?.selectConfig?.filterByFormula
+
       const fetchedRecords = await airtableService.fetchRecordsFromTable({
         tableName: APP_CONFIG.defaultBaseName,
-        selectConfig: { filterByFormula: PUBLISHED_FILTER },
+        ...config,
+        selectConfig: {
+          ...config?.selectConfig,
+          filterByFormula: userFilterByFormula
+            ? `AND(${PUBLISHED_FILTER}, ${userFilterByFormula})`
+            : PUBLISHED_FILTER,
+        },
       })
       setCaselawRecords(fetchedRecords)
     }
@@ -90,6 +98,20 @@ export const useAirtableCaselaw = () => {
     }
   }, [airtableService])
 
+  const findSpecificCaseLawBasedOnId = useCallback((id: string) => {
+    const trimmedValue = id.trim()
+    if (!trimmedValue) {
+      fetchCaseLawsRecords()
+      return
+    }
+    const escapedValue = trimmedValue.replace(/"/g, '\\"')
+    fetchCaseLawsRecords({
+      selectConfig: {
+        filterByFormula: `SEARCH(LOWER("${escapedValue}"), LOWER({Title}))`,
+      },
+    })
+  }, [fetchCaseLawsRecords])
+
   useEffect(() => {
     fetchCaseLawsRecords()
   }, [])
@@ -100,5 +122,6 @@ export const useAirtableCaselaw = () => {
     error,
     refetchCaselawRecords: fetchCaseLawsRecords,
     fetchFilteredCaselaws,
+    findSpecificCaseLawBasedOnId,
   }
 }

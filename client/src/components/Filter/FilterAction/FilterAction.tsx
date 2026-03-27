@@ -1,25 +1,34 @@
-import { useState, type Dispatch, type SetStateAction } from 'react'
+import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 import type { FilterTagInterface } from '@/types'
 import { Button } from '@/components/ui'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
-import { X } from 'lucide-react'
+import { X, SquareMousePointer } from 'lucide-react'
 import { setFilterTag } from '@/redux/filtersSlice'
-import { TOGGLE_ACTION_MAP } from '@/components/Filter'
+import { useDownloadCaselaw } from '@/context'
+import {
+  TOGGLE_ACTION_MAP,
+  FilterActionSearch,
+} from '@/components/Filter'
 interface FilterActionProps {
   count: number
   setSort: Dispatch<SetStateAction<boolean>>
+  setFindSpecificCaseLaw: (value: string) => void
 }
 
 export const FilterAction = ({
   count = 1,
   setSort,
+  setFindSpecificCaseLaw,
 }: FilterActionProps) => {
   const [recentFirst, setRecentFirst] = useState(true)
+  const [searchCaseLaw, setSearchCaselaw] = useState('')
+  const isFirstRender = useRef(true)
   const handleSort = () => {
     setRecentFirst(!recentFirst)
     setSort(!recentFirst)
   }
+  const { selectedCaselaw, clearSelection, startDownloadPdf, handleDownloadMode, isDownloadMode } = useDownloadCaselaw()
   const dispatch = useAppDispatch()
   const handleClick = (filterTag: FilterTagInterface) => {
     const action = TOGGLE_ACTION_MAP[filterTag.filterStateName]
@@ -34,6 +43,7 @@ export const FilterAction = ({
       itemChecked: false,
     }))
   }
+
   const createFilterTags = (filterTags: FilterTagInterface[]) => {
     return (
       <div className="mt-4 flex flex-wrap">
@@ -52,20 +62,61 @@ export const FilterAction = ({
     )
   }
   const filterTags = useAppSelector(state => state.filters.filterTags)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    setFindSpecificCaseLaw(searchCaseLaw)
+  }, [searchCaseLaw, setFindSpecificCaseLaw])
   return (
     <div className="filter-action">
       <p className="text-gray-count mb-6 text-xl font-semibold">
         <span className="mr-2 font-bold text-black">{count}</span>
         {count > 1 ? 'Decisions' : 'Decision'}
       </p>
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-4">
         <Button onClick={handleSort} variant="outline" className="font-bold">
           {recentFirst ? (<ArrowDownWideNarrow />) : (<ArrowUpNarrowWide />)}
           Sort by:
           {' '}
           {recentFirst ? 'Newest' : 'Oldest'}
         </Button>
+        <FilterActionSearch
+          setSearchCaselaw={setSearchCaselaw}
+        />
+        <div>
+          <Button
+            variant={isDownloadMode ? 'default' : 'outline'}
+            className="cursor-pointer"
+            onClick={handleDownloadMode}
+          >
+            <SquareMousePointer className="mr-2" />
+            Multi select
+          </Button>
+        </div>
       </div>
+      {isDownloadMode && (
+        <div className="mt-4 flex gap-4">
+          <Button
+            onClick={startDownloadPdf}
+            className="w-[50%]"
+            disabled={selectedCaselaw.length === 0}
+          >
+            Download selected caselaw (
+            {selectedCaselaw.length}
+            )
+          </Button>
+          <Button
+            className="w-[50%]"
+            variant="secondary"
+            onClick={clearSelection}
+            disabled={selectedCaselaw.length === 0}
+          >
+            Clear selected caselaw
+          </Button>
+        </div>
+      )}
       {filterTags.length > 0 && createFilterTags(filterTags)}
     </div>
   )

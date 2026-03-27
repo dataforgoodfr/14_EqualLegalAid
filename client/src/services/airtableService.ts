@@ -2,26 +2,8 @@ import type { Base, Records, FieldSet } from 'airtable'
 import type {
   AirtableRecord,
   AirtableFieldValue,
-  AirtableBaseName,
+  FetchRecordsFromTableConfig,
 } from '@/types'
-
-interface FetchRecordsFromTableConfig {
-  tableName: AirtableBaseName
-  selectConfig?: {
-    maxRecords?: number
-    pageSize?: number
-    userLocale?: 'en-us' | 'el-GR'
-    cellFormat?: 'json' | 'string'
-    timeZone?: string
-    view?: string
-    fields?: string[]
-    filterByFormula?: string
-    sort?: Array<{
-      field: string
-      direction?: 'asc' | 'desc'
-    }>
-  }
-}
 
 export function createAirtableService(base: Base) {
   async function fetchRecordsFromTable({

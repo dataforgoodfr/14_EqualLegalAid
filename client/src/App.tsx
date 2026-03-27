@@ -17,6 +17,7 @@ function App() {
     error,
     refetchCaselawRecords,
     fetchFilteredCaselaws,
+    findSpecificCaseLawBasedOnId,
   } = useAirtableCaselaw()
   const [sortDesc, setSortDesc] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('caselaw')
@@ -55,14 +56,13 @@ function App() {
               <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
             </div>
             <div className="flex-auto xl:w-222">
+              <FilterAction
+                count={caselawRecords.length}
+                setSort={value => setSortDesc(value)}
+                setFindSpecificCaseLaw={findSpecificCaseLawBasedOnId}
+              />
               {loading && <Loading />}
               {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}
-              {!loading && !error && (
-                <FilterAction
-                  count={caselawRecords.length}
-                  setSort={value => setSortDesc(value)}
-                />
-              )}
               {!loading && !error && (
                 <CaselawList
                   records={caselawRecords}

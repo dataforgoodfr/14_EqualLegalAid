@@ -1,6 +1,9 @@
 import { useAsylumApplications } from '@/hooks/useAsylumApplications'
 import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
+import { store } from '@/redux/store'
+import { setChartToDisplay } from '@/redux/chartSlice'
 import { PieChart, Pie, Tooltip, Sector, type PieSectorShapeProps } from 'recharts'
+import { useAppSelector } from '@/hooks/reduxHook'
 
 export function DonutPage() {
   // const { records, loading, error } = useAsylumApplications()
@@ -16,7 +19,8 @@ function DonutPageDetails({ records, loading, error }: { records: AsylumApplicat
 }
 
 function onclick(index: number) {
-  console.log(index)
+  const chartName: string = 'chart_number_' + index.toString()
+  store.dispatch(setChartToDisplay(chartName))
 }
 
 function GeneralPie() {
@@ -53,9 +57,12 @@ function DetailPie() {
     return <Sector {...props} fill={data[props.index].color} />
   }
   const data = [
-    { name: 'Group A', value: 400, color: 'red' },
-    { name: 'Group B', value: 300, color: 'black' },
-    { name: 'Group C', value: 300, color: 'yellow' },
+    { name: 'Group 1', value: 400, color: 'red' },
+    { name: 'Group 2', value: 300, color: 'black' },
+    { name: 'Group 3', value: 300, color: 'yellow' },
+    { name: 'Group 4', value: 40, color: 'purple' },
+    { name: 'Group 5', value: 300, color: 'cyan' },
+    { name: 'Group 6', value: 300, color: 'green' },
   ]
 
   return (
@@ -78,10 +85,25 @@ function DetailPie() {
 }
 
 function DonutPageDetailsDev() {
+  const chartName = useAppSelector(state => state.charts.chartName)
+  console.log({ chartName })
+
   return (
     <>
-      <GeneralPie />
-      <DetailPie />
+      {chartName != 'global'
+        && (
+          <button onClick={() => {
+            const chartName: string = 'global'
+            store.dispatch(setChartToDisplay(chartName))
+          }}
+          >
+            Press me to go back to the general chart
+          </button>
+        )}
+      {chartName === 'global' && <GeneralPie />}
+      {chartName === 'chart_number_0' && <DetailPie />}
+      {chartName === 'chart_number_1' && <p>Chart 1</p>}
+      {chartName === 'chart_number_2' && <p>Chart 2</p>}
     </>
   )
 }

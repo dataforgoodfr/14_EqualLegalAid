@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Caselaw, SelectedCaselawItem } from '@/types'
-import { Badge, Button, CardInfo, CardTitle, Checkbox, Field, Label } from '@/components/ui'
+import { Badge, Button, CardInfo, CardTitle } from '@/components/ui'
 import { Download } from 'lucide-react'
 import { useDownloadCaselaw } from '@/context/'
 import { cn } from '@/lib/utils'

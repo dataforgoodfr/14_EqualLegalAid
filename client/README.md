@@ -27,6 +27,7 @@ credentials. This file should be put aside with the .env.example file, in the cl
 VITE_AIRTABLE_API_KEY=your_api_key
 VITE_AIRTABLE_BASE_ID=your_base_id
 VITE_AIRTABLE_TABLE_NAME=your_table_name
+VITE_PROTOMAP_KEY=your_protomap_key
 ```
 
 ## Recommended VS Code extensions

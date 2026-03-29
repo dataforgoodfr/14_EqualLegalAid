@@ -98,13 +98,11 @@ export function EuropeRegionMap() {
   )
   const [selectedYear, setSelectedYear] = useState<number | null>(null)
 
-  useEffect(() => {
-    if (years.length > 0 && selectedYear === null) setSelectedYear(years[0])
-  }, [years, selectedYear])
+  const effectiveYear = selectedYear ?? years[0] ?? null
 
   const yearRecords = useMemo(
-    () => (selectedYear ? records.filter(r => r.year === selectedYear) : []),
-    [records, selectedYear],
+    () => (effectiveYear ? records.filter(r => r.year === effectiveYear) : []),
+    [records, effectiveYear],
   )
 
   const activeRecords = useMemo(
@@ -274,7 +272,7 @@ export function EuropeRegionMap() {
 
           {/* Year selector */}
           <Select
-            value={selectedYear?.toString() ?? ''}
+            value={effectiveYear?.toString() ?? ''}
             onValueChange={v => setSelectedYear(Number(v))}
             disabled={loading || years.length === 0}
           >
@@ -343,7 +341,7 @@ export function EuropeRegionMap() {
                   )}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
-                  {selectedYear}
+                  {effectiveYear}
                 </p>
               </>
             ) : (

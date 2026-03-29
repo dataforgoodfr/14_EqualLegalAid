@@ -1,22 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)",
-      "Bash(npm run build:*)",
-      "Bash(node -e:*)",
-      "Bash(dir:*)",
-      "Bash(cmd /c \"dir \"\"C:\\\\AllNectarGo\\\\Interfaçage\\\\ULIS\\\\BUG ULIS\"\"\")",
-      "Bash(powershell -Command:*)",
-      "Bash(powershell.exe -NoProfile -Command \"Get-ChildItem ''C:\\\\AllNectarGo'' | Where-Object { $_Name -like ''Interfa*age'' } | Select-Object -ExpandProperty FullName\")",
-      "Bash(powershell.exe -NoProfile -File -:*)",
-      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:/Users/arnau/AppData/Local/Temp/analyze_excel.ps1\")",
-      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:/Users/arnau/AppData/Local/Temp/compare_excel.ps1\")",
-      "Bash(powershell.exe -NoProfile -Command \"\ncmd /c ''for %f in \\(\"\"C:\\\\AllNectarGo\\\\Interfa?age\\\\ULIS\\\\BUG ULIS\\\\*.xlsx\"\"\\) do @echo %~sf''\n\")",
-      "Bash(cmd /c \"for %f in \\(\"\"C:\\\\AllNectarGo\\\\Interfa?age\\\\ULIS\\\\BUG ULIS\\\\*.xlsx\"\"\\) do @echo %~sf\")",
-      "Bash(powershell.exe -NoProfile -Command:*)",
-      "Bash(python:*)",
-      "Bash(\"C:/Users/arnau/AppData/Local/Python/bin/python3.exe\" \"C:/Users/arnau/AppData/Local/Temp/analyze_xlsx.py\")",
-      "Bash(\"C:/Users/arnau/AppData/Local/Python/bin/python3.exe\" \"C:/Users/arnau/AppData/Local/Temp/check_template.py\")"
+      "Bash(npx tsc:*)"
     ]
   }
 }

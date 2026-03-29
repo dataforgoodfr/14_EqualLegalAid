@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useAirtableFilter } from '@/hooks'
-import { Header, Loading, ErrorMessage, CaselawList, AsylumApplicationsPage } from '@/components'
+import { Header, Loading, ErrorMessage, CaselawList } from '@/components'
 import './App.css'
+
+const AsylumApplicationsPage = lazy(() =>
+  import('@/components/Indicators/AsylumApplicationsPage').then(m => ({ default: m.AsylumApplicationsPage }))
+)
 import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 
@@ -73,7 +77,11 @@ function App() {
           </div>
         )}
 
-        {activeTab === 'statistics' && <AsylumApplicationsPage />}
+        {activeTab === 'statistics' && (
+          <Suspense fallback={<Loading />}>
+            <AsylumApplicationsPage />
+          </Suspense>
+        )}
       </main>
     </div>
   )

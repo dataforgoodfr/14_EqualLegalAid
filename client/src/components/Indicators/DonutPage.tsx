@@ -6,15 +6,34 @@ import { PieChart, Pie, Tooltip, Sector, type PieSectorShapeProps } from 'rechar
 import { useAppSelector } from '@/hooks/reduxHook'
 
 export function DonutPage() {
-  // const { records, loading, error } = useAsylumApplications()
-  // return <DonutPageDetails records={records} loading={loading} error={error} />
-  return <DonutPageDetailsDev />
+  const { records, loading, error } = useAsylumApplications()
+  return <DonutPageDetails records={records} loading={loading} error={error} />
+  // return <DonutPageDetailsDev />
 }
 
 function DonutPageDetails({ records, loading, error }: { records: AsylumApplicationRecord[], loading: boolean, error: string | null }) {
   console.log(records, loading, error)
+  const chartName = useAppSelector(state => state.charts.chartName)
+  console.log({ chartName })
+
   return (
-    <div>Empty page</div>
+    <>
+      <h2 className="text-base font-semibold">Number of asylum applications in Europe</h2>
+      {chartName != 'global'
+        && (
+          <button onClick={() => {
+            const chartName: string = 'global'
+            store.dispatch(setChartToDisplay(chartName))
+          }}
+          >
+            Press me to go back to the general chart
+          </button>
+        )}
+      {chartName === 'global' && <GeneralPie />}
+      {chartName === 'chart_number_0' && <DetailPie />}
+      {chartName === 'chart_number_1' && <p>Chart 1</p>}
+      {chartName === 'chart_number_2' && <p>Chart 2</p>}
+    </>
   )
 }
 

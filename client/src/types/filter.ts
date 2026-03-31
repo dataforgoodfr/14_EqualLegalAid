@@ -1,5 +1,14 @@
 import type { AirtableBaseNameEnum } from './index'
 
+export const DATE_FILTER_STATE_NAME = 'Date' as const
+
+export type FilterStateName = AirtableBaseNameEnum | typeof DATE_FILTER_STATE_NAME
+
+export interface DatePartSelection {
+  month: number | null
+  year: number | null
+}
+
 export interface BasicValuesInterface {
   id: string
   fields: {
@@ -18,7 +27,7 @@ export interface FilterInterface {
 export interface FilterTagInterface {
   name: string
   id: string
-  filterStateName: AirtableBaseNameEnum
+  filterStateName: FilterStateName
 }
 export interface searchInGivenFilterInterface {
   value: string

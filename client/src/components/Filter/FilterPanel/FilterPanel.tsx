@@ -15,6 +15,7 @@ import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import {
   BasicFilterItem,
   ACCORDION_CONFIG,
+  DateFilterItem,
   TOGGLE_ACTION_MAP,
 } from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
@@ -35,6 +36,8 @@ export interface AccordionItemInterface extends AccordionInterface {
 
 interface FilterPanelProps {
   onApplyFilters: (selectedFilters: SelectedFilters) => void
+  minDate: Date | null
+  maxDate: Date | null
 }
 
 const createAccordionItems = (filterRecords: FilterInterface[]): AccordionItemInterface[] => {
@@ -48,7 +51,7 @@ const createAccordionItems = (filterRecords: FilterInterface[]): AccordionItemIn
   })
 }
 
-export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
+export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelProps) => {
   const dispatch = useAppDispatch()
   const { getSelectedFilters } = useApplyFilters()
   const isMounted = useRef(false)
@@ -64,6 +67,8 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
   const legalProcedureTypesSelected = useAppSelector(state => state.filters.legalProcedureTypesSelected)
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
+  const dateStart = useAppSelector(state => state.filters.dateStart)
+  const dateEnd = useAppSelector(state => state.filters.dateEnd)
 
   const SELECTED_IDS_MAP: Partial<Record<AirtableBaseNameEnum, string[]>> = {
     [AirtableBaseNameEnum.Countries]: countriesSelected,
@@ -81,7 +86,17 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
       return
     }
     onApplyFilters(getSelectedFilters())
-  }, [countriesSelected, outcomesSelected, legalProcedureTypesSelected, applicationTypesSelected, asylumProceduresSelected])
+  }, [
+    getSelectedFilters,
+    onApplyFilters,
+    countriesSelected,
+    outcomesSelected,
+    legalProcedureTypesSelected,
+    applicationTypesSelected,
+    asylumProceduresSelected,
+    dateStart,
+    dateEnd,
+  ])
 
   const handleFilterChange = (
     airtableBaseName: AirtableBaseNameEnum,
@@ -114,6 +129,17 @@ export const FilterPanel = ({ onApplyFilters }: FilterPanelProps) => {
           )
         }
       })}
+      <AccordionItem value="item-date">
+        <AccordionTrigger>Decision date</AccordionTrigger>
+        <AccordionContent>
+          <DateFilterItem
+            minDate={minDate}
+            maxDate={maxDate}
+            startDate={dateStart}
+            endDate={dateEnd}
+          />
+        </AccordionContent>
+      </AccordionItem>
     </Accordion>
   )
 }

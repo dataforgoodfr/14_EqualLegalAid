@@ -1,4 +1,5 @@
 export * from './FilterItem/BasicFilterItem'
+export * from './FilterItem/DateFilterItem'
 export * from './FilterPanel/FilterPanel'
 export * from './FilterSearch/FilterSearch'
 export * from './FilterAction/FilterAction'

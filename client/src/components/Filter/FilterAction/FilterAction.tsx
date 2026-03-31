@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
-import type { FilterTagInterface } from '@/types'
+import { DATE_FILTER_STATE_NAME, type FilterTagInterface } from '@/types'
 import { Button } from '@/components/ui'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import { X, SquareMousePointer } from 'lucide-react'
-import { setFilterTag } from '@/redux/filtersSlice'
+import { resetDateEnd, resetDateStart, setFilterTag } from '@/redux/filtersSlice'
 import { useDownloadCaselaw } from '@/context'
 import {
   TOGGLE_ACTION_MAP,
@@ -31,6 +31,22 @@ export const FilterAction = ({
   const { selectedCaselaw, clearSelection, startDownloadPdf, handleDownloadMode, isDownloadMode } = useDownloadCaselaw()
   const dispatch = useAppDispatch()
   const handleClick = (filterTag: FilterTagInterface) => {
+    if (filterTag.filterStateName === DATE_FILTER_STATE_NAME) {
+      if (filterTag.id === 'date-start') {
+        dispatch(resetDateStart())
+      }
+
+      if (filterTag.id === 'date-end') {
+        dispatch(resetDateEnd())
+      }
+
+      dispatch(setFilterTag({
+        item: filterTag,
+        itemChecked: false,
+      }))
+      return
+    }
+
     const action = TOGGLE_ACTION_MAP[filterTag.filterStateName]
     if (action) {
       dispatch(action({

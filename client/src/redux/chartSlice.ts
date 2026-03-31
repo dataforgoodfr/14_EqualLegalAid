@@ -1,3 +1,4 @@
+import type { chartName } from '@/types/chartNames'
 import { createSlice } from '@reduxjs/toolkit'
 
 import {
@@ -5,7 +6,7 @@ import {
 } from '@reduxjs/toolkit'
 
 interface ChartState {
-  chartName: string
+  chartName: chartName
 }
 
 const initialState: ChartState = {
@@ -16,7 +17,7 @@ const chartSlice = createSlice({
   name: 'charts',
   initialState,
   reducers: {
-    setChartToDisplay: (state, action: PayloadAction<string>) => {
+    setChartToDisplay: (state, action: PayloadAction<chartName>) => {
       state.chartName = action.payload
       console.log('setChartToDisplay in action')
     },

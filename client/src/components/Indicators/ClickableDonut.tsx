@@ -1,12 +1,13 @@
 import { store } from '@/redux/store'
 import { setChartToDisplay } from '@/redux/chartSlice'
 import { PieChart, Pie, Tooltip, Sector, type PieSectorShapeProps } from 'recharts'
+import type { chartName } from '@/types/chartNames'
 
 export interface PieChartData {
   name: string
   value: number
   color: string
-  link: string
+  link: chartName
 }
 
 export function ClickableDonut({ donutData }: { donutData: PieChartData[] }) {
@@ -33,7 +34,9 @@ export function ClickableDonut({ donutData }: { donutData: PieChartData[] }) {
   )
 }
 
-function onclick(chartLink: string) {
-  store.dispatch(setChartToDisplay(chartLink))
-  console.log({ chartLink })
+function onclick(chartLink: chartName) {
+  if (chartLink != null) {
+    store.dispatch(setChartToDisplay(chartLink))
+    console.log({ chartLink })
+  }
 }

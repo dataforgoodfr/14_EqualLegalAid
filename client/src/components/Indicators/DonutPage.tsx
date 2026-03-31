@@ -9,6 +9,7 @@ interface PieChartData {
   name: string
   value: number
   color: string
+  link: string
 }
 
 export function DonutPage() {
@@ -43,19 +44,19 @@ function DonutPageDetails({ records, loading, error }: { records: AsylumApplicat
   )
 }
 
-function onclick(index: number) {
-  const chartName: string = 'chart_number_' + index.toString()
-  store.dispatch(setChartToDisplay(chartName))
+function onclick(chartLink: string) {
+  store.dispatch(setChartToDisplay(chartLink))
+  console.log({ chartLink })
 }
 
 function GeneralPie() {
   function customShapeFunction(props: PieSectorShapeProps) {
-    return <a onClick={() => { onclick(props.index) }}><Sector {...props} fill={data[props.index].color} /></a>
+    return <a onClick={() => { onclick(data[props.index].link) }}><Sector {...props} fill={data[props.index].color} /></a>
   }
   const data: PieChartData[] = [
-    { name: 'Group A', value: 400, color: 'red' },
-    { name: 'Group B', value: 300, color: 'black' },
-    { name: 'Group C', value: 300, color: 'yellow' },
+    { name: 'Group A', value: 400, color: 'red', link: 'chart_number_0' },
+    { name: 'Group B', value: 300, color: 'black', link: 'chart_number_1' },
+    { name: 'Group C', value: 300, color: 'yellow', link: 'chart_number_2' },
   ]
 
   return (
@@ -82,12 +83,12 @@ function DetailPie() {
     return <Sector {...props} fill={data[props.index].color} />
   }
   const data: PieChartData[] = [
-    { name: 'Group 1', value: 400, color: 'red' },
-    { name: 'Group 2', value: 300, color: 'black' },
-    { name: 'Group 3', value: 300, color: 'yellow' },
-    { name: 'Group 4', value: 40, color: 'purple' },
-    { name: 'Group 5', value: 300, color: 'cyan' },
-    { name: 'Group 6', value: 300, color: 'green' },
+    { name: 'Group 1', value: 400, color: 'red', link: '' },
+    { name: 'Group 2', value: 300, color: 'black', link: '' },
+    { name: 'Group 3', value: 300, color: 'yellow', link: '' },
+    { name: 'Group 4', value: 40, color: 'purple', link: '' },
+    { name: 'Group 5', value: 300, color: 'cyan', link: '' },
+    { name: 'Group 6', value: 300, color: 'green', link: '' },
   ]
 
   return (

@@ -83,7 +83,6 @@ export function EuropeRegionMap() {
 
   const popupRootRef = useRef<ReturnType<typeof createRoot> | null>(null)
   const dataByCodeRef = useRef<Record<string, MapIndicatorRecord>>({})
-  const thresholdsRef = useRef<number[]>([])
 
   const { records, loading, error } = useMapIndicators()
   const [perCapita, setPerCapita] = useState(false)
@@ -217,7 +216,7 @@ export function EuropeRegionMap() {
         popup.remove()
       })
 
-      applyMapData(map, yearRecords, perCapita, thresholdsRef.current)
+      applyMapData(map, yearRecords, perCapita, thresholds)
     })
 
     return () => {
@@ -231,7 +230,6 @@ export function EuropeRegionMap() {
   // ── Re-apply whenever data / year / perCapita changes ───────────────────────
   useEffect(() => {
     // Keep refs in sync
-    thresholdsRef.current = thresholds
     dataByCodeRef.current = Object.fromEntries(yearRecords.map(r => [r.country_code, r]))
 
     const map = mapRef.current

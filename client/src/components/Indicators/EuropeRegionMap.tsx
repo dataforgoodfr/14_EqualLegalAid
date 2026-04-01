@@ -83,7 +83,6 @@ export function EuropeRegionMap() {
 
   const popupRootRef = useRef<ReturnType<typeof createRoot> | null>(null)
   const dataByCodeRef = useRef<Record<string, MapIndicatorRecord>>({})
-  const yearRecordsRef = useRef<MapIndicatorRecord[]>([])
   const thresholdsRef = useRef<number[]>([])
 
   const { records, loading, error } = useMapIndicators()
@@ -98,12 +97,12 @@ export function EuropeRegionMap() {
 
   const effectiveYear = selectedYear ?? years[0] ?? null
 
-  const yearRecords = useMemo(
+  const yearRecords: MapIndicatorRecord[] = useMemo(
     () => (effectiveYear ? records.filter(r => r.year === effectiveYear) : []),
     [records, effectiveYear],
   )
 
-  const activeRecords = useMemo(
+  const activeRecords: MapIndicatorRecord[] = useMemo(
     () => yearRecords.filter(r => r.total_applicants > 0),
     [yearRecords],
   )
@@ -218,7 +217,7 @@ export function EuropeRegionMap() {
         popup.remove()
       })
 
-      applyMapData(map, yearRecordsRef.current, perCapita, thresholdsRef.current)
+      applyMapData(map, yearRecords, perCapita, thresholdsRef.current)
     })
 
     return () => {
@@ -232,7 +231,6 @@ export function EuropeRegionMap() {
   // ── Re-apply whenever data / year / perCapita changes ───────────────────────
   useEffect(() => {
     // Keep refs in sync
-    yearRecordsRef.current = yearRecords
     thresholdsRef.current = thresholds
     dataByCodeRef.current = Object.fromEntries(yearRecords.map(r => [r.country_code, r]))
 

@@ -139,7 +139,7 @@ export function EuropeRegionMap() {
         protomaps: {
           type: 'vector',
           tiles: [`https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=${PROTOMAP_KEY}`],
-          maxzoom: 15,
+          maxzoom: 1,
           attribution: '© <a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
         },
       },

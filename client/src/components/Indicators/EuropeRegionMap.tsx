@@ -83,14 +83,12 @@ export function EuropeRegionMap() {
 
   const popupRootRef = useRef<ReturnType<typeof createRoot> | null>(null)
   const dataByCodeRef = useRef<Record<string, MapIndicatorRecord>>({})
-  const perCapitaRef = useRef(false)
   const yearRecordsRef = useRef<MapIndicatorRecord[]>([])
   const thresholdsRef = useRef<number[]>([])
 
   const { records, loading, error } = useMapIndicators()
   const [perCapita, setPerCapita] = useState(false)
   const [view, setView] = useState<'map' | 'table'>('map')
-
 
   const years = useMemo(
     () => [...new Set(records.filter(r => r.total_applicants > 0).map(r => r.year))].sort((a, b) => b - a),
@@ -130,12 +128,6 @@ export function EuropeRegionMap() {
     () => yearRecords.find(r => r.country_code === GREECE_CODE),
     [yearRecords],
   )
-
-  // Keep refs in sync
-  perCapitaRef.current = perCapita
-  yearRecordsRef.current = yearRecords
-  thresholdsRef.current = thresholds
-  dataByCodeRef.current = Object.fromEntries(yearRecords.map(r => [r.country_code, r]))
 
   // ── Map initialisation (runs once) ──────────────────────────────────────────
   useEffect(() => {
@@ -211,7 +203,7 @@ export function EuropeRegionMap() {
           root.render(
             <CountryMapPopup
               record={countryData}
-              perCapita={perCapitaRef.current}
+              perCapita={perCapita}
             />,
           )
         })
@@ -226,7 +218,7 @@ export function EuropeRegionMap() {
         popup.remove()
       })
 
-      applyMapData(map, yearRecordsRef.current, perCapitaRef.current, thresholdsRef.current)
+      applyMapData(map, yearRecordsRef.current, perCapita, thresholdsRef.current)
     })
 
     return () => {
@@ -239,6 +231,11 @@ export function EuropeRegionMap() {
 
   // ── Re-apply whenever data / year / perCapita changes ───────────────────────
   useEffect(() => {
+    // Keep refs in sync
+    yearRecordsRef.current = yearRecords
+    thresholdsRef.current = thresholds
+    dataByCodeRef.current = Object.fromEntries(yearRecords.map(r => [r.country_code, r]))
+
     const map = mapRef.current
     if (!map) return
     const apply = () => applyMapData(map, yearRecords, perCapita, thresholds)

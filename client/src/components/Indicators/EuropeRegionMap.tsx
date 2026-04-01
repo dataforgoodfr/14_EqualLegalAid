@@ -197,7 +197,7 @@ export function EuropeRegionMap() {
         paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
       })
 
-      map.on('mousemove', 'country-hover', e => {
+      map.on('mousemove', 'country-hover', (e) => {
         if (!e.features?.length) return
         map.getCanvas().style.cursor = 'pointer'
         const isoCode = e.features[0].properties?.[ISO_PROP] as string | undefined
@@ -244,7 +244,8 @@ export function EuropeRegionMap() {
     const apply = () => applyMapData(map, yearRecords, perCapita, thresholds)
     if (map.isStyleLoaded()) {
       apply()
-    } else {
+    }
+    else {
       // Map not ready yet — apply as soon as it is
       map.once('load', apply)
       return () => { map.off('load', apply) }
@@ -253,14 +254,14 @@ export function EuropeRegionMap() {
 
   return (
     <section className="p-6">
-      {/* ── Header ── */}
+      {/* ── HEADER ────────────────────────────────────────────────────── */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-semibold">Number of asylum applications in Europe</h2>
 
         <div className="flex items-center gap-3">
           {/* Per-capita toggle */}
           <div className="flex items-center gap-2">
-            <Label htmlFor="per-capita-switch" className="text-sm select-none text-muted-foreground">
+            <Label htmlFor="per-capita-switch" className="text-muted-foreground text-sm select-none">
               Per capita
             </Label>
             <Switch
@@ -289,7 +290,7 @@ export function EuropeRegionMap() {
           </Select>
 
           {/* View toggle buttons */}
-          <div className="flex items-center rounded-md border border-border overflow-hidden">
+          <div className="border-border flex items-center overflow-hidden rounded-md border">
             <button
               className={`flex items-center justify-center px-2.5 py-1.5 ${view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
               title="Map view"
@@ -298,7 +299,7 @@ export function EuropeRegionMap() {
               <MapIcon size={14} />
             </button>
             <button
-              className={`flex items-center justify-center px-2.5 py-1.5 border-l border-border ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+              className={`border-border flex items-center justify-center border-l px-2.5 py-1.5 ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
               title="Table view"
               onClick={() => setView('table')}
             >
@@ -309,64 +310,71 @@ export function EuropeRegionMap() {
       </div>
 
       {error && <p className="text-destructive mb-2 text-sm">{error}</p>}
-      
-      <div className={`border border-border rounded-lg overflow-hidden ${view === 'table' ? '' : 'hidden'}`} style={{ height: '480px' }}>
+
+      {/* ── TABLE ─────────────────────────────────────────────────────── */}
+
+      <div className={`border-border overflow-hidden rounded-lg border ${view === 'table' ? '' : 'hidden'}`} style={{ height: '480px' }}>
         <IndicatorsDataTable
           data={activeRecords.filter(r => r.country_code !== 'EU27')}
           perCapita={perCapita}
         />
       </div>
-      
-      <div className={`flex border border-border rounded-lg overflow-hidden ${view === 'map' ? '' : 'hidden'}`} style={{ height: '480px' }}>
 
-        <div className="flex flex-col justify-between p-5 bg-muted/30 border-r border-border" style={{ width: 220, flexShrink: 0 }}>
+      {/* ── MAP ───────────────────────────────────────────────────────── */}
+
+      <div className={`border-border flex overflow-hidden rounded-lg border ${view === 'map' ? '' : 'hidden'}`} style={{ height: '480px' }}>
+
+        <div className="bg-muted/30 border-border flex flex-col justify-between border-r p-5" style={{ width: 220, flexShrink: 0 }}>
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1">
+            <p className="text-muted-foreground mb-1 text-[11px] font-medium tracking-wide uppercase">
               Greece
             </p>
-            <p className="text-sm text-foreground leading-snug mb-4">
+            <p className="text-foreground mb-4 text-sm leading-snug">
               {perCapita
                 ? 'First-time asylum applicants per capita'
                 : 'First-time asylum applicants'}
             </p>
 
-            {greeceRecord ? (
-              <>
-                <p className="text-4xl font-bold text-primary tabular-nums leading-none mb-1">
-                  {formatValue(
-                    perCapita
-                      ? greeceRecord.first_time_applicants_per_capita
-                      : greeceRecord.first_time_applicants,
-                    perCapita,
-                  )}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {effectiveYear}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">—</p>
-            )}
+            {greeceRecord
+              ? (
+                <>
+                  <p className="text-primary mb-1 text-4xl leading-none font-bold tabular-nums">
+                    {formatValue(
+                      perCapita
+                        ? greeceRecord.first_time_applicants_per_capita
+                        : greeceRecord.first_time_applicants,
+                      perCapita,
+                    )}
+                  </p>
+                  <p className="text-muted-foreground text-[11px]">
+                    {effectiveYear}
+                  </p>
+                </>
+              )
+              : (
+                <p className="text-muted-foreground text-sm">—</p>
+              )}
           </div>
 
           {bucketLabels.length > 0 && (
             <div>
               {euRecord && (
-                <p className="text-[11px] text-muted-foreground mb-2">
-                  EU ={' '}
+                <p className="text-muted-foreground mb-2 text-[11px]">
+                  EU =
+                  {' '}
                   <span className="font-semibold tabular-nums">
                     {formatValue(euRecord[valueKey], perCapita)}
                   </span>
                 </p>
               )}
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
+              <p className="text-muted-foreground mb-1.5 text-[10px] font-medium tracking-wide uppercase">
                 {perCapita ? 'Per capita' : 'Total applicants'}
               </p>
               <div className="space-y-1">
                 {[...bucketLabels].reverse().map(({ color, label }) => (
                   <div key={label} className="flex items-center gap-2">
-                    <div className="h-3 w-5 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
-                    <span className="text-[10px] text-muted-foreground tabular-nums">{label}</span>
+                    <div className="h-3 w-5 flex-shrink-0 rounded-sm" style={{ backgroundColor: color }} />
+                    <span className="text-muted-foreground text-[10px] tabular-nums">{label}</span>
                   </div>
                 ))}
               </div>

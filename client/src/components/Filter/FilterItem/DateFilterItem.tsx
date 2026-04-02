@@ -221,9 +221,9 @@ export const DateFilterItem = ({
 
     return (
         <div className="filter-item p-2">
-            <div className="filter-item__content py-2">
+            <div className="filter-item__content rounded-md border border-gray-200 bg-white px-4 py-4">
                 <FieldGroup className="gap-5">
-                    <Field>
+                    <Field className="rounded-md ">
                         <FieldContent>
                             <Label>Start date</Label>
                             <div className="grid grid-cols-2 gap-3">
@@ -243,7 +243,6 @@ export const DateFilterItem = ({
                                         ))}
                                     </SelectContent>
                                 </Select>
-
                                 <Select
                                     disabled={isDisabled || startDate.year === null}
                                     value={startDate.month !== null ? toMonthValue(startDate.month) : undefined}
@@ -263,8 +262,7 @@ export const DateFilterItem = ({
                             </div>
                         </FieldContent>
                     </Field>
-
-                    <Field>
+                    <Field className="rounded-md">
                         <FieldContent>
                             <Label>End date</Label>
                             <div className="grid grid-cols-2 gap-3">

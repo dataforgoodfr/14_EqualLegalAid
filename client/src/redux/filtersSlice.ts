@@ -18,6 +18,8 @@ interface FiltersState {
   outcomesSelected: string[]
   legalProcedureTypesSelected: string[]
   applicationTypes: FilterInterface
+  authorities: FilterInterface
+  authoritiesSelected: string[]
   applicationTypesSelected: string[]
   asylumProcedures: FilterInterface
   asylumProceduresSelected: string[]
@@ -63,6 +65,12 @@ const initialState: FiltersState = {
     airtableBaseName: AirtableBaseNameEnum.Countries,
     needFetch: false,
   },
+  authorities: {
+    label: AirtableBaseNameEnum.Authorities,
+    value: [],
+    available: false,
+  },
+  authoritiesSelected: [],
   countriesSelected: [],
   outcomesSelected: [],
   legalProcedureTypesSelected: [],
@@ -116,6 +124,9 @@ const filtersSlice = createSlice({
     setAsylumProceduresFilter: (state, action: PayloadAction<FilterInterface>) => {
       state.asylumProcedures = action.payload
     },
+    setAuthoritiesFilter: (state, action: PayloadAction<FilterInterface>) => {
+      state.authorities = action.payload
+    },
     setDateStart: (state, action: PayloadAction<DatePartSelection>) => {
       state.dateStart = action.payload
     },
@@ -127,6 +138,7 @@ const filtersSlice = createSlice({
     resetLegalProcedureTypesFilter: (state) => { state.legalProcedureTypes = initialState.legalProcedureTypes },
     resetApplicationTypesFilter: (state) => { state.applicationTypes = initialState.applicationTypes },
     resetAsylumProceduresFilter: (state) => { state.asylumProcedures = initialState.asylumProcedures },
+    resetAuthoritiesFilter: (state) => { state.authorities = initialState.authorities },
     resetDateStart: (state) => { state.dateStart = initialState.dateStart },
     resetDateEnd: (state) => { state.dateEnd = initialState.dateEnd },
 
@@ -185,6 +197,16 @@ const filtersSlice = createSlice({
         state.asylumProceduresSelected = state.asylumProceduresSelected.filter(id => id !== action.payload.id)
       }
     },
+    toggleAuthoritiesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
+      if (action.payload.checked) {
+        if (!state.authoritiesSelected.includes(action.payload.id)) {
+          state.authoritiesSelected.push(action.payload.id)
+        }
+      }
+      else {
+        state.authoritiesSelected = state.authoritiesSelected.filter(id => id !== action.payload.id)
+      }
+    },
 
     resetAllSelected: (state) => {
       state.countriesSelected = []
@@ -192,6 +214,7 @@ const filtersSlice = createSlice({
       state.legalProcedureTypesSelected = []
       state.applicationTypesSelected = []
       state.asylumProceduresSelected = []
+      state.authoritiesSelected = []
       state.dateStart = initialState.dateStart
       state.dateEnd = initialState.dateEnd
       state.filterTags = []
@@ -206,6 +229,7 @@ export const {
   setLegalProcedureTypesFilter,
   setApplicationTypesFilter,
   setAsylumProceduresFilter,
+  setAuthoritiesFilter,
   setDateStart,
   setDateEnd,
   setSearchInGivenFilter,
@@ -221,7 +245,7 @@ export const {
   toggleLegalProcedureTypesSelected,
   toggleApplicationTypesSelected,
   toggleAsylumProceduresSelected,
-
+  toggleAuthoritiesSelected,
   resetAllSelected,
 } = filtersSlice.actions
 

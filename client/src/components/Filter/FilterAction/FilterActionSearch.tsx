@@ -39,7 +39,7 @@ export const FilterActionSearch = ({
             className="mr-4"
             width="24"
           />
-          <span className="inline-block whitespace-nowrap">Search by case number :</span>
+          <span className="inline-block whitespace-nowrap">Search by title :</span>
         </label>
         <Input
           className="border-0"

@@ -16,6 +16,8 @@ export interface BasicValuesInterface {
     Name_GR: string
     Count_Caselaws: number
     Caselaws: string[]
+    Name_Long_EN?: string
+    Name_Long_GR?: string
   }
 }
 
@@ -37,5 +39,6 @@ export interface searchInGivenFilterInterface {
 
 export enum FilterTypeEnum {
   Basic = 'Basic',
+  NameToSplit = 'NameToSplit',
   Other = 'Other',
 }

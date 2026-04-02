@@ -40,7 +40,7 @@ export const BasicFilterItem = ({
   return (
     <div className="filter-item p-2">
       {enabledSearch && (
-        <div className="filter-item__search my-4">
+        <div className="filter-item__search my-4 rounded-md border border-gray-200 bg-white p-3">
           <FilterSearch
             placeholderContent={searchPlaceholder}
             airtableBaseName={airtableBaseName}
@@ -48,12 +48,12 @@ export const BasicFilterItem = ({
         </div>
       )}
 
-      <div className="filter-item__content py-2">
+      <div className="filter-item__content rounded-md border border-gray-200 bg-white px-4 py-2">
         <FieldGroup>
           {items.map(item => (
             <Field
               key={item.id}
-              className="flex items-center justify-between py-3.5"
+              className="flex items-center justify-between py-3.5 not-last:border-b not-last:border-gray-100"
               orientation="horizontal"
             >
               <div className="flex items-center">

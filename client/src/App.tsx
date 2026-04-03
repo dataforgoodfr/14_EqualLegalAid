@@ -17,6 +17,7 @@ type Tab = 'caselaw' | 'statistics'
 function App() {
   const {
     caselawRecords,
+    dateBounds,
     loading,
     error,
     refetchCaselawRecords,
@@ -57,7 +58,11 @@ function App() {
         {activeTab === 'caselaw' && (
           <div className="flex xl:gap-10">
             <div className="flex-auto">
-              <FilterPanel onApplyFilters={fetchFilteredCaselaws} />
+              <FilterPanel
+                onApplyFilters={fetchFilteredCaselaws}
+                minDate={dateBounds.minDate}
+                maxDate={dateBounds.maxDate}
+              />
             </div>
             <div className="flex-auto xl:w-222">
               <FilterAction

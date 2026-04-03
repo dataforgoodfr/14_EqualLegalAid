@@ -1,5 +1,6 @@
 import {
   AirtableBaseNameEnum,
+  type DatePartSelection,
   type FilterInterface,
   type searchInGivenFilterInterface,
   type FilterTagInterface,
@@ -20,6 +21,8 @@ interface FiltersState {
   applicationTypesSelected: string[]
   asylumProcedures: FilterInterface
   asylumProceduresSelected: string[]
+  dateStart: DatePartSelection
+  dateEnd: DatePartSelection
   searchInGivenFilter: searchInGivenFilterInterface
   filterTags: FilterTagInterface[]
 }
@@ -65,6 +68,14 @@ const initialState: FiltersState = {
   legalProcedureTypesSelected: [],
   applicationTypesSelected: [],
   asylumProceduresSelected: [],
+  dateStart: {
+    month: null,
+    year: null,
+  },
+  dateEnd: {
+    month: null,
+    year: null,
+  },
   filterTags: [],
 }
 
@@ -105,11 +116,19 @@ const filtersSlice = createSlice({
     setAsylumProceduresFilter: (state, action: PayloadAction<FilterInterface>) => {
       state.asylumProcedures = action.payload
     },
+    setDateStart: (state, action: PayloadAction<DatePartSelection>) => {
+      state.dateStart = action.payload
+    },
+    setDateEnd: (state, action: PayloadAction<DatePartSelection>) => {
+      state.dateEnd = action.payload
+    },
     resetCountriesFilter: (state) => { state.countries = initialState.countries },
     resetOutcomesFilter: (state) => { state.outcomes = initialState.outcomes },
     resetLegalProcedureTypesFilter: (state) => { state.legalProcedureTypes = initialState.legalProcedureTypes },
     resetApplicationTypesFilter: (state) => { state.applicationTypes = initialState.applicationTypes },
     resetAsylumProceduresFilter: (state) => { state.asylumProcedures = initialState.asylumProcedures },
+    resetDateStart: (state) => { state.dateStart = initialState.dateStart },
+    resetDateEnd: (state) => { state.dateEnd = initialState.dateEnd },
 
     // --- Selected filter item IDs (id de BasicValuesInterface) ---
     toggleCountriesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
@@ -173,6 +192,9 @@ const filtersSlice = createSlice({
       state.legalProcedureTypesSelected = []
       state.applicationTypesSelected = []
       state.asylumProceduresSelected = []
+      state.dateStart = initialState.dateStart
+      state.dateEnd = initialState.dateEnd
+      state.filterTags = []
     },
   },
 })
@@ -184,12 +206,16 @@ export const {
   setLegalProcedureTypesFilter,
   setApplicationTypesFilter,
   setAsylumProceduresFilter,
+  setDateStart,
+  setDateEnd,
   setSearchInGivenFilter,
   resetCountriesFilter,
   resetOutcomesFilter,
   resetApplicationTypesFilter,
   resetAsylumProceduresFilter,
   resetLegalProcedureTypesFilter,
+  resetDateStart,
+  resetDateEnd,
   toggleCountriesSelected,
   toggleOutcomesSelected,
   toggleLegalProcedureTypesSelected,

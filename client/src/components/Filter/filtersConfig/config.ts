@@ -4,6 +4,7 @@ import {
   type ToggleSelectedPayload,
   toggleApplicationTypesSelected,
   toggleAsylumProceduresSelected,
+  toggleAuthoritiesSelected,
   toggleCountriesSelected,
   toggleLegalProcedureTypesSelected,
   toggleOutcomesSelected,
@@ -24,7 +25,7 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     search: { enabled: true, placeholder: 'Search a Country' },
   },
   {
-    accordionTriggerLabel: 'Competent court',
+    accordionTriggerLabel: 'Type of application',
     airtableBaseName: AirtableBaseNameEnum.ApplicationTypes,
     filterType: FilterTypeEnum.Basic,
     search: { enabled: false, placeholder: 'Search' },
@@ -41,6 +42,12 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     filterType: FilterTypeEnum.Basic,
     search: { enabled: false, placeholder: 'Search a Type of legal procedure' },
   },
+  {
+    accordionTriggerLabel: 'Competent Court',
+    airtableBaseName: AirtableBaseNameEnum.Authorities,
+    filterType: FilterTypeEnum.NameToSplit,
+    search: { enabled: false, placeholder: 'Search' },
+  },
 ]
 
 export const TOGGLE_ACTION_MAP: Partial<Record<AirtableBaseNameEnum, ActionCreatorWithPayload<ToggleSelectedPayload>>> = {
@@ -49,4 +56,5 @@ export const TOGGLE_ACTION_MAP: Partial<Record<AirtableBaseNameEnum, ActionCreat
   [AirtableBaseNameEnum.LegalProcedureTypes]: toggleLegalProcedureTypesSelected,
   [AirtableBaseNameEnum.ApplicationTypes]: toggleApplicationTypesSelected,
   [AirtableBaseNameEnum.AsylumProcedures]: toggleAsylumProceduresSelected,
+  [AirtableBaseNameEnum.Authorities]: toggleAuthoritiesSelected,
 }

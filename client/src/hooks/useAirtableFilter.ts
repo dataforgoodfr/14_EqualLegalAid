@@ -5,7 +5,7 @@ import {
 } from '@/types'
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
-import { setApplicationTypesFilter, setAsylumProceduresFilter, setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
+import { setApplicationTypesFilter, setAsylumProceduresFilter, setAuthoritiesFilter, setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
 import { useAppDispatch, useAppSelector } from './reduxHook'
 
 export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[] =>
@@ -26,7 +26,7 @@ export const useAirtableFilter = () => {
   const [errorFilterRecords, setErrorFilterRecords] = useState<string | null>(null)
   const [readyToUserSearchInFilter, setReadyToUserSearchInFilter] = useState(false)
 
-  const fetchFilterRecords = useCallback(async() => {
+  const fetchFilterRecords = useCallback(async () => {
     if (filterFetched) return
     try {
       setLoadingFilterRecords(true)
@@ -37,9 +37,10 @@ export const useAirtableFilter = () => {
         AirtableBaseNameEnum.LegalProcedureTypes,
         AirtableBaseNameEnum.ApplicationTypes,
         AirtableBaseNameEnum.AsylumProcedures,
+        AirtableBaseNameEnum.Authorities,
       ]
       const results = await Promise.all(
-        entries.map(async(tableName) => {
+        entries.map(async (tableName) => {
           try {
             const records = await airtableService.fetchRecordsFromTable({
               tableName,
@@ -62,7 +63,7 @@ export const useAirtableFilter = () => {
       const legalProcedureTypesResult = results.find(r => r.label === AirtableBaseNameEnum.LegalProcedureTypes)
       const applicationTypesResult = results.find(r => r.label === AirtableBaseNameEnum.ApplicationTypes)
       const asylumProceduresResult = results.find(r => r.label === AirtableBaseNameEnum.AsylumProcedures)
-
+      const authoritiesResult = results.find(r => r.label === AirtableBaseNameEnum.Authorities)
       if (countriesResult) dispatch(setCountriesFilter({
         ...countriesResult,
         value: toBasicValues(countriesResult.value),
@@ -83,9 +84,13 @@ export const useAirtableFilter = () => {
         ...asylumProceduresResult,
         value: toBasicValues(asylumProceduresResult.value),
       }))
+      if (authoritiesResult) dispatch(setAuthoritiesFilter({
+        ...authoritiesResult,
+        value: toBasicValues(authoritiesResult.value),
+      }))
       setFilterFetched(true)
     }
-    catch(err: unknown) {
+    catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch filters'
       setErrorFilterRecords(errorMessage)
     }
@@ -94,7 +99,7 @@ export const useAirtableFilter = () => {
     }
   }, [airtableService, filterFetched, dispatch])
 
-  const fetchFilterRecordsForSpecificUserSearch = useCallback(async() => {
+  const fetchFilterRecordsForSpecificUserSearch = useCallback(async () => {
     const { value, airtableBaseName } = searchInGivenFilter
     const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({Name_EN})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
 
@@ -132,9 +137,12 @@ export const useAirtableFilter = () => {
         case AirtableBaseNameEnum.AsylumProcedures:
           dispatch(setAsylumProceduresFilter(formattedFilter))
           break
+        case AirtableBaseNameEnum.Authorities:
+          dispatch(setAuthoritiesFilter(formattedFilter))
+          break
       }
     }
-    catch(err: unknown) {
+    catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch specific filter'
       setErrorFilterRecords(errorMessage)
     }

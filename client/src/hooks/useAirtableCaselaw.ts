@@ -11,6 +11,7 @@ const FILTER_COLUMN_MAP: Record<keyof FacetSelectedFilters, string> = {
   [AirtableBaseNameEnum.LegalProcedureTypes]: 'LegalProcedureType',
   [AirtableBaseNameEnum.ApplicationTypes]: 'ApplicationType',
   [AirtableBaseNameEnum.AsylumProcedures]: 'AsylumProcedure',
+  [AirtableBaseNameEnum.Authorities]: 'CompetentCourtOrAuthority',
 }
 
 const PUBLISHED_AT_FIELD = 'PublishedAt'

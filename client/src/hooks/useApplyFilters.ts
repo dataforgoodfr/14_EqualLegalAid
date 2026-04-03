@@ -8,11 +8,23 @@ export interface FacetSelectedFilters {
   [AirtableBaseNameEnum.LegalProcedureTypes]: string[]
   [AirtableBaseNameEnum.ApplicationTypes]: string[]
   [AirtableBaseNameEnum.AsylumProcedures]: string[]
+  [AirtableBaseNameEnum.Authorities]: string[]
 }
 
 export interface SelectedFilters extends FacetSelectedFilters {
   startDate: string | null
   endDate: string | null
+}
+
+const getFilterValue = (
+  filterName: AirtableBaseNameEnum,
+  value: { fields: { Name_EN: string, Name_Long_EN?: string } },
+): string => {
+  if (filterName === AirtableBaseNameEnum.Authorities) {
+    return value.fields.Name_Long_EN ?? value.fields.Name_EN
+  }
+
+  return value.fields.Name_EN
 }
 
 const isCompleteDateSelection = (selection: DatePartSelection): boolean => {
@@ -38,9 +50,10 @@ const toDateValue = (
 }
 
 const getNamesByIds = (
+  filterName: AirtableBaseNameEnum,
   ids: string[],
-  values: { id: string, fields: { Name_EN: string } }[],
-): string[] => values.filter(item => ids.includes(item.id)).map(item => item.fields.Name_EN)
+  values: { id: string, fields: { Name_EN: string, Name_Long_EN?: string } }[],
+): string[] => values.filter(item => ids.includes(item.id)).map(item => getFilterValue(filterName, item))
 
 export const useApplyFilters = () => {
   const countries = useAppSelector(state => state.filters.countries)
@@ -48,12 +61,15 @@ export const useApplyFilters = () => {
   const legalProcedureTypes = useAppSelector(state => state.filters.legalProcedureTypes)
   const applicationTypes = useAppSelector(state => state.filters.applicationTypes)
   const asylumProcedures = useAppSelector(state => state.filters.asylumProcedures)
+  const authorities = useAppSelector(state => state.filters.authorities)
 
   const countriesSelected = useAppSelector(state => state.filters.countriesSelected)
   const outcomesSelected = useAppSelector(state => state.filters.outcomesSelected)
   const legalProcedureTypesSelected = useAppSelector(state => state.filters.legalProcedureTypesSelected)
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
+  const authoritiesSelected = useAppSelector(state => state.filters.authoritiesSelected)
+
   const dateStart = useAppSelector(state => state.filters.dateStart)
   const dateEnd = useAppSelector(state => state.filters.dateEnd)
 
@@ -63,15 +79,17 @@ export const useApplyFilters = () => {
     || legalProcedureTypesSelected.length > 0
     || applicationTypesSelected.length > 0
     || asylumProceduresSelected.length > 0
+    || authoritiesSelected.length > 0
     || isCompleteDateSelection(dateStart)
     || isCompleteDateSelection(dateEnd)
 
   const getSelectedFilters = useCallback((): SelectedFilters => ({
-    [AirtableBaseNameEnum.Countries]: getNamesByIds(countriesSelected, countries.value),
-    [AirtableBaseNameEnum.Outcomes]: getNamesByIds(outcomesSelected, outcomes.value),
-    [AirtableBaseNameEnum.LegalProcedureTypes]: getNamesByIds(legalProcedureTypesSelected, legalProcedureTypes.value),
-    [AirtableBaseNameEnum.ApplicationTypes]: getNamesByIds(applicationTypesSelected, applicationTypes.value),
-    [AirtableBaseNameEnum.AsylumProcedures]: getNamesByIds(asylumProceduresSelected, asylumProcedures.value),
+    [AirtableBaseNameEnum.Countries]: getNamesByIds(AirtableBaseNameEnum.Countries, countriesSelected, countries.value),
+    [AirtableBaseNameEnum.Outcomes]: getNamesByIds(AirtableBaseNameEnum.Outcomes, outcomesSelected, outcomes.value),
+    [AirtableBaseNameEnum.LegalProcedureTypes]: getNamesByIds(AirtableBaseNameEnum.LegalProcedureTypes, legalProcedureTypesSelected, legalProcedureTypes.value),
+    [AirtableBaseNameEnum.ApplicationTypes]: getNamesByIds(AirtableBaseNameEnum.ApplicationTypes, applicationTypesSelected, applicationTypes.value),
+    [AirtableBaseNameEnum.AsylumProcedures]: getNamesByIds(AirtableBaseNameEnum.AsylumProcedures, asylumProceduresSelected, asylumProcedures.value),
+    [AirtableBaseNameEnum.Authorities]: getNamesByIds(AirtableBaseNameEnum.Authorities, authoritiesSelected, authorities.value),
     startDate: toDateValue(dateStart, 'start'),
     endDate: toDateValue(dateEnd, 'end'),
   }), [
@@ -85,6 +103,8 @@ export const useApplyFilters = () => {
     applicationTypes.value,
     asylumProceduresSelected,
     asylumProcedures.value,
+    authoritiesSelected,
+    authorities.value,
     dateStart,
     dateEnd,
   ])

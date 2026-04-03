@@ -17,6 +17,7 @@ import {
   ACCORDION_CONFIG,
   DateFilterItem,
   TOGGLE_ACTION_MAP,
+  GroupedFilterItem,
 } from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
 export interface AccordionInterface {
@@ -61,12 +62,15 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
   const legalProcedureTypes = useAppSelector(state => state.filters.legalProcedureTypes)
   const applicationTypes = useAppSelector(state => state.filters.applicationTypes)
   const asylumProcedures = useAppSelector(state => state.filters.asylumProcedures)
+  const authorities = useAppSelector(state => state.filters.authorities)
 
   const countriesSelected = useAppSelector(state => state.filters.countriesSelected)
   const outcomesSelected = useAppSelector(state => state.filters.outcomesSelected)
   const legalProcedureTypesSelected = useAppSelector(state => state.filters.legalProcedureTypesSelected)
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
+  const authoritiesSelected = useAppSelector(state => state.filters.authoritiesSelected)
+
   const dateStart = useAppSelector(state => state.filters.dateStart)
   const dateEnd = useAppSelector(state => state.filters.dateEnd)
 
@@ -76,9 +80,10 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
     [AirtableBaseNameEnum.LegalProcedureTypes]: legalProcedureTypesSelected,
     [AirtableBaseNameEnum.ApplicationTypes]: applicationTypesSelected,
     [AirtableBaseNameEnum.AsylumProcedures]: asylumProceduresSelected,
+    [AirtableBaseNameEnum.Authorities]: authoritiesSelected,
   }
 
-  const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures])
+  const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures, authorities])
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -94,6 +99,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
     legalProcedureTypesSelected,
     applicationTypesSelected,
     asylumProceduresSelected,
+    authoritiesSelected,
     dateStart,
     dateEnd,
   ])
@@ -119,6 +125,22 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
                 <BasicFilterItem
                   enabledSearch={accordionItem.search.enabled}
                   searchPlaceholder={accordionItem.search.placeholder}
+                  items={accordionItem.items}
+                  airtableBaseName={accordionItem.airtableBaseName}
+                  selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
+                  onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )
+        }
+
+        if (accordionItem.filterType === FilterTypeEnum.NameToSplit && accordionItem.available) {
+          return (
+            <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
+              <AccordionTrigger>{accordionItem.accordionTriggerLabel}</AccordionTrigger>
+              <AccordionContent>
+                <GroupedFilterItem
                   items={accordionItem.items}
                   airtableBaseName={accordionItem.airtableBaseName}
                   selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}

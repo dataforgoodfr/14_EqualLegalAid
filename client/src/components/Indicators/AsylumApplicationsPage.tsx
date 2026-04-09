@@ -1,5 +1,6 @@
 import { AsylumApplicationsDetails } from '@/components/Indicators/AsylumApplicationsDetails'
 import { EuropeRegionMap } from '@/components/Indicators/EuropeRegionMap'
+import { AsylumApplicationsEvolutionInGreece } from '@/components/Indicators/AsylumApplicationsEvolutionInGreece'
 import { useAsylumApplications } from '@/hooks/useAsylumApplications'
 
 export function AsylumApplicationsPage() {
@@ -8,6 +9,7 @@ export function AsylumApplicationsPage() {
     <>
       <EuropeRegionMap />
       <AsylumApplicationsDetails records={records} loading={loading} error={error} />
+      <AsylumApplicationsEvolutionInGreece />
     </>
   )
 }

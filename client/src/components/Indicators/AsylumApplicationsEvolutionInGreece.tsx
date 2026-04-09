@@ -1,6 +1,9 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { useGreeceTotalApplications } from '@/hooks/useGreeceTotalApplications'
 
 export function AsylumApplicationsEvolutionInGreece() {
+  const { records, loading, error } = useGreeceTotalApplications()
+
   const data = [
     { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
     { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
@@ -24,6 +27,13 @@ export function AsylumApplicationsEvolutionInGreece() {
         <Line type="monotone" dataKey="pv" stroke="#8884d8" />
         <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
       </LineChart>
+      <button
+        onClick={() => {
+          console.log({ records }, { loading }, { error })
+        }}
+      >
+        My Button
+      </button>
     </>
   )
 }

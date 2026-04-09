@@ -1,16 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
-
-export interface AsylumApplicationRecord {
-  id: string
-  year: number
-  name_country: string
-  total_applicants: number
-  first_time_applicants: number
-  subsequent_applicants: number
-  total_country_population: number
-  percentage: number
-}
+import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
 
 const toNum = (v: unknown): number => {
   if (typeof v === 'number') return v
@@ -42,6 +32,8 @@ export function useGreeceTotalApplications() {
           maxRecords: 5000,
           cellFormat: 'json',
           sort: [{ field: 'year', direction: 'asc' }],
+          // https://support.airtable.com/docs/airtable-web-api-using-filterbyformula-or-sort-parameters
+          filterByFormula: '{code_country} = "GR"',
         },
       })
 
@@ -59,7 +51,7 @@ export function useGreeceTotalApplications() {
       setRecords(parsed)
     }
     catch(err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch asylum applications')
+      setError(err instanceof Error ? err.message : 'Failed to fetch greece total application')
     }
     finally {
       setLoading(false)

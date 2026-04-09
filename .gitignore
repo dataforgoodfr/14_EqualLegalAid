@@ -46,6 +46,9 @@ logs/
 coverage/
 .nyc_output/
 
+# Examples
+client/src/examples/
+
 # Temporary files
 *.tmp
 *.temp

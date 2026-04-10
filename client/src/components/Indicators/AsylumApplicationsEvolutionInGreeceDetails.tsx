@@ -35,21 +35,38 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
   // year: 2015
 
   // extract key statistics from the records to populate the sub-title information bar
-  let total_applicants = 0
+  let totalFirstTime = 0
+  let totalSubSequent = 0
+
   for (const record of records) {
-    console.log(record)
-    total_applicants += record.total_applicants
+    totalFirstTime += record.first_time_applicants
+    totalSubSequent += record.subsequent_applicants
   }
+
+  const totalApplicants = totalFirstTime + totalSubSequent
+
+  const firstYear: number = records[0].year
+  const lastYear: number = records[records.length - 1].year
+  const betweenFirstYearAndLastYear = `between ${firstYear} and ${lastYear}`
 
   return (
     <>
       <h1 className="text-2xl font-bold" style={{ color: '#04356C' }}>
         Asylum Application Evolution in Greece
       </h1>
+      <br />
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard
-          label="Total First-time"
-          value={total_applicants.toLocaleString()}
+          label={`Total First-time ${betweenFirstYearAndLastYear}`}
+          value={totalFirstTime.toLocaleString()}
+        />
+        <StatCard
+          label={`Total subsequent ${betweenFirstYearAndLastYear}`}
+          value={totalSubSequent.toLocaleString()}
+        />
+        <StatCard
+          label={`Total ${betweenFirstYearAndLastYear}`}
+          value={totalApplicants.toLocaleString()}
         />
       </div>
       <br />

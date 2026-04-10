@@ -50,11 +50,10 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
   const betweenFirstYearAndLastYear = `between ${firstYear} and ${lastYear}`
 
   return (
-    <>
+    <div className="mx-auto max-w-5xl space-y-6 p-6">
       <h1 className="text-2xl font-bold" style={{ color: '#04356C' }}>
         Asylum Application Evolution in Greece
       </h1>
-      <br />
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard
           label={`Total First-time ${betweenFirstYearAndLastYear}`}
@@ -69,7 +68,6 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
           value={totalApplicants.toLocaleString()}
         />
       </div>
-      <br />
       <ChartContainer config={chartConfig} className="h-80 w-full">
         <LineChart width={500} height={300} data={records}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -89,6 +87,6 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
       >
         My Button
       </button> */}
-    </>
+    </div>
   )
 }

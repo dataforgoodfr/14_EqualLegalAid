@@ -6,6 +6,7 @@ import {
   ChartContainer,
   ChartLegendContent,
   StatCard,
+  ChartTooltipContent,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 
@@ -74,7 +75,14 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
           <XAxis dataKey="year" />
           <YAxis />
           {/* Tooltip is used to allow interactive displaying data on mouse hover */}
-          <Tooltip />
+          {/* https://github.com/recharts/recharts/wiki/Tooltip-event-type-and-shared-prop */}
+          <Tooltip
+            content={(
+              <ChartTooltipContent
+                labelFormatter={label => `Year: ${label}`}
+              />
+            )}
+          />
           <Legend content={<ChartLegendContent />} />
           <Line type="monotone" dataKey="first_time_applicants" stroke={chartConfig.first_time_applicants.color} />
           <Line type="monotone" dataKey="subsequent_applicants" stroke={chartConfig.subsequent_applicants.color} />

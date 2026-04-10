@@ -5,6 +5,7 @@ import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import {
   ChartContainer,
   ChartLegendContent,
+  StatCard,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 
@@ -33,11 +34,24 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
   // total_country_population: 10858018
   // year: 2015
 
+  // extract key statistics from the records to populate the sub-title information bar
+  let total_applicants = 0
+  for (const record of records) {
+    console.log(record)
+    total_applicants += record.total_applicants
+  }
+
   return (
     <>
       <h1 className="text-2xl font-bold" style={{ color: '#04356C' }}>
         Asylum Application Evolution in Greece
       </h1>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <StatCard
+          label="Total First-time"
+          value={total_applicants.toLocaleString()}
+        />
+      </div>
       <br />
       <ChartContainer config={chartConfig} className="h-80 w-full">
         <LineChart width={500} height={300} data={records}>

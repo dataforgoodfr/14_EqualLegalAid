@@ -17,6 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  StatCard,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { Loading } from '../Loading'
@@ -33,16 +34,6 @@ const chartConfig = {
     color: '#6B9BD2',
   },
 } satisfies ChartConfig
-
-function StatCard({ label, value, sub }: { label: string, value: string, sub?: string }) {
-  return (
-    <div className="border-border bg-background rounded-xl border p-4 shadow-xs">
-      <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-      {sub && <p className="text-muted-foreground mt-0.5 text-xs">{sub}</p>}
-    </div>
-  )
-}
 
 export function AsylumApplicationsDetails({ records, loading, error }: { records: AsylumApplicationRecord[], loading: boolean, error: string | null }) {
   const [selectedCountry, setSelectedCountry] = useState<string>()

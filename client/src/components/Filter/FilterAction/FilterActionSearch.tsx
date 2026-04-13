@@ -39,12 +39,12 @@ export const FilterActionSearch = ({
             className="mr-4"
             width="24"
           />
-          <span className="inline-block whitespace-nowrap">Search by title :</span>
+          <span className="inline-block whitespace-nowrap">Decision's title :</span>
         </label>
         <Input
           className="border-0"
           id="filterActionSearch"
-          placeholder="n° 2014R00363"
+          placeholder="Thessaloniki - ΑΔ406/2025"
           value={searchValue}
           onChange={event => handleSearchChange(event.target.value)}
         />

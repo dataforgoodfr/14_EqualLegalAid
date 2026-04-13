@@ -96,18 +96,26 @@ export interface PdfObjectInterface {
 }
 
 /**
- * Represents a case law record with structured fields
+ * Represents a case law record with structured fields.
+ * Fields suffixed with _GR hold the Greek version; they fall back to the English value if empty.
  */
 export interface Caselaw {
   title: string
   publishedAt: Date
   applicationTypes: string
+  applicationTypes_GR: string
   legalProcedureTypes: string
+  legalProcedureTypes_GR: string
   asylumProcedure: string
+  asylumProcedure_GR: string
   countryOfOrigin: string
+  countryOfOrigin_GR: string
   competentCourtOrAuthority: string
+  competentCourtOrAuthority_GR: string
   caselawOutcome: string
+  caselawOutcome_GR: string
   keywords: string[]
+  keywords_GR: string[]
   englishPdfLink: PdfObjectInterface
   greekPdfLink: PdfObjectInterface
 }

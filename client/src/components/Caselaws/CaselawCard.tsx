@@ -23,8 +23,12 @@ const OUTCOME_COLORS: Record<string, string> = {
 
 export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   const { t, i18n } = useTranslation()
+  const isGreek = i18n.language === 'el'
+  const lang = <T,>(en: T, gr: T): T => (isGreek ? gr : en)
+
+  // Colour map is keyed by English values regardless of display language
   const outcomeColor = OUTCOME_COLORS[caselaw.caselawOutcome] ?? 'var(--color-outcome-neutral)'
-  const locale = i18n.language === 'el' ? 'el-GR' : 'en-GB'
+  const locale = isGreek ? 'el-GR' : 'en-GB'
   const formattedDate = caselaw.publishedAt.toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
@@ -64,7 +68,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
 
           {/* Outcome badge */}
           <Badge
-            label={caselaw.caselawOutcome || t('caselaw.unknownStatus')}
+            label={lang(caselaw.caselawOutcome, caselaw.caselawOutcome_GR) || t('caselaw.unknownStatus')}
             color={outcomeColor}
             uppercase
           />
@@ -75,22 +79,30 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
           {/* Published + Country — same line */}
           <div className="flex flex-wrap gap-5">
             <CardInfo title={t('caselaw.published')} info={formattedDate} />
-            {caselaw.countryOfOrigin && <CardInfo title={t('caselaw.country')} info={caselaw.countryOfOrigin} />}
+            {caselaw.countryOfOrigin && (
+              <CardInfo title={t('caselaw.country')} info={lang(caselaw.countryOfOrigin, caselaw.countryOfOrigin_GR)} />
+            )}
           </div>
 
           {/* Court */}
-          {caselaw.competentCourtOrAuthority && <CardInfo title={t('caselaw.court')} info={caselaw.competentCourtOrAuthority} />}
+          {caselaw.competentCourtOrAuthority && (
+            <CardInfo title={t('caselaw.court')} info={lang(caselaw.competentCourtOrAuthority, caselaw.competentCourtOrAuthority_GR)} />
+          )}
 
           {/* Application */}
-          {caselaw.competentCourtOrAuthority && <CardInfo title={t('caselaw.application')} info={caselaw.applicationTypes || ''} />}
+          {caselaw.applicationTypes && (
+            <CardInfo title={t('caselaw.application')} info={lang(caselaw.applicationTypes, caselaw.applicationTypes_GR)} />
+          )}
 
           {/* Asylum Procedure */}
-          {caselaw.asylumProcedure && <CardInfo title={t('caselaw.asylumProcedure')} info={caselaw.asylumProcedure} />}
+          {caselaw.asylumProcedure && (
+            <CardInfo title={t('caselaw.asylumProcedure')} info={lang(caselaw.asylumProcedure, caselaw.asylumProcedure_GR)} />
+          )}
 
           {/* Keywords */}
           {caselaw.keywords.length > 0 && (
             <div className="flex flex-wrap gap-[0.4rem] pr-[25%]">
-              {caselaw.keywords.map(keyword => (
+              {lang(caselaw.keywords, caselaw.keywords_GR).map(keyword => (
                 <Badge key={keyword} label={keyword} />
               ))}
             </div>

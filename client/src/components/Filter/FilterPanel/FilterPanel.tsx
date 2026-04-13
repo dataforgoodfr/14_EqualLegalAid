@@ -20,6 +20,7 @@ import {
   GroupedFilterItem,
 } from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
+import { useTranslation } from 'react-i18next'
 export interface AccordionInterface {
   accordionTriggerLabel: string
   airtableBaseName: AirtableBaseNameEnum
@@ -56,6 +57,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
   const dispatch = useAppDispatch()
   const { getSelectedFilters } = useApplyFilters()
   const isMounted = useRef(false)
+  const { t } = useTranslation()
 
   const countries = useAppSelector(state => state.filters.countries)
   const outcomes = useAppSelector(state => state.filters.outcomes)
@@ -120,11 +122,11 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
         if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
           return (
             <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
-              <AccordionTrigger>{accordionItem.accordionTriggerLabel}</AccordionTrigger>
+              <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
               <AccordionContent>
                 <BasicFilterItem
                   enabledSearch={accordionItem.search.enabled}
-                  searchPlaceholder={accordionItem.search.placeholder}
+                  searchPlaceholder={t(accordionItem.search.placeholder)}
                   items={accordionItem.items}
                   airtableBaseName={accordionItem.airtableBaseName}
                   selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
@@ -138,7 +140,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
         if (accordionItem.filterType === FilterTypeEnum.NameToSplit && accordionItem.available) {
           return (
             <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
-              <AccordionTrigger>{accordionItem.accordionTriggerLabel}</AccordionTrigger>
+              <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
               <AccordionContent>
                 <GroupedFilterItem
                   items={accordionItem.items}
@@ -152,7 +154,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
         }
       })}
       <AccordionItem value="item-date">
-        <AccordionTrigger>Decision date</AccordionTrigger>
+        <AccordionTrigger>{t('filter.decisionDate')}</AccordionTrigger>
         <AccordionContent>
           <DateFilterItem
             minDate={minDate}

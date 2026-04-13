@@ -10,6 +10,7 @@ import {
   TOGGLE_ACTION_MAP,
   FilterActionSearch,
 } from '@/components/Filter'
+import { useTranslation } from 'react-i18next'
 interface FilterActionProps {
   count: number
   setSort: Dispatch<SetStateAction<boolean>>
@@ -30,6 +31,7 @@ export const FilterAction = ({
   }
   const { selectedCaselaw, clearSelection, startDownloadPdf, handleDownloadMode, isDownloadMode } = useDownloadCaselaw()
   const dispatch = useAppDispatch()
+  const { t } = useTranslation()
   const handleClick = (filterTag: FilterTagInterface) => {
     if (filterTag.filterStateName === DATE_FILTER_STATE_NAME) {
       if (filterTag.id === 'date-start') {
@@ -89,14 +91,14 @@ export const FilterAction = ({
     <div className="filter-action">
       <p className="text-gray-count mb-6 text-xl font-semibold">
         <span className="mr-2 font-bold text-black">{count}</span>
-        {count > 1 ? 'Decisions' : 'Decision'}
+        {t('filter.decisions', { count })}
       </p>
       <div className="flex justify-between gap-4">
         <Button onClick={handleSort} variant="outline" className="font-bold">
           {recentFirst ? (<ArrowDownWideNarrow />) : (<ArrowUpNarrowWide />)}
-          Sort by:
+          {t('filter.sortBy')}
           {' '}
-          {recentFirst ? 'Newest' : 'Oldest'}
+          {recentFirst ? t('filter.newest') : t('filter.oldest')}
         </Button>
         <FilterActionSearch
           setSearchCaselaw={setSearchCaselaw}
@@ -108,7 +110,7 @@ export const FilterAction = ({
             onClick={handleDownloadMode}
           >
             <SquareMousePointer className="mr-2" />
-            Multi select
+            {t('filter.multiSelect')}
           </Button>
         </div>
       </div>
@@ -119,9 +121,7 @@ export const FilterAction = ({
             className="w-[50%]"
             disabled={selectedCaselaw.length === 0}
           >
-            Download selected caselaw (
-            {selectedCaselaw.length}
-            )
+            {t('filter.downloadSelected', { count: selectedCaselaw.length })}
           </Button>
           <Button
             className="w-[50%]"
@@ -129,7 +129,7 @@ export const FilterAction = ({
             onClick={clearSelection}
             disabled={selectedCaselaw.length === 0}
           >
-            Clear selected caselaw
+            {t('filter.clearSelected')}
           </Button>
         </div>
       )}

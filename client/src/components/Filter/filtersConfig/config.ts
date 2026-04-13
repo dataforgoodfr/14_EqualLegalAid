@@ -13,40 +13,40 @@ import type { ActionCreatorWithPayload } from '@reduxjs/toolkit'
 
 export const ACCORDION_CONFIG: AccordionInterface[] = [
   {
-    accordionTriggerLabel: 'Outcome',
+    accordionTriggerLabel: 'filter.outcome',
     airtableBaseName: AirtableBaseNameEnum.Outcomes,
     filterType: FilterTypeEnum.Basic,
-    search: { enabled: false, placeholder: 'Search' },
+    search: { enabled: false, placeholder: 'filter.search' },
   },
   {
-    accordionTriggerLabel: 'Country of origin',
+    accordionTriggerLabel: 'filter.countryOfOrigin',
     airtableBaseName: AirtableBaseNameEnum.Countries,
     filterType: FilterTypeEnum.Basic,
-    search: { enabled: true, placeholder: 'Search a Country' },
+    search: { enabled: true, placeholder: 'filter.searchCountry' },
   },
   {
-    accordionTriggerLabel: 'Type of application',
+    accordionTriggerLabel: 'filter.typeOfApplication',
     airtableBaseName: AirtableBaseNameEnum.ApplicationTypes,
     filterType: FilterTypeEnum.Basic,
-    search: { enabled: false, placeholder: 'Search' },
+    search: { enabled: false, placeholder: 'filter.search' },
   },
   {
-    accordionTriggerLabel: 'Asylum procedure',
+    accordionTriggerLabel: 'filter.asylumProcedure',
     airtableBaseName: AirtableBaseNameEnum.AsylumProcedures,
     filterType: FilterTypeEnum.Basic,
-    search: { enabled: false, placeholder: 'Search' },
+    search: { enabled: false, placeholder: 'filter.search' },
   },
   {
-    accordionTriggerLabel: 'Type of legal procedure',
+    accordionTriggerLabel: 'filter.typeOfLegalProcedure',
     airtableBaseName: AirtableBaseNameEnum.LegalProcedureTypes,
     filterType: FilterTypeEnum.Basic,
-    search: { enabled: false, placeholder: 'Search a Type of legal procedure' },
+    search: { enabled: false, placeholder: 'filter.searchLegalProcedure' },
   },
   {
-    accordionTriggerLabel: 'Competent Court',
+    accordionTriggerLabel: 'filter.competentCourt',
     airtableBaseName: AirtableBaseNameEnum.Authorities,
     filterType: FilterTypeEnum.NameToSplit,
-    search: { enabled: false, placeholder: 'Search' },
+    search: { enabled: false, placeholder: 'filter.search' },
   },
 ]
 

@@ -1,0 +1,89 @@
+{
+  "header": {
+    "title": "EQUAL LEGAL AID",
+    "subtitle": "Σύστημα Διαχείρισης Νομολογίας"
+  },
+  "nav": {
+    "caselaw": "Βάση Νομολογίας",
+    "statistics": "Στατιστικά Ασύλου ΕΕ"
+  },
+  "language": {
+    "english": "EN",
+    "greek": "GR"
+  },
+  "loading": "Φόρτωση...",
+  "loadingData": "Φόρτωση δεδομένων…",
+  "error": {
+    "prefix": "Σφάλμα:",
+    "retry": "Επανάληψη"
+  },
+  "caselaw": {
+    "noRecords": "Δεν βρέθηκαν εγγραφές",
+    "unknownStatus": "Άγνωστη Κατάσταση",
+    "untitledCase": "Χωρίς Τίτλο",
+    "published": "Δημοσιεύθηκε",
+    "country": "Χώρα",
+    "court": "Δικαστήριο",
+    "application": "Αίτηση",
+    "asylumProcedure": "Διαδικασία Ασύλου",
+    "downloadEnglishPdf": "Λήψη PDF Αγγλικά",
+    "downloadGreekPdf": "Λήψη PDF Ελληνικά"
+  },
+  "filter": {
+    "decisions_one": "Απόφαση",
+    "decisions_other": "Αποφάσεις",
+    "sortBy": "Ταξινόμηση:",
+    "newest": "Νεότερα",
+    "oldest": "Παλαιότερα",
+    "multiSelect": "Πολλαπλή επιλογή",
+    "downloadSelected": "Λήψη επιλεγμένων αποφάσεων ({{count}})",
+    "clearSelected": "Εκκαθάριση επιλεγμένων",
+    "decisionTitle": "Τίτλος απόφασης :",
+    "titlePlaceholder": "Θεσσαλονίκη - ΑΔ406/2025",
+    "decisionDate": "Ημερομηνία απόφασης",
+    "outcome": "Αποτέλεσμα",
+    "countryOfOrigin": "Χώρα καταγωγής",
+    "typeOfApplication": "Τύπος αίτησης",
+    "asylumProcedure": "Διαδικασία ασύλου",
+    "typeOfLegalProcedure": "Τύπος νομικής διαδικασίας",
+    "competentCourt": "Αρμόδιο Δικαστήριο",
+    "search": "Αναζήτηση",
+    "searchCountry": "Αναζήτηση χώρας",
+    "searchLegalProcedure": "Αναζήτηση τύπου νομικής διαδικασίας"
+  },
+  "statistics": {
+    "euAsylumApplications": "Αιτήσεις Ασύλου ΕΕ",
+    "firstTimeSubsequentPerYear": "Αιτούντες πρώτης φοράς και επακόλουθοι ανά έτος",
+    "country": "Χώρα",
+    "selectCountry": "Επιλέξτε χώρα",
+    "noData": "Δεν υπάρχουν δεδομένα για αυτή την επιλογή.",
+    "latestData": "Τελευταία δεδομένα",
+    "totalApplicants": "Συνολικοί αιτούντες",
+    "firstTimeApplicants": "Αιτούντες πρώτης φοράς",
+    "subsequentApplicants": "Επακόλουθοι αιτούντες",
+    "percentOfPopulation": "% του πληθυσμού της χώρας",
+    "population": "Πληθυσμός:",
+    "percentOfTotal": "% του συνόλου",
+    "yearLabel": "Έτος: {{year}}",
+    "asylumEvolutionGreece": "Εξέλιξη Αιτήσεων Ασύλου στην Ελλάδα",
+    "totalFirstTime": "Σύνολο πρώτης φοράς μεταξύ {{start}} και {{end}}",
+    "totalSubsequent": "Σύνολο επακόλουθων μεταξύ {{start}} και {{end}}",
+    "total": "Σύνολο μεταξύ {{start}} και {{end}}",
+    "numberOfApplicationsEurope": "Αριθμός αιτήσεων ασύλου στην Ευρώπη",
+    "perCapita": "Κατά κεφαλή",
+    "year": "Έτος",
+    "mapView": "Χάρτης",
+    "tableView": "Πίνακας",
+    "greece": "Ελλάδα",
+    "firstTimePerCapitaLabel": "Αιτούντες άσυλο πρώτης φοράς κατά κεφαλή",
+    "firstTimeApplicantsLabel": "Αιτούντες άσυλο πρώτης φοράς",
+    "euEquals": "ΕΕ =",
+    "totalApplicantsLegend": "Συνολικοί αιτούντες",
+    "firstTime": "Πρώτη φορά",
+    "subsequent": "Επακόλουθοι",
+    "firstTimeShort": "Πρώτη φορά",
+    "totalPerCapita": "Σύνολο κατά κεφαλή",
+    "firstTimePerCapitaShort": "Πρώτη φορά κατά κεφαλή",
+    "subsequentPerCapita": "Επακόλουθοι κατά κεφαλή"
+  }
+}

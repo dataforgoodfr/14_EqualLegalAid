@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { IndicatorsDataTable } from './IndicatorsDataTable'
+import { useTranslation } from 'react-i18next'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 const ISO_PROP = 'ISO3166-1-Alpha-2'
@@ -78,6 +79,7 @@ function formatValue(n: number, perCapita: boolean) {
 }
 
 export function EuropeRegionMap() {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
@@ -255,13 +257,13 @@ export function EuropeRegionMap() {
     <section className="p-6">
       {/* ── Header ── */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-base font-semibold">Number of asylum applications in Europe</h2>
+        <h2 className="text-base font-semibold">{t('statistics.numberOfApplicationsEurope')}</h2>
 
         <div className="flex items-center gap-3">
           {/* Per-capita toggle */}
           <div className="flex items-center gap-2">
             <Label htmlFor="per-capita-switch" className="text-sm select-none text-muted-foreground">
-              Per capita
+              {t('statistics.perCapita')}
             </Label>
             <Switch
               id="per-capita-switch"
@@ -277,7 +279,7 @@ export function EuropeRegionMap() {
             disabled={loading || years.length === 0}
           >
             <SelectTrigger size="sm" className="w-24">
-              <SelectValue placeholder="Year" />
+              <SelectValue placeholder={t('statistics.year')} />
             </SelectTrigger>
             <SelectContent>
               {years.map(y => (
@@ -292,14 +294,14 @@ export function EuropeRegionMap() {
           <div className="flex items-center rounded-md border border-border overflow-hidden">
             <button
               className={`flex items-center justify-center px-2.5 py-1.5 ${view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-              title="Map view"
+              title={t('statistics.mapView')}
               onClick={() => setView('map')}
             >
               <MapIcon size={14} />
             </button>
             <button
               className={`flex items-center justify-center px-2.5 py-1.5 border-l border-border ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-              title="Table view"
+              title={t('statistics.tableView')}
               onClick={() => setView('table')}
             >
               <LayoutList size={14} />
@@ -322,12 +324,12 @@ export function EuropeRegionMap() {
         <div className="flex flex-col justify-between p-5 bg-muted/30 border-r border-border" style={{ width: 220, flexShrink: 0 }}>
           <div>
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1">
-              Greece
+              {t('statistics.greece')}
             </p>
             <p className="text-sm text-foreground leading-snug mb-4">
               {perCapita
-                ? 'First-time asylum applicants per capita'
-                : 'First-time asylum applicants'}
+                ? t('statistics.firstTimePerCapitaLabel')
+                : t('statistics.firstTimeApplicantsLabel')}
             </p>
 
             {greeceRecord ? (
@@ -353,14 +355,14 @@ export function EuropeRegionMap() {
             <div>
               {euRecord && (
                 <p className="text-[11px] text-muted-foreground mb-2">
-                  EU ={' '}
+                  {t('statistics.euEquals')}{' '}
                   <span className="font-semibold tabular-nums">
                     {formatValue(euRecord[valueKey], perCapita)}
                   </span>
                 </p>
               )}
               <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
-                {perCapita ? 'Per capita' : 'Total applicants'}
+                {perCapita ? t('statistics.perCapita') : t('statistics.totalApplicantsLegend')}
               </p>
               <div className="space-y-1">
                 {[...bucketLabels].reverse().map(({ color, label }) => (
@@ -379,7 +381,7 @@ export function EuropeRegionMap() {
 
           {loading && (
             <div className="text-muted-foreground absolute inset-0 flex items-center justify-center bg-white/60 text-sm">
-              Loading data…
+              {t('loadingData')}
             </div>
           )}
         </div>

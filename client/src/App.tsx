@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { useAirtableFilter } from '@/hooks'
 import { Header, Loading, ErrorMessage, CaselawList } from '@/components'
+import { useTranslation } from 'react-i18next'
 import './App.css'
 
 const AsylumApplicationsPage = lazy(() =>
@@ -26,6 +27,7 @@ function App() {
   } = useAirtableCaselaw()
   const [sortDesc, setSortDesc] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('caselaw')
+  const { t } = useTranslation()
 
   useAirtableFilter()
 
@@ -36,8 +38,8 @@ function App() {
       {/* Tab navigation */}
       <nav className="border-border bg-background sticky top-0 z-10 flex gap-1 border-b px-6 pt-2">
         {([
-          { id: 'caselaw', label: 'Caselaw Database' },
-          { id: 'statistics', label: 'EU Asylum Statistics' },
+          { id: 'caselaw', label: t('nav.caselaw') },
+          { id: 'statistics', label: t('nav.statistics') },
         ] as { id: Tab, label: string }[]).map(tab => (
           <button
             key={tab.id}

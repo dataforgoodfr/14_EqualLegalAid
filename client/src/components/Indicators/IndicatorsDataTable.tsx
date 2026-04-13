@@ -9,55 +9,12 @@ import {
 } from '@tanstack/react-table'
 import { TableCell, TableRow } from '@/components/ui/table'
 import type { MapIndicatorRecord } from '@/hooks/useMapIndicators'
+import { useTranslation } from 'react-i18next'
 
 const ELA_BLUE = '#1d4ed8'
 
 const fmtInt = (n: number) => n.toLocaleString('en-US')
 const fmtDec = (n: number) => n.toLocaleString('en-US', { maximumFractionDigits: 2 })
-
-const absoluteColumns: ColumnDef<MapIndicatorRecord>[] = [
-  {
-    accessorKey: 'name_country',
-    header: 'Country',
-  },
-  {
-    accessorKey: 'total_applicants',
-    header: 'Total applicants',
-    cell: ({ getValue }) => fmtInt(getValue<number>()),
-  },
-  {
-    accessorKey: 'first_time_applicants',
-    header: 'First-time',
-    cell: ({ getValue }) => fmtInt(getValue<number>()),
-  },
-  {
-    accessorKey: 'subsequent_applicants',
-    header: 'Subsequent',
-    cell: ({ getValue }) => fmtInt(getValue<number>()),
-  },
-]
-
-const perCapitaColumns: ColumnDef<MapIndicatorRecord>[] = [
-  {
-    accessorKey: 'name_country',
-    header: 'Country',
-  },
-  {
-    accessorKey: 'total_applicants_per_capita',
-    header: 'Total per capita',
-    cell: ({ getValue }) => fmtDec(getValue<number>()),
-  },
-  {
-    accessorKey: 'first_time_applicants_per_capita',
-    header: 'First-time per capita',
-    cell: ({ getValue }) => fmtDec(getValue<number>()),
-  },
-  {
-    accessorKey: 'subsequent_applicants_per_capita',
-    header: 'Subsequent per capita',
-    cell: ({ getValue }) => fmtDec(getValue<number>()),
-  },
-]
 
 interface Props {
   data: MapIndicatorRecord[]
@@ -65,12 +22,27 @@ interface Props {
 }
 
 export function IndicatorsDataTable({ data, perCapita }: Props) {
+  const { t } = useTranslation()
   const defaultSortKey = perCapita ? 'total_applicants_per_capita' : 'total_applicants'
   const [sorting, setSorting] = useState<SortingState>([{ id: defaultSortKey, desc: true }])
 
+  const absoluteColumns: ColumnDef<MapIndicatorRecord>[] = useMemo(() => [
+    { accessorKey: 'name_country', header: t('statistics.country') },
+    { accessorKey: 'total_applicants', header: t('statistics.totalApplicants'), cell: ({ getValue }) => fmtInt(getValue<number>()) },
+    { accessorKey: 'first_time_applicants', header: t('statistics.firstTimeShort'), cell: ({ getValue }) => fmtInt(getValue<number>()) },
+    { accessorKey: 'subsequent_applicants', header: t('statistics.subsequent'), cell: ({ getValue }) => fmtInt(getValue<number>()) },
+  ], [t])
+
+  const perCapitaColumns: ColumnDef<MapIndicatorRecord>[] = useMemo(() => [
+    { accessorKey: 'name_country', header: t('statistics.country') },
+    { accessorKey: 'total_applicants_per_capita', header: t('statistics.totalPerCapita'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
+    { accessorKey: 'first_time_applicants_per_capita', header: t('statistics.firstTimePerCapitaShort'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
+    { accessorKey: 'subsequent_applicants_per_capita', header: t('statistics.subsequentPerCapita'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
+  ], [t])
+
   const columns = useMemo(
     () => (perCapita ? perCapitaColumns : absoluteColumns),
-    [perCapita],
+    [perCapita, perCapitaColumns, absoluteColumns],
   )
 
   const table = useReactTable({

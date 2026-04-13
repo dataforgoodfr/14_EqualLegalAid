@@ -8,6 +8,7 @@ import {
 import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
 import { useAppDispatch } from '@/hooks/reduxHook'
 import { setFilterTag } from '@/redux/filtersSlice'
+import { useTranslation } from 'react-i18next'
 
 interface GroupedFilterItemProps {
     airtableBaseName: AirtableBaseNameEnum
@@ -23,8 +24,6 @@ interface GroupedItem {
 
 const NAME_DELIMITER = ' - '
 
-const getItemDisplayName = (item: BasicValuesInterface) => item.fields.Name_Long_EN ?? item.fields.Name_EN
-
 const splitItemName = (name: string) => {
     const [category, ...rest] = name.split(NAME_DELIMITER)
     const subcategory = rest.join(NAME_DELIMITER).trim()
@@ -35,11 +34,11 @@ const splitItemName = (name: string) => {
     }
 }
 
-const groupItemsByCategory = (items: BasicValuesInterface[]): GroupedItem[] => {
+const groupItemsByCategory = (items: BasicValuesInterface[], getDisplayName: (item: BasicValuesInterface) => string): GroupedItem[] => {
     const groups = new Map<string, GroupedItem>()
 
     items.forEach((item) => {
-        const { category } = splitItemName(getItemDisplayName(item))
+        const { category } = splitItemName(getDisplayName(item))
         const existingGroup = groups.get(category)
 
         if (existingGroup) {
@@ -63,7 +62,17 @@ export const GroupedFilterItem = ({
     onFilterChange,
 }: GroupedFilterItemProps) => {
     const dispatch = useAppDispatch()
-    const groupedItems = useMemo(() => groupItemsByCategory(items), [items])
+    const { i18n } = useTranslation()
+    const isGreek = i18n.language === 'el'
+
+    const getItemDisplayName = (item: BasicValuesInterface) => {
+        if (isGreek) {
+            return item.fields.Name_Long_GR ?? item.fields.Name_GR ?? item.fields.Name_Long_EN ?? item.fields.Name_EN
+        }
+        return item.fields.Name_Long_EN ?? item.fields.Name_EN
+    }
+
+    const groupedItems = useMemo(() => groupItemsByCategory(items, getItemDisplayName), [items, isGreek])
 
     const handleFilterChange = (id: string, name: string, checked: boolean) => {
         onFilterChange(id, checked)

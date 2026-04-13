@@ -1,6 +1,7 @@
 import type { AirtableRecord } from '@/types'
 import { CaselawCard } from '@/components/Caselaws/CaselawCard'
 import { sortPerDate } from '@/utils/sortPerDate'
+import { useTranslation } from 'react-i18next'
 
 interface CaselawListProps {
   records: AirtableRecord[]
@@ -8,9 +9,10 @@ interface CaselawListProps {
 }
 
 export const CaselawList = ({ records, sortDesc = true }: CaselawListProps) => {
+  const { t } = useTranslation()
   const caselaws = sortPerDate(records, sortDesc)
   if (caselaws.length === 0) {
-    return <p className="py-12 text-center text-[var(--text-light)]">No records found</p>
+    return <p className="py-12 text-center text-[var(--text-light)]">{t('caselaw.noRecords')}</p>
   }
 
   return (

@@ -9,19 +9,22 @@ import {
   ChartTooltipContent,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
-
-const chartConfig = {
-  first_time_applicants: {
-    label: 'First time',
-    color: '#04356C',
-  },
-  subsequent_applicants: {
-    label: 'Subsequent',
-    color: '#6B9BD2',
-  },
-} satisfies ChartConfig
+import { useTranslation } from 'react-i18next'
 
 export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, error }: { records: AsylumApplicationRecord[], loading: boolean, error: string | null }) {
+  const { t } = useTranslation()
+
+  const chartConfig = {
+    first_time_applicants: {
+      label: t('statistics.firstTime'),
+      color: '#04356C',
+    },
+    subsequent_applicants: {
+      label: t('statistics.subsequent'),
+      color: '#6B9BD2',
+    },
+  } satisfies ChartConfig
+
   if (loading) return <Loading />
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
@@ -48,24 +51,23 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
 
   const firstYear: number = records[0].year
   const lastYear: number = records[records.length - 1].year
-  const betweenFirstYearAndLastYear = `between ${firstYear} and ${lastYear}`
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <h1 className="text-2xl font-bold" style={{ color: '#04356C' }}>
-        Asylum Application Evolution in Greece
+        {t('statistics.asylumEvolutionGreece')}
       </h1>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard
-          label={`Total First-time ${betweenFirstYearAndLastYear}`}
+          label={t('statistics.totalFirstTime', { start: firstYear, end: lastYear })}
           value={totalFirstTime.toLocaleString()}
         />
         <StatCard
-          label={`Total subsequent ${betweenFirstYearAndLastYear}`}
+          label={t('statistics.totalSubsequent', { start: firstYear, end: lastYear })}
           value={totalSubSequent.toLocaleString()}
         />
         <StatCard
-          label={`Total ${betweenFirstYearAndLastYear}`}
+          label={t('statistics.total', { start: firstYear, end: lastYear })}
           value={totalApplicants.toLocaleString()}
         />
       </div>
@@ -79,7 +81,7 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
           <Tooltip
             content={(
               <ChartTooltipContent
-                labelFormatter={label => `Year: ${label}`}
+                labelFormatter={label => t('statistics.yearLabel', { year: label })}
               />
             )}
           />

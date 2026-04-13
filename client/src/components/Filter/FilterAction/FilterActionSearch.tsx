@@ -7,6 +7,7 @@ import {
 import { Input } from '@/components/ui'
 import { Search as SearchIcon } from 'lucide-react'
 import { useDebounce } from '@/hooks'
+import { useTranslation } from 'react-i18next'
 interface FilterActionSearchProps {
   setSearchCaselaw: Dispatch<SetStateAction<string>>
 }
@@ -16,6 +17,7 @@ export const FilterActionSearch = ({
   const [searchValue, setSearchValue] = useState('')
   const [prevValue, setPrevValue] = useState('')
   const searchDebouceValue = useDebounce(searchValue, 500)
+  const { t } = useTranslation()
 
   const handleSearchChange = (value: string) => {
     if (prevValue !== value) {
@@ -39,12 +41,12 @@ export const FilterActionSearch = ({
             className="mr-4"
             width="24"
           />
-          <span className="inline-block whitespace-nowrap">Decision's title :</span>
+          <span className="inline-block whitespace-nowrap">{t('filter.decisionTitle')}</span>
         </label>
         <Input
           className="border-0"
           id="filterActionSearch"
-          placeholder="Thessaloniki - ΑΔ406/2025"
+          placeholder={t('filter.titlePlaceholder')}
           value={searchValue}
           onChange={event => handleSearchChange(event.target.value)}
         />

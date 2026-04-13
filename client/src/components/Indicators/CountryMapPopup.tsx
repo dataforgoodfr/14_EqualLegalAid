@@ -1,5 +1,6 @@
 import { Separator } from '@/components/ui/separator'
 import type { MapIndicatorRecord } from '@/hooks/useMapIndicators'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   record: MapIndicatorRecord
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function CountryMapPopup({ record, perCapita }: Props) {
+  const { t } = useTranslation()
   const fmt = (n: number) =>
     perCapita
       ? n.toLocaleString('en-US', { maximumFractionDigits: 2 })
@@ -14,15 +16,15 @@ export function CountryMapPopup({ record, perCapita }: Props) {
 
   const rows = [
     {
-      label: 'Total applicants',
+      label: t('statistics.totalApplicants'),
       value: perCapita ? record.total_applicants_per_capita : record.total_applicants,
     },
     {
-      label: 'First-time',
+      label: t('statistics.firstTimeShort'),
       value: perCapita ? record.first_time_applicants_per_capita : record.first_time_applicants,
     },
     {
-      label: 'Subsequent',
+      label: t('statistics.subsequent'),
       value: perCapita ? record.subsequent_applicants_per_capita : record.subsequent_applicants,
     },
   ]
@@ -35,7 +37,7 @@ export function CountryMapPopup({ record, perCapita }: Props) {
       </div>
       <Separator className="mb-2" />
       {perCapita && (
-        <p className="text-muted-foreground mb-1.5 text-[11px] italic">Per capita</p>
+        <p className="text-muted-foreground mb-1.5 text-[11px] italic">{t('statistics.perCapita')}</p>
       )}
       <dl className="space-y-1.5">
         {rows.map(({ label, value }) => (

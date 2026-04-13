@@ -6,6 +6,7 @@ import { AirtableProvider } from '@/providers'
 import { store } from './redux/store.ts'
 import { Provider } from 'react-redux'
 import { DownloadCaselawProvider } from '@/context/'
+import './i18n/i18n'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>

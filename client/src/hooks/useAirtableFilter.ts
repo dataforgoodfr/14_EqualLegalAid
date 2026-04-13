@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import { setApplicationTypesFilter, setAsylumProceduresFilter, setAuthoritiesFilter, setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
 import { useAppDispatch, useAppSelector } from './reduxHook'
+import { useTranslation } from 'react-i18next'
 
 export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[] =>
   records.map(record => ({
@@ -17,6 +18,8 @@ export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[]
 export const useAirtableFilter = () => {
   const airtableService = useAirtableService()
   const dispatch = useAppDispatch()
+  const { i18n } = useTranslation()
+  const isGreek = i18n.language === 'el'
 
   const searchInGivenFilter = useAppSelector(
     state => state.filters.searchInGivenFilter,
@@ -101,7 +104,8 @@ export const useAirtableFilter = () => {
 
   const fetchFilterRecordsForSpecificUserSearch = useCallback(async () => {
     const { value, airtableBaseName } = searchInGivenFilter
-    const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({Name_EN})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
+    const searchField = isGreek ? 'Name_GR' : 'Name_EN'
+    const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({${searchField}})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
 
     try {
       setLoadingFilterRecords(true)
@@ -149,7 +153,7 @@ export const useAirtableFilter = () => {
     finally {
       setLoadingFilterRecords(false)
     }
-  }, [airtableService, dispatch, searchInGivenFilter])
+  }, [airtableService, dispatch, searchInGivenFilter, isGreek])
 
   useEffect(() => {
     fetchFilterRecords()

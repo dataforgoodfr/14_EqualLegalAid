@@ -8,6 +8,7 @@ import { FilterSearch } from '@/components/Filter'
 import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
 import { useAppDispatch } from '@/hooks/reduxHook'
 import { setFilterTag } from '@/redux/filtersSlice'
+import { useTranslation } from 'react-i18next'
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
@@ -26,6 +27,11 @@ export const BasicFilterItem = ({
   onFilterChange,
 }: BasicFilterItemProps) => {
   const dispatch = useAppDispatch()
+  const { i18n } = useTranslation()
+  const isGreek = i18n.language === 'el'
+  const getItemName = (item: BasicValuesInterface) =>
+    isGreek ? (item.fields.Name_GR || item.fields.Name_EN) : item.fields.Name_EN
+
   const handleFilterChange = (id: string, name: string, checked: boolean) => {
     onFilterChange(id, checked)
     dispatch(setFilterTag({
@@ -62,10 +68,10 @@ export const BasicFilterItem = ({
                   name={item.id}
                   className="mr-3"
                   checked={selectedIds.includes(item.id)}
-                  onCheckedChange={checked => handleFilterChange(item.id, item.fields.Name_EN, checked as boolean)}
+                  onCheckedChange={checked => handleFilterChange(item.id, getItemName(item), checked as boolean)}
                 />
                 <Label htmlFor={item.id}>
-                  {item.fields.Name_EN}
+                  {getItemName(item)}
                 </Label>
               </div>
 

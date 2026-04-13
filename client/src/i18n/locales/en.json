@@ -1,0 +1,89 @@
+{
+  "header": {
+    "title": "EQUAL LEGAL AID",
+    "subtitle": "Case Law Management System"
+  },
+  "nav": {
+    "caselaw": "Caselaw Database",
+    "statistics": "EU Asylum Statistics"
+  },
+  "language": {
+    "english": "EN",
+    "greek": "GR"
+  },
+  "loading": "Loading...",
+  "loadingData": "Loading data…",
+  "error": {
+    "prefix": "Error:",
+    "retry": "Retry"
+  },
+  "caselaw": {
+    "noRecords": "No records found",
+    "unknownStatus": "Unknown Status",
+    "untitledCase": "Untitled Case",
+    "published": "Published",
+    "country": "Country",
+    "court": "Court",
+    "application": "Application",
+    "asylumProcedure": "Asylum Procedure",
+    "downloadEnglishPdf": "Download English PDF",
+    "downloadGreekPdf": "Download Greek PDF"
+  },
+  "filter": {
+    "decisions_one": "Decision",
+    "decisions_other": "Decisions",
+    "sortBy": "Sort by:",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "multiSelect": "Multi select",
+    "downloadSelected": "Download selected caselaw ({{count}})",
+    "clearSelected": "Clear selected caselaw",
+    "decisionTitle": "Decision's title :",
+    "titlePlaceholder": "Thessaloniki - ΑΔ406/2025",
+    "decisionDate": "Decision date",
+    "outcome": "Outcome",
+    "countryOfOrigin": "Country of origin",
+    "typeOfApplication": "Type of application",
+    "asylumProcedure": "Asylum procedure",
+    "typeOfLegalProcedure": "Type of legal procedure",
+    "competentCourt": "Competent Court",
+    "search": "Search",
+    "searchCountry": "Search a Country",
+    "searchLegalProcedure": "Search a Type of legal procedure"
+  },
+  "statistics": {
+    "euAsylumApplications": "EU Asylum Applications",
+    "firstTimeSubsequentPerYear": "First-time and subsequent applicants per year",
+    "country": "Country",
+    "selectCountry": "Select a country",
+    "noData": "No data for this selection.",
+    "latestData": "Latest data",
+    "totalApplicants": "Total applicants",
+    "firstTimeApplicants": "First-time applicants",
+    "subsequentApplicants": "Subsequent applicants",
+    "percentOfPopulation": "% of country population",
+    "population": "Population:",
+    "percentOfTotal": "% of total",
+    "yearLabel": "Year: {{year}}",
+    "asylumEvolutionGreece": "Asylum Application Evolution in Greece",
+    "totalFirstTime": "Total First-time between {{start}} and {{end}}",
+    "totalSubsequent": "Total subsequent between {{start}} and {{end}}",
+    "total": "Total between {{start}} and {{end}}",
+    "numberOfApplicationsEurope": "Number of asylum applications in Europe",
+    "perCapita": "Per capita",
+    "year": "Year",
+    "mapView": "Map view",
+    "tableView": "Table view",
+    "greece": "Greece",
+    "firstTimePerCapitaLabel": "First-time asylum applicants per capita",
+    "firstTimeApplicantsLabel": "First-time asylum applicants",
+    "euEquals": "EU =",
+    "totalApplicantsLegend": "Total applicants",
+    "firstTime": "First time",
+    "subsequent": "Subsequent",
+    "firstTimeShort": "First-time",
+    "totalPerCapita": "Total per capita",
+    "firstTimePerCapitaShort": "First-time per capita",
+    "subsequentPerCapita": "Subsequent per capita"
+  }
+}

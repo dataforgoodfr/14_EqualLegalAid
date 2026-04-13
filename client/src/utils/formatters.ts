@@ -127,16 +127,31 @@ export const toCaselaw = (record: AirtableRecord): Caselaw => {
       pdfURL,
     }
   }
+  const grStr = (grKey: string, enFallback: string): string =>
+    str(grKey) || enFallback
+
+  const keywords_GR = (str('Keywords_GR') || str('Keywords'))
+    .split(',')
+    .map(k => k.trim())
+    .filter(Boolean)
+
   return {
     title: str('Title'),
     publishedAt: str('PublishedAt') ? new Date(str('PublishedAt')) : new Date(),
-    applicationTypes: str('ApplicationTypes'),
+    applicationTypes: str('ApplicationType'),
+    applicationTypes_GR: grStr('ApplicationType_GR', str('ApplicationType')),
     legalProcedureTypes: str('LegalProcedureTypes'),
+    legalProcedureTypes_GR: grStr('LegalProcedureTypes_GR', str('LegalProcedureTypes')),
     asylumProcedure: str('AsylumProcedure'),
+    asylumProcedure_GR: grStr('AsylumProcedure_GR', str('AsylumProcedure')),
     countryOfOrigin: str('CountryOfOrigin'),
+    countryOfOrigin_GR: grStr('CountryOfOrigin_GR', str('CountryOfOrigin')),
     competentCourtOrAuthority: str('CompetentCourtOrAuthority'),
+    competentCourtOrAuthority_GR: grStr('CompetentCourtOrAuthority_GR', str('CompetentCourtOrAuthority')),
     caselawOutcome: str('CaselawOutcome'),
+    caselawOutcome_GR: grStr('CaselawOutcome_GR', str('CaselawOutcome')),
     keywords,
+    keywords_GR,
     englishPdfLink: getPdfObject(str('English_Pdf')),
     greekPdfLink: getPdfObject(str('Greek_Pdf')),
   }

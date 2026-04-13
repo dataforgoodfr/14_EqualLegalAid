@@ -23,19 +23,22 @@ import type { ChartConfig } from '@/components/ui'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
-
-const chartConfig = {
-  first_time_applicants: {
-    label: 'First time',
-    color: '#04356C',
-  },
-  subsequent_applicants: {
-    label: 'Subsequent',
-    color: '#6B9BD2',
-  },
-} satisfies ChartConfig
+import { useTranslation } from 'react-i18next'
 
 export function AsylumApplicationsDetails({ records, loading, error }: { records: AsylumApplicationRecord[], loading: boolean, error: string | null }) {
+  const { t } = useTranslation()
+
+  const chartConfig = {
+    first_time_applicants: {
+      label: t('statistics.firstTime'),
+      color: '#04356C',
+    },
+    subsequent_applicants: {
+      label: t('statistics.subsequent'),
+      color: '#6B9BD2',
+    },
+  } satisfies ChartConfig
+
   const [selectedCountry, setSelectedCountry] = useState<string>()
 
   const countries = useMemo(() => {
@@ -112,19 +115,19 @@ export function AsylumApplicationsDetails({ records, loading, error }: { records
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold" style={{ color: '#04356C' }}>
-          EU Asylum Applications
+          {t('statistics.euAsylumApplications')}
         </h1>
         <p className="text-muted-foreground text-sm">
-          First-time and subsequent applicants per year
+          {t('statistics.firstTimeSubsequentPerYear')}
         </p>
       </div>
 
       {/* Country selector */}
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">Country</span>
+        <span className="text-sm font-medium">{t('statistics.country')}</span>
         <Select value={selectedCountry} onValueChange={setSelectedCountry}>
           <SelectTrigger className="w-56">
-            <SelectValue placeholder="Select a country" />
+            <SelectValue placeholder={t('statistics.selectCountry')} />
           </SelectTrigger>
           <SelectContent>
             {countries.map(c => (
@@ -137,7 +140,7 @@ export function AsylumApplicationsDetails({ records, loading, error }: { records
       {/* Chart */}
       {chartData.length === 0
         ? (
-          <p className="text-muted-foreground text-sm">No data for this selection.</p>
+          <p className="text-muted-foreground text-sm">{t('statistics.noData')}</p>
         )
         : (
           <ChartContainer config={chartConfig} className="h-80 w-full">
@@ -158,7 +161,7 @@ export function AsylumApplicationsDetails({ records, loading, error }: { records
               <ChartTooltip
                 content={(
                   <ChartTooltipContent
-                    labelFormatter={label => `Year: ${label}`}
+                    labelFormatter={label => t('statistics.yearLabel', { year: label })}
                   />
                 )}
               />
@@ -183,30 +186,30 @@ export function AsylumApplicationsDetails({ records, loading, error }: { records
       {latestYear && (
         <div>
           <p className="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
-            Latest data ·
+            {t('statistics.latestData')} ·
             {' '}
             {latestYear.year}
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <StatCard
-              label="Total applicants"
+              label={t('statistics.totalApplicants')}
               value={latestYear.total_applicants.toLocaleString()}
             />
             <StatCard
-              label="First-time applicants"
+              label={t('statistics.firstTimeApplicants')}
               value={latestYear.first_time_applicants.toLocaleString()}
-              sub={firstTimeRatio ? `${firstTimeRatio}% of total` : undefined}
+              sub={firstTimeRatio ? `${firstTimeRatio}${t('statistics.percentOfTotal')}` : undefined}
             />
             <StatCard
-              label="Subsequent applicants"
+              label={t('statistics.subsequentApplicants')}
               value={latestYear.subsequent_applicants.toLocaleString()}
-              sub={firstTimeRatio ? `${(100 - parseFloat(firstTimeRatio)).toFixed(1)}% of total` : undefined}
+              sub={firstTimeRatio ? `${(100 - parseFloat(firstTimeRatio)).toFixed(1)}${t('statistics.percentOfTotal')}` : undefined}
             />
             {latestYear.percentage > 0 && (
               <StatCard
-                label="% of country population"
+                label={t('statistics.percentOfPopulation')}
                 value={`${latestYear.percentage.toFixed(3)}%`}
-                sub={`Population: ${latestYear.total_country_population.toLocaleString()}`}
+                sub={`${t('statistics.population')} ${latestYear.total_country_population.toLocaleString()}`}
               />
             )}
           </div>

@@ -1,17 +1,13 @@
 import { useAsylumSeekerByRegionOfGreece } from '@/hooks/useAsylumSeekerByRegionOfGreece'
 import { GreeceMapDetails } from '@/components/Indicators/GreeceMapDetails'
+import { AirtableDataCheckButton } from '../ui/airtable-data-check-button'
 
 export function GreeceMap() {
   const { records, loading, error } = useAsylumSeekerByRegionOfGreece()
-  // return <GreeceMapDetails records={records} loading={loading} error={error} />
   return (
-    <button onClick={() => {
-      console.log({ records })
-      console.log({ loading })
-      console.log({ error })
-    }}
-    >
-      AirTable Data Checking Button
-    </button>
+    <>
+      <AirtableDataCheckButton records={records} loading={loading} error={error} />
+      <GreeceMapDetails records={records} loading={loading} error={error} />
+    </>
   )
 }

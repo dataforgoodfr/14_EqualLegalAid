@@ -40,8 +40,7 @@ const getFilterValue = (
     }
     case AirtableBaseNameEnum.Keywords: {
       const keywordEn = getStringField(value.fields, 'Keyword_EN')
-      const keywordGr = getStringField(value.fields, 'Keyword_GR')
-      return isGreek ? keywordGr || keywordEn : keywordEn
+      return keywordEn
     }
     default: {
       const nameEn = getStringField(value.fields, 'Name_EN')

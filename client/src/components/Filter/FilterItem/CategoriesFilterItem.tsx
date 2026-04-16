@@ -9,6 +9,7 @@ import {
   FieldGroup,
   Label,
 } from '@/components/ui'
+import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from '@/hooks/reduxHook'
 import { setFilterTag, toggleKeywordsSelected } from '@/redux/filtersSlice'
 import { AirtableBaseNameEnum } from '@/types'
@@ -43,16 +44,22 @@ const getStringField = (record: AirtableRecord, key: string): string => {
   return typeof value === 'string' ? value : ''
 }
 
-const getCategoryName = (record: AirtableRecord): string => {
-  return getStringField(record, 'Name_EN') || getStringField(record, 'Name_GR') || 'Unknown'
+const getCategoryName = (record: AirtableRecord, isGreek: boolean): string => {
+  return isGreek
+    ? getStringField(record, 'Name_GR') || getStringField(record, 'Name_EN')
+    : getStringField(record, 'Name_EN') || getStringField(record, 'Name_GR')
 }
 
-const getSubCategoryName = (record: AirtableRecord): string => {
-  return getStringField(record, 'Name_EN') || getStringField(record, 'Name_GR') || 'Unknown'
+const getSubCategoryName = (record: AirtableRecord, isGreek: boolean): string => {
+  return isGreek
+    ? getStringField(record, 'Name_GR') || getStringField(record, 'Name_EN')
+    : getStringField(record, 'Name_EN') || getStringField(record, 'Name_GR')
 }
 
-const getKeywordName = (record: AirtableRecord): string => {
-  return getStringField(record, 'Keyword_EN') || getStringField(record, 'Keyword_GR') || 'Unknown'
+const getKeywordName = (record: AirtableRecord, isGreek: boolean): string => {
+  return isGreek
+    ? getStringField(record, 'Keyword_GR') || getStringField(record, 'Keyword_EN')
+    : getStringField(record, 'Keyword_EN') || getStringField(record, 'Keyword_GR')
 }
 
 const getKeywordCount = (record: AirtableRecord): number => {
@@ -72,6 +79,8 @@ export const CategoriesFilterItem = ({
   keywords,
   selectedKeywordIds,
 }: CategoriesFilterItemProps) => {
+  const { i18n } = useTranslation()
+  const isGreek = i18n.language === 'el'
   const dispatch = useAppDispatch()
 
   const keywordMap = useMemo(
@@ -97,20 +106,20 @@ export const CategoriesFilterItem = ({
       .filter((subCategory): subCategory is AirtableRecord => Boolean(subCategory))
       .map((subCategory) => ({
         id: subCategory.id,
-        name: getSubCategoryName(subCategory),
+        name: getSubCategoryName(subCategory, isGreek),
         keywords: getKeywordsByIds(toIdArray(getFieldValue(subCategory, 'Keywords'))),
       }))
 
     return {
       id: category.id,
-      name: getCategoryName(category),
+      name: getCategoryName(category, isGreek),
       keywords: categoryKeywords,
       subCategories: subCategoryItems,
     }
-  }), [categories, keywordMap, subCategoryMap])
+  }), [categories, keywordMap, subCategoryMap, isGreek])
 
   const handleKeywordChange = (keyword: AirtableRecord, checked: boolean) => {
-    const name = getKeywordName(keyword)
+    const name = getKeywordName(keyword, isGreek)
     dispatch(toggleKeywordsSelected({ id: keyword.id, checked }))
     dispatch(setFilterTag({
       item: {
@@ -203,7 +212,7 @@ export const CategoriesFilterItem = ({
                                 checked={getKeywordSelectionState(keyword)}
                                 onCheckedChange={checked => handleKeywordChange(keyword, checked === true)}
                               />
-                              <Label htmlFor={keyword.id}>{getKeywordName(keyword)}</Label>
+                              <Label htmlFor={keyword.id}>{getKeywordName(keyword, isGreek)}</Label>
                             </div>
                             <p>{String(getKeywordCount(keyword))}</p>
                           </Field>
@@ -258,7 +267,7 @@ export const CategoriesFilterItem = ({
                                             checked={getKeywordSelectionState(keyword)}
                                             onCheckedChange={checked => handleKeywordChange(keyword, checked === true)}
                                           />
-                                          <Label htmlFor={keyword.id}>{getKeywordName(keyword)}</Label>
+                                          <Label htmlFor={keyword.id}>{getKeywordName(keyword, isGreek)}</Label>
                                         </div>
                                         <p>{String(getKeywordCount(keyword))}</p>
                                       </Field>

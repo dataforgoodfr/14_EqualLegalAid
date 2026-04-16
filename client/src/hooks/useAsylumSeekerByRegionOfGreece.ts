@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
-import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
+
+export interface AsylumSeekerByRegionOfGreeceRecord {
+  year: number
+  region: string
+}
 
 const toNum = (v: unknown): number => {
   if (typeof v === 'number') return v
@@ -17,7 +21,7 @@ const toStr = (v: unknown): string =>
 export function useAsylumSeekerByRegionOfGreece() {
   const airtableService = useAirtableService()
 
-  const [records, setRecords] = useState<AsylumApplicationRecord[]>([])
+  const [records, setRecords] = useState<AsylumSeekerByRegionOfGreeceRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -27,31 +31,34 @@ export function useAsylumSeekerByRegionOfGreece() {
       setError(null)
 
       const raw = await airtableService.fetchRecordsFromTable({
-        tableName: 'IND_1_EU_Asylumapplications',
+        tableName: 'ind4_asylum_seekers_in_greece',
         selectConfig: {
           maxRecords: 5000,
           cellFormat: 'json',
-          sort: [{ field: 'year', direction: 'asc' }],
+          // sort: [{ field: 'year', direction: 'asc' }],
           // https://support.airtable.com/docs/airtable-web-api-using-filterbyformula-or-sort-parameters
-          filterByFormula: '{code_country} = "GR"',
+          // filterByFormula: '{code_country} = "GR"',
         },
       })
 
-      const parsed: AsylumApplicationRecord[] = raw.map(r => ({
-        id: r.id,
+      // EXAMPLE OF DATA
+      // area: "Sites (2: Koutsocherro, Volos)"
+      // asylum_seekers: "1578"
+      // date: "2026-01-01"
+      // location: "Southern Greece"
+      // month: 1
+      // region: "Thessaly"
+      // year: 2026
+
+      const parsed: AsylumSeekerByRegionOfGreeceRecord[] = raw.map(r => ({
         year: toNum(r.fields['year']),
-        name_country: toStr(r.fields['name_country']),
-        total_applicants: toNum(r.fields['total_applicants']),
-        first_time_applicants: toNum(r.fields['first_time_applicants']),
-        subsequent_applicants: toNum(r.fields['subsequent_applicants']),
-        total_country_population: toNum(r.fields['total_country_population']),
-        percentage: toNum(r.fields['percentage']),
+        region: toStr(r.fields['region']),
       }))
 
       setRecords(parsed)
     }
     catch(err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch greece total application')
+      setError(err instanceof Error ? err.message : 'Failed to fetch asylum seeker data by greek regions')
     }
     finally {
       setLoading(false)

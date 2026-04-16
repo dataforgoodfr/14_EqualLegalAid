@@ -4,7 +4,7 @@ export * from './filter'
  * Type definitions for the ELA application
  */
 
-export type AirtableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories' | 'IND_1_EU_Asylumapplications'
+export type AirtableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories' | 'IND_1_EU_Asylumapplications' | 'ind4_asylum_seekers_in_greece'
 
 export enum AirtableBaseNameEnum {
   Caselaws = 'Caselaws',

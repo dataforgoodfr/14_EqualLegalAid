@@ -1,18 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
-
-const toNum = (v: unknown): number => {
-  if (typeof v === 'number') return v
-  if (typeof v === 'string') {
-    const n = parseFloat(v.replace(/,/g, ''))
-    return isNaN(n) ? 0 : n
-  }
-  return 0
-}
-
-const toStr = (v: unknown): string =>
-  typeof v === 'string' ? v : String(v ?? '')
+import { toNum, toStr } from '@/lib/utils'
 
 export function useGreeceTotalApplications() {
   const airtableService = useAirtableService()

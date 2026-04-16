@@ -1,22 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
+import { toNum, toStr } from '@/lib/utils'
 
 export interface AsylumSeekerByRegionOfGreeceRecord {
   year: number
   region: string
 }
-
-const toNum = (v: unknown): number => {
-  if (typeof v === 'number') return v
-  if (typeof v === 'string') {
-    const n = parseFloat(v.replace(/,/g, ''))
-    return isNaN(n) ? 0 : n
-  }
-  return 0
-}
-
-const toStr = (v: unknown): string =>
-  typeof v === 'string' ? v : String(v ?? '')
 
 export function useAsylumSeekerByRegionOfGreece() {
   const airtableService = useAirtableService()

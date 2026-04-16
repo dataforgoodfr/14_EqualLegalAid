@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 import { DATE_FILTER_STATE_NAME, type FilterTagInterface } from '@/types'
 import { Button } from '@/components/ui'
-import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, Ghost } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import { X, SquareMousePointer } from 'lucide-react'
 import { resetDateEnd, resetDateStart, setFilterTag } from '@/redux/filtersSlice'
@@ -11,6 +11,7 @@ import {
   FilterActionSearch,
 } from '@/components/Filter'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils'
 interface FilterActionProps {
   count: number
   setSort: Dispatch<SetStateAction<boolean>>
@@ -25,6 +26,7 @@ export const FilterAction = ({
   const [recentFirst, setRecentFirst] = useState(true)
   const [searchCaseLaw, setSearchCaselaw] = useState('')
   const isFirstRender = useRef(true)
+  const [displayAllSelectedFilters, setDisplayAllSelectedFilters] = useState(false)
   const handleSort = () => {
     setRecentFirst(!recentFirst)
     setSort(!recentFirst)
@@ -64,19 +66,17 @@ export const FilterAction = ({
 
   const createFilterTags = (filterTags: FilterTagInterface[]) => {
     return (
-      <div className="mt-4 flex flex-wrap">
-        {filterTags.map(filtertag => (
-          <Button
-            className="my-1.5 not-last:mr-2.5 hover:cursor-pointer"
-            variant="secondary"
-            onClick={() => handleClick(filtertag as FilterTagInterface)}
-            key={filtertag.id}
-          >
-            {filtertag.name}
-            <X />
-          </Button>
-        ))}
-      </div>
+      filterTags.map(filtertag => (
+        <Button
+          className="my-1.5 not-last:mr-2.5 hover:cursor-pointer"
+          variant="secondary"
+          onClick={() => handleClick(filtertag as FilterTagInterface)}
+          key={filtertag.id}
+        >
+          {filtertag.name}
+          <X />
+        </Button>
+      ))
     )
   }
   const filterTags = useAppSelector(state => state.filters.filterTags)
@@ -89,24 +89,29 @@ export const FilterAction = ({
   }, [searchCaseLaw, setFindSpecificCaseLaw])
   return (
     <div className="filter-action">
-      <p className="text-gray-count mb-6 text-xl font-semibold">
+      <p className="text-gray-count mb-6 hidden text-xl font-semibold xl:block">
         <span className="mr-2 font-bold text-black">{count}</span>
         {t('filter.decisions', { count })}
       </p>
-      <div className="flex justify-between gap-4">
-        <Button onClick={handleSort} variant="outline" className="font-bold">
+      <div className="flex gap-3.5 xl:justify-between xl:gap-4">
+        <Button
+          onClick={handleSort}
+          variant="outline"
+          className="w-1/2 font-bold xl:w-auto"
+        >
           {recentFirst ? (<ArrowDownWideNarrow />) : (<ArrowUpNarrowWide />)}
           {t('filter.sortBy')}
           {' '}
           {recentFirst ? t('filter.newest') : t('filter.oldest')}
         </Button>
         <FilterActionSearch
+          className="hidden xl:flex"
           setSearchCaselaw={setSearchCaselaw}
         />
-        <div>
+        <div className="w-1/2 cursor-pointer xl:w-auto">
           <Button
             variant={isDownloadMode ? 'default' : 'outline'}
-            className="cursor-pointer"
+            className="w-full cursor-pointer"
             onClick={handleDownloadMode}
           >
             <SquareMousePointer className="mr-2" />
@@ -133,7 +138,18 @@ export const FilterAction = ({
           </Button>
         </div>
       )}
-      {filterTags.length > 0 && createFilterTags(filterTags)}
+      <div className="mt-4 flex w-full flex-wrap">
+        {filterTags.length > 0 && createFilterTags(displayAllSelectedFilters ? filterTags : filterTags.slice(0, 3))}
+        {filterTags.length > 3 && (
+          <Button
+            className="align-self my-1.5 justify-self-end"
+            variant="ghost"
+            onClick={() => setDisplayAllSelectedFilters(!displayAllSelectedFilters)}
+          >
+            {displayAllSelectedFilters ? t('filter.controls.hiddeFilterTags') : t('filter.controls.showFilterTags')}
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

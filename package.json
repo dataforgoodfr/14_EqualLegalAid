@@ -3,6 +3,7 @@
     "@reduxjs/toolkit": "^2.11.2",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
+    "react-circle-flags": "^0.0.29",
     "react-redux": "^9.2.0"
   }
 }

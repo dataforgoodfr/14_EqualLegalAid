@@ -1,7 +1,12 @@
 {
   "header": {
     "title": "EQUAL LEGAL AID",
-    "subtitle": "Σύστημα Διαχείρισης Νομολογίας"
+    "subtitle": "Σύστημα Διαχείρισης Νομολογίας",
+    "contact": "Επικοινωνήστε μαζί μας",
+    "langSwitcher": {
+      "en" : "αγγλικός",
+      "el": "ελλην"
+    }
   },
   "nav": {
     "caselaw": "Βάση Νομολογίας",
@@ -18,6 +23,8 @@
     "retry": "Επανάληψη"
   },
   "caselaw": {
+    "highlightTitle": "Βρείτε όλες τις αποφάσεις για | πάρτε την καλύτερη ευκαιρία",
+    "date": "ημερομηνία",
     "noRecords": "Δεν βρέθηκαν εγγραφές",
     "unknownStatus": "Άγνωστη Κατάσταση",
     "untitledCase": "Χωρίς Τίτλο",
@@ -25,9 +32,10 @@
     "country": "Χώρα",
     "court": "Δικαστήριο",
     "application": "Αίτηση",
+    "procedureType": "Είδος διαδικασίας",
     "asylumProcedure": "Διαδικασία Ασύλου",
-    "downloadEnglishPdf": "Λήψη PDF Αγγλικά",
-    "downloadGreekPdf": "Λήψη PDF Ελληνικά"
+    "downloadEnglishPdf": "PDF Αγγλικά",
+    "downloadGreekPdf": "PDF Ελληνικά"
   },
   "filter": {
     "decisions_one": "Απόφαση",
@@ -50,7 +58,15 @@
     "competentCourt": "Αρμόδιο Δικαστήριο",
     "search": "Αναζήτηση",
     "searchCountry": "Αναζήτηση χώρας",
-    "searchLegalProcedure": "Αναζήτηση τύπου νομικής διαδικασίας"
+    "searchLegalProcedure": "Αναζήτηση τύπου νομικής διαδικασίας",
+    "controls": {
+      "label": "Φίλτρο",
+      "toggle": "Προσθήκη φίλτρου",
+      "show": "Δείξτε όλο το αποτέλεσμα {{count}}",
+      "clear": "Διαγραφή όλων των φίλτρων",
+      "showFilterTags": "..εμφάνιση όλων των επιλεγμένων φίλτρων",
+      "hiddeFilterTags": "..απόκρυψη επιλεγμένων φίλτρων"
+    }
   },
   "statistics": {
     "euAsylumApplications": "Αιτήσεις Ασύλου ΕΕ",

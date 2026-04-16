@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useAppSelector } from '@/hooks/reduxHook'
+import { useTranslation } from 'react-i18next'
 import { AirtableBaseNameEnum, type DatePartSelection } from '@/types'
 
 export interface FacetSelectedFilters {
@@ -9,6 +10,7 @@ export interface FacetSelectedFilters {
   [AirtableBaseNameEnum.ApplicationTypes]: string[]
   [AirtableBaseNameEnum.AsylumProcedures]: string[]
   [AirtableBaseNameEnum.Authorities]: string[]
+  [AirtableBaseNameEnum.Keywords]: string[]
 }
 
 export interface SelectedFilters extends FacetSelectedFilters {
@@ -16,15 +18,37 @@ export interface SelectedFilters extends FacetSelectedFilters {
   endDate: string | null
 }
 
+const getStringField = (fields: Record<string, unknown>, key: string) => {
+  const value = fields[key]
+  return typeof value === 'string' ? value : ''
+}
+
 const getFilterValue = (
   filterName: AirtableBaseNameEnum,
-  value: { fields: { Name_EN: string, Name_Long_EN?: string } },
+  value: { fields: Record<string, unknown> },
+  isGreek: boolean,
 ): string => {
-  if (filterName === AirtableBaseNameEnum.Authorities) {
-    return value.fields.Name_Long_EN ?? value.fields.Name_EN
+  switch (filterName) {
+    case AirtableBaseNameEnum.Authorities: {
+      const nameLongEn = getStringField(value.fields, 'Name_Long_EN')
+      const nameLongGr = getStringField(value.fields, 'Name_Long_GR')
+      const nameEn = getStringField(value.fields, 'Name_EN')
+      const nameGr = getStringField(value.fields, 'Name_GR')
+      return isGreek
+        ? nameLongGr || nameGr || nameLongEn || nameEn
+        : nameLongEn || nameEn
+    }
+    case AirtableBaseNameEnum.Keywords: {
+      const keywordEn = getStringField(value.fields, 'Keyword_EN')
+      const keywordGr = getStringField(value.fields, 'Keyword_GR')
+      return isGreek ? keywordGr || keywordEn : keywordEn
+    }
+    default: {
+      const nameEn = getStringField(value.fields, 'Name_EN')
+      const nameGr = getStringField(value.fields, 'Name_GR')
+      return isGreek ? nameGr || nameEn : nameEn
+    }
   }
-
-  return value.fields.Name_EN
 }
 
 const isCompleteDateSelection = (selection: DatePartSelection): boolean => {
@@ -52,16 +76,23 @@ const toDateValue = (
 const getNamesByIds = (
   filterName: AirtableBaseNameEnum,
   ids: string[],
-  values: { id: string, fields: { Name_EN: string, Name_Long_EN?: string } }[],
-): string[] => values.filter(item => ids.includes(item.id)).map(item => getFilterValue(filterName, item))
+  values: Array<{ id: string, fields: Record<string, unknown> }>,
+  isGreek: boolean,
+): string[] => values
+  .filter(item => ids.includes(item.id))
+  .map(item => getFilterValue(filterName, item, isGreek))
 
 export const useApplyFilters = () => {
+  const { i18n } = useTranslation()
+  const isGreek = i18n.language === 'el'
+
   const countries = useAppSelector(state => state.filters.countries)
   const outcomes = useAppSelector(state => state.filters.outcomes)
   const legalProcedureTypes = useAppSelector(state => state.filters.legalProcedureTypes)
   const applicationTypes = useAppSelector(state => state.filters.applicationTypes)
   const asylumProcedures = useAppSelector(state => state.filters.asylumProcedures)
   const authorities = useAppSelector(state => state.filters.authorities)
+  const keywords = useAppSelector(state => state.filters.keywords)
 
   const countriesSelected = useAppSelector(state => state.filters.countriesSelected)
   const outcomesSelected = useAppSelector(state => state.filters.outcomesSelected)
@@ -69,6 +100,7 @@ export const useApplyFilters = () => {
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
   const authoritiesSelected = useAppSelector(state => state.filters.authoritiesSelected)
+  const keywordsSelected = useAppSelector(state => state.filters.keywordsSelected)
 
   const dateStart = useAppSelector(state => state.filters.dateStart)
   const dateEnd = useAppSelector(state => state.filters.dateEnd)
@@ -80,16 +112,18 @@ export const useApplyFilters = () => {
     || applicationTypesSelected.length > 0
     || asylumProceduresSelected.length > 0
     || authoritiesSelected.length > 0
+    || keywordsSelected.length > 0
     || isCompleteDateSelection(dateStart)
     || isCompleteDateSelection(dateEnd)
 
   const getSelectedFilters = useCallback((): SelectedFilters => ({
-    [AirtableBaseNameEnum.Countries]: getNamesByIds(AirtableBaseNameEnum.Countries, countriesSelected, countries.value),
-    [AirtableBaseNameEnum.Outcomes]: getNamesByIds(AirtableBaseNameEnum.Outcomes, outcomesSelected, outcomes.value),
-    [AirtableBaseNameEnum.LegalProcedureTypes]: getNamesByIds(AirtableBaseNameEnum.LegalProcedureTypes, legalProcedureTypesSelected, legalProcedureTypes.value),
-    [AirtableBaseNameEnum.ApplicationTypes]: getNamesByIds(AirtableBaseNameEnum.ApplicationTypes, applicationTypesSelected, applicationTypes.value),
-    [AirtableBaseNameEnum.AsylumProcedures]: getNamesByIds(AirtableBaseNameEnum.AsylumProcedures, asylumProceduresSelected, asylumProcedures.value),
-    [AirtableBaseNameEnum.Authorities]: getNamesByIds(AirtableBaseNameEnum.Authorities, authoritiesSelected, authorities.value),
+    [AirtableBaseNameEnum.Countries]: getNamesByIds(AirtableBaseNameEnum.Countries, countriesSelected, countries.value, isGreek),
+    [AirtableBaseNameEnum.Outcomes]: getNamesByIds(AirtableBaseNameEnum.Outcomes, outcomesSelected, outcomes.value, isGreek),
+    [AirtableBaseNameEnum.LegalProcedureTypes]: getNamesByIds(AirtableBaseNameEnum.LegalProcedureTypes, legalProcedureTypesSelected, legalProcedureTypes.value, isGreek),
+    [AirtableBaseNameEnum.ApplicationTypes]: getNamesByIds(AirtableBaseNameEnum.ApplicationTypes, applicationTypesSelected, applicationTypes.value, isGreek),
+    [AirtableBaseNameEnum.AsylumProcedures]: getNamesByIds(AirtableBaseNameEnum.AsylumProcedures, asylumProceduresSelected, asylumProcedures.value, isGreek),
+    [AirtableBaseNameEnum.Authorities]: getNamesByIds(AirtableBaseNameEnum.Authorities, authoritiesSelected, authorities.value, isGreek),
+    [AirtableBaseNameEnum.Keywords]: getNamesByIds(AirtableBaseNameEnum.Keywords, keywordsSelected, keywords.value, isGreek),
     startDate: toDateValue(dateStart, 'start'),
     endDate: toDateValue(dateEnd, 'end'),
   }), [
@@ -105,8 +139,11 @@ export const useApplyFilters = () => {
     asylumProcedures.value,
     authoritiesSelected,
     authorities.value,
+    keywordsSelected,
+    keywords.value,
     dateStart,
     dateEnd,
+    isGreek,
   ])
 
   return { getSelectedFilters, hasActiveFilters }

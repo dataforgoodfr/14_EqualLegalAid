@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import {
   AirtableBaseNameEnum,
   FilterTypeEnum,
+  type AirtableRecord,
   type BasicValuesInterface,
   type FilterInterface,
 } from '@/types/index'
@@ -15,6 +16,7 @@ import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import {
   BasicFilterItem,
   ACCORDION_CONFIG,
+  CategoriesFilterItem,
   DateFilterItem,
   TOGGLE_ACTION_MAP,
   GroupedFilterItem,
@@ -32,7 +34,7 @@ export interface AccordionInterface {
 }
 
 export interface AccordionItemInterface extends AccordionInterface {
-  items: BasicValuesInterface[] | []
+  items: BasicValuesInterface[] | AirtableRecord[] | []
   available: boolean
 }
 
@@ -42,7 +44,9 @@ interface FilterPanelProps {
   maxDate: Date | null
 }
 
-const createAccordionItems = (filterRecords: FilterInterface[]): AccordionItemInterface[] => {
+const createAccordionItems = (
+  filterRecords: FilterInterface<BasicValuesInterface | AirtableRecord>[],
+): AccordionItemInterface[] => {
   return ACCORDION_CONFIG.map((accordionConfigItem) => {
     const matchedFilter = filterRecords.find(filter => filter.label === accordionConfigItem.airtableBaseName)
     return {
@@ -65,6 +69,9 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
   const applicationTypes = useAppSelector(state => state.filters.applicationTypes)
   const asylumProcedures = useAppSelector(state => state.filters.asylumProcedures)
   const authorities = useAppSelector(state => state.filters.authorities)
+  const categories = useAppSelector(state => state.filters.categories)
+  const subCategories = useAppSelector(state => state.filters.subCategories)
+  const keywords = useAppSelector(state => state.filters.keywords)
 
   const countriesSelected = useAppSelector(state => state.filters.countriesSelected)
   const outcomesSelected = useAppSelector(state => state.filters.outcomesSelected)
@@ -72,6 +79,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
   const authoritiesSelected = useAppSelector(state => state.filters.authoritiesSelected)
+  const keywordsSelected = useAppSelector(state => state.filters.keywordsSelected)
 
   const dateStart = useAppSelector(state => state.filters.dateStart)
   const dateEnd = useAppSelector(state => state.filters.dateEnd)
@@ -85,7 +93,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
     [AirtableBaseNameEnum.Authorities]: authoritiesSelected,
   }
 
-  const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures, authorities])
+  const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures, categories, authorities])
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -102,6 +110,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
     applicationTypesSelected,
     asylumProceduresSelected,
     authoritiesSelected,
+    keywordsSelected,
     dateStart,
     dateEnd,
   ])
@@ -127,10 +136,26 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
                 <BasicFilterItem
                   enabledSearch={accordionItem.search.enabled}
                   searchPlaceholder={t(accordionItem.search.placeholder)}
-                  items={accordionItem.items}
+                  items={accordionItem.items as BasicValuesInterface[]}
                   airtableBaseName={accordionItem.airtableBaseName}
                   selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
                   onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )
+        }
+
+        if (accordionItem.filterType === FilterTypeEnum.Hierarchical && accordionItem.available) {
+          return (
+            <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
+              <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+              <AccordionContent>
+                <CategoriesFilterItem
+                  categories={categories.value}
+                  subCategories={subCategories.value}
+                  keywords={keywords.value}
+                  selectedKeywordIds={keywordsSelected}
                 />
               </AccordionContent>
             </AccordionItem>
@@ -143,7 +168,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
               <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
               <AccordionContent>
                 <GroupedFilterItem
-                  items={accordionItem.items}
+                  items={accordionItem.items as BasicValuesInterface[]}
                   airtableBaseName={accordionItem.airtableBaseName}
                   selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
                   onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}

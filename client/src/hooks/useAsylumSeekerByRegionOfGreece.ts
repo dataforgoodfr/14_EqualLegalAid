@@ -3,8 +3,9 @@ import { useAirtableService } from '@/providers'
 import { toNum, toStr } from '@/lib/utils'
 
 export interface AsylumSeekerByRegionOfGreeceRecord {
-  year: number
+  asylum_seekers: number
   region: string
+  year: number
 }
 
 export function useAsylumSeekerByRegionOfGreece() {
@@ -40,8 +41,9 @@ export function useAsylumSeekerByRegionOfGreece() {
       // year: 2026
 
       const parsed: AsylumSeekerByRegionOfGreeceRecord[] = raw.map(r => ({
-        year: toNum(r.fields['year']),
+        asylum_seekers: toNum(r.fields['asylum_seekers']),
         region: toStr(r.fields['region']),
+        year: toNum(r.fields['year']),
       }))
 
       setRecords(parsed)

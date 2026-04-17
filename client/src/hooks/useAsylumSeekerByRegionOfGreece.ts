@@ -10,6 +10,13 @@ interface AsylumSeekerByRegionOfGreeceRawRecord {
 
 export type yearRegionMapOfMap = Map<number, Map<string, number>> | null
 
+export function useAsylumSeekerByRegionOfGreeceWithEmptyData() {
+  const records = new Map<number, Map<string, number>>()
+  const loading = false
+  const error = null
+  return { records, loading, error }
+}
+
 export function useAsylumSeekerByRegionOfGreece() {
   const airtableService = useAirtableService()
 
@@ -25,7 +32,7 @@ export function useAsylumSeekerByRegionOfGreece() {
       const raw = await airtableService.fetchRecordsFromTable({
         tableName: 'ind4_asylum_seekers_in_greece',
         selectConfig: {
-          maxRecords: 5000,
+          maxRecords: 50,
           cellFormat: 'json',
           // sort: [{ field: 'year', direction: 'asc' }],
           // https://support.airtable.com/docs/airtable-web-api-using-filterbyformula-or-sort-parameters

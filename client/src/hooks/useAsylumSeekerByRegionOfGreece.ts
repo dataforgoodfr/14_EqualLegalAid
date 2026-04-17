@@ -2,16 +2,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import { toNum, toStr } from '@/lib/utils'
 
-export interface AsylumSeekerByRegionOfGreeceRecord {
+interface AsylumSeekerByRegionOfGreeceRawRecord {
   asylum_seekers: number
   region: string
   year: number
 }
 
+export type yearRegionMapOfMap = Map<number, Map<string, number>> | null
+
 export function useAsylumSeekerByRegionOfGreece() {
   const airtableService = useAirtableService()
 
-  const [records, setRecords] = useState<AsylumSeekerByRegionOfGreeceRecord[]>([])
+  const [records, setRecords] = useState<yearRegionMapOfMap>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -40,13 +42,33 @@ export function useAsylumSeekerByRegionOfGreece() {
       // region: "Thessaly"
       // year: 2026
 
-      const parsed: AsylumSeekerByRegionOfGreeceRecord[] = raw.map(r => ({
+      const parsedRecords: AsylumSeekerByRegionOfGreeceRawRecord[] = raw.map(r => ({
         asylum_seekers: toNum(r.fields['asylum_seekers']),
         region: toStr(r.fields['region']),
         year: toNum(r.fields['year']),
       }))
 
-      setRecords(parsed)
+      // use a Map of Map to aggregate the value by year and by region
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+      // might be rewritten with Map.groupBy()
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/groupBy
+      const yearMap = new Map<number, Map<string, number>>()
+      for (const record of parsedRecords) {
+        const year = record.year
+        const existingYear = yearMap.has(year)
+        if (existingYear) {
+          const currentYearMap = yearMap.get(year)
+          const region = record.region
+          const previousAsylumSeekersValue: number = currentYearMap?.get(region) ?? 0
+          const newAsylumSeekersValue: number = previousAsylumSeekersValue + record.asylum_seekers
+          currentYearMap?.set(region, newAsylumSeekersValue)
+        }
+        else {
+          const regionMap = new Map<string, number>()
+          yearMap.set(year, regionMap)
+        }
+      }
+      setRecords(yearMap)
     }
     catch(err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch asylum seeker data by greek regions')

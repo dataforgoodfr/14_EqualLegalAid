@@ -1,35 +1,25 @@
 import { useState } from 'react'
-import type { AsylumSeekerByRegionOfGreeceRecord } from '@/hooks/useAsylumSeekerByRegionOfGreece'
+import type { yearRegionMapOfMap } from '@/hooks/useAsylumSeekerByRegionOfGreece'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useTranslation } from 'react-i18next'
 
-export function GreeceMapDetails({ records, loading, error }: { records: AsylumSeekerByRegionOfGreeceRecord[], loading: boolean, error: string | null }) {
+type year = number | null
+
+export function GreeceMapDetails({ records, loading, error }: { records: yearRegionMapOfMap, loading: boolean, error: string | null }) {
   const { t } = useTranslation()
-  const [selectedYear, setSelectedYear] = useState<number | null>(2020)
+  const [selectedYear, setSelectedYear] = useState<year>(null)
 
   if (loading) return <Loading />
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
-  { /* ───────── Example of reocords list item ────────── */ }
+  { /* ───────── Example of records list item ────────── */ }
   // asylum_seekers: 1578
   // region: "Thessaly"
   // year: 2026
 
-  const yearList: number[] = [2025, 2026]
-  const selectedYearRecords = [
-    {
-      asylum_seekers: 10,
-      region: 'A',
-      year: 2000,
-    },
-    {
-      asylum_seekers: 20,
-      region: 'B',
-      year: 2010,
-    },
-  ]
+  const yearList = [...records?.keys() ?? []]
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
@@ -50,7 +40,7 @@ export function GreeceMapDetails({ records, loading, error }: { records: AsylumS
           <SelectValue placeholder={t('statistics.year')} />
         </SelectTrigger>
         <SelectContent>
-          {yearList.map(y => (
+          {yearList?.map(y => (
             <SelectItem key={y} value={y.toString()}>
               {y}
             </SelectItem>

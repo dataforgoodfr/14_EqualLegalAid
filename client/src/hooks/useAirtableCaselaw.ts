@@ -12,6 +12,7 @@ const FILTER_COLUMN_MAP: Record<keyof FacetSelectedFilters, string> = {
   [AirtableBaseNameEnum.ApplicationTypes]: 'ApplicationType',
   [AirtableBaseNameEnum.AsylumProcedures]: 'AsylumProcedure',
   [AirtableBaseNameEnum.Authorities]: 'CompetentCourtOrAuthority',
+  [AirtableBaseNameEnum.Keywords]: 'Keywords',
 }
 
 const PUBLISHED_AT_FIELD = 'PublishedAt'
@@ -76,16 +77,26 @@ const getDateBounds = (records: AirtableRecord[]) => {
 */
 const PUBLISHED_FILTER = '{Published} = TRUE()'
 
+const escapeFormulaValue = (value: string) => value.replace(/"/g, '\\"')
+
 const buildFilterFormula = (selectedFilters: SelectedFilters): string => {
-  const andClauses = (Object.entries(FILTER_COLUMN_MAP) as [keyof FacetSelectedFilters, string][])
+  const andClauses = (Object.entries(FILTER_COLUMN_MAP) as [keyof FacetSelectedFilters, string][]) 
     .map(([filterKey, column]) => ({
       column,
-      ids: selectedFilters[filterKey],
+      values: selectedFilters[filterKey],
     }))
-    .filter(({ ids }) => ids.length > 0)
-    .map(({ column, ids }) => {
-      const orClauses = ids.map(id => `SEARCH('${id}', {${column}})`).join(',')
-      return ids.length > 1 ? `OR(${orClauses})` : orClauses
+    .filter(({ values }) => values.length > 0)
+    .map(({ column, values }) => {
+      const orClauses = values.map((value) => {
+        const escapedValue = escapeFormulaValue(value)
+        if (column === 'Keywords') {
+          return `SEARCH(LOWER("${escapedValue}"), LOWER({Keywords}))`
+        }
+
+        return `SEARCH(LOWER("${escapedValue}"), LOWER({${column}}))`
+      }).join(',')
+
+      return values.length > 1 ? `OR(${orClauses})` : orClauses
     })
 
   const clauses = [PUBLISHED_FILTER, ...andClauses, ...buildDateFormula(selectedFilters)]

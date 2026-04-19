@@ -21,9 +21,9 @@ export interface BasicValuesInterface {
   }
 }
 
-export interface FilterInterface {
+export interface FilterInterface<T = BasicValuesInterface> {
   label: AirtableBaseNameEnum
-  value: BasicValuesInterface[]
+  value: T[]
   available: boolean
 }
 export interface FilterTagInterface {
@@ -40,5 +40,6 @@ export interface searchInGivenFilterInterface {
 export enum FilterTypeEnum {
   Basic = 'Basic',
   NameToSplit = 'NameToSplit',
+  Hierarchical = 'Hierarchical',
   Other = 'Other',
 }

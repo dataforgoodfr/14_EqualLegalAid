@@ -5,6 +5,7 @@ export * from './button'
 export * from './accordion'
 export * from './chart'
 export * from './stat-card'
+export * from './HighlightTitle'
 
 // Formulaire
 export * from './field'
@@ -12,3 +13,4 @@ export * from './label'
 export * from './select'
 export * from './input'
 export * from './checkbox'
+export * from './CountryBadge'

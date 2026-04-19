@@ -12,16 +12,20 @@ export const CaselawList = ({ records, sortDesc = true }: CaselawListProps) => {
   const { t } = useTranslation()
   const caselaws = sortPerDate(records, sortDesc)
   if (caselaws.length === 0) {
-    return <p className="py-12 text-center text-[var(--text-light)]">{t('caselaw.noRecords')}</p>
+    return <p className="py-12 text-center text-(--text-light)">{t('caselaw.noRecords')}</p>
   }
 
   return (
-    <div className="my-6 flex flex-col gap-5">
+    <div className="my-6">
       {caselaws.map((caselaw, index) => (
-        <CaselawCard
+        <div
+          className="w-full not-last:mb-6 xl:not-last:mb-4"
           key={index}
-          caselaw={caselaw}
-        />
+        >
+          <CaselawCard
+            caselaw={caselaw}
+          />
+        </div>
       ))}
     </div>
   )

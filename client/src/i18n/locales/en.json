@@ -1,7 +1,12 @@
 {
   "header": {
     "title": "EQUAL LEGAL AID",
-    "subtitle": "Case Law Management System"
+    "subtitle": "Case Law Management System",
+    "contact": "Contact us",
+    "langSwitcher": {
+      "en" : "english",
+      "el": "greek"
+    }
   },
   "nav": {
     "caselaw": "Caselaw Database",
@@ -18,16 +23,19 @@
     "retry": "Retry"
   },
   "caselaw": {
+    "highlightTitle": "Find all the decision to | get the best chance",
     "noRecords": "No records found",
     "unknownStatus": "Unknown Status",
     "untitledCase": "Untitled Case",
     "published": "Published",
     "country": "Country",
     "court": "Court",
+    "date": "Date",
     "application": "Application",
+    "procedureType": "Type of proceeding",
     "asylumProcedure": "Asylum Procedure",
-    "downloadEnglishPdf": "Download English PDF",
-    "downloadGreekPdf": "Download Greek PDF"
+    "downloadEnglishPdf": "English PDF",
+    "downloadGreekPdf": "Greek PDF"
   },
   "filter": {
     "decisions_one": "Decision",
@@ -35,7 +43,7 @@
     "sortBy": "Sort by:",
     "newest": "Newest",
     "oldest": "Oldest",
-    "multiSelect": "Multi select",
+    "multiSelect": "Select multiple cases",
     "downloadSelected": "Download selected caselaw ({{count}})",
     "clearSelected": "Clear selected caselaw",
     "decisionTitle": "Decision's title :",
@@ -50,7 +58,15 @@
     "competentCourt": "Competent Court",
     "search": "Search",
     "searchCountry": "Search a Country",
-    "searchLegalProcedure": "Search a Type of legal procedure"
+    "searchLegalProcedure": "Search a Type of legal procedure",
+    "controls": {
+      "label": "Filter",
+      "toggle": "Add filter",
+      "show": "Show all the result {{count}}",
+      "clear": "Delete all filter",
+      "showFilterTags": "..show all selected filters",
+      "hiddeFilterTags": "..hidde selected filters"
+    }
   },
   "statistics": {
     "euAsylumApplications": "EU Asylum Applications",

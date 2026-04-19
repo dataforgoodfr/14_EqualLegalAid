@@ -1,11 +1,23 @@
+import { cn } from '@/lib/utils'
 interface CardInfoProps {
-  title: string
-  info: string
+  label: string
+  value: string
+  className?: string
 }
 
-export const CardInfo = ({ title, info }: CardInfoProps) => (
-  <span className="flex flex-col gap-0.5">
-    <span className="text-[0.7rem] font-normal tracking-[0.6px] text-[var(--text-light)] uppercase">{title}</span>
-    <span className="text-[0.88rem] font-medium text-[var(--text-secondary)]">{info}</span>
-  </span>
+export const CardInfo = ({
+  label,
+  value,
+  className,
+}: CardInfoProps) => (
+  <p
+    className={cn('text-sm font-medium text-black leading-none', className)}
+  >
+    <span className="mr-2 inline-block font-normal tracking-[0.6px] text-gray-600">
+      { label }
+    </span>
+    <span className="text-[0.88rem] font-semibold">
+      {value}
+    </span>
+  </p>
 )

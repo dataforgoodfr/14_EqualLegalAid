@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   AirtableBaseNameEnum,
   FilterTypeEnum,
@@ -11,6 +11,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Button,
 } from '@/components/ui'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import {
@@ -20,9 +21,13 @@ import {
   DateFilterItem,
   TOGGLE_ACTION_MAP,
   GroupedFilterItem,
+  FilterItemWrapper,
 } from '@/components/Filter'
 import { useApplyFilters, type SelectedFilters } from '@/hooks/useApplyFilters'
 import { useTranslation } from 'react-i18next'
+import { RefreshCw } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { resetAllSelected } from '@/redux/filtersSlice'
 export interface AccordionInterface {
   accordionTriggerLabel: string
   airtableBaseName: AirtableBaseNameEnum
@@ -40,6 +45,7 @@ export interface AccordionItemInterface extends AccordionInterface {
 
 interface FilterPanelProps {
   onApplyFilters: (selectedFilters: SelectedFilters) => void
+  count: number
   minDate: Date | null
   maxDate: Date | null
 }
@@ -57,7 +63,8 @@ const createAccordionItems = (
   })
 }
 
-export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelProps) => {
+export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterPanelProps) => {
+  const [displayFilterPanel, setDisplayFilterPanel] = useState(false)
   const dispatch = useAppDispatch()
   const { getSelectedFilters } = useApplyFilters()
   const isMounted = useRef(false)
@@ -83,6 +90,8 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
 
   const dateStart = useAppSelector(state => state.filters.dateStart)
   const dateEnd = useAppSelector(state => state.filters.dateEnd)
+
+  const filterTags = useAppSelector(state => state.filters.filterTags)
 
   const SELECTED_IDS_MAP: Partial<Record<AirtableBaseNameEnum, string[]>> = {
     [AirtableBaseNameEnum.Countries]: countriesSelected,
@@ -125,70 +134,149 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate }: FilterPanelPro
       dispatch(action({ id, checked }))
     }
   }
+  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([])
   return (
-    <Accordion type="multiple">
-      {accordionItems.map((accordionItem, accordionItemIndex) => {
-        if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
-          return (
-            <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
-              <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
-              <AccordionContent>
-                <BasicFilterItem
-                  enabledSearch={accordionItem.search.enabled}
-                  searchPlaceholder={t(accordionItem.search.placeholder)}
-                  items={accordionItem.items as BasicValuesInterface[]}
-                  airtableBaseName={accordionItem.airtableBaseName}
-                  selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
-                  onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
-                />
-              </AccordionContent>
-            </AccordionItem>
-          )
-        }
+    <>
+      <p className="text-gray-count text-xl font-semibold xl:hidden">
+        <span className="mr-2 font-bold text-black">{count}</span>
+        {t('filter.decisions', { count })}
+      </p>
+      <Button
+        variant="outline"
+        className="mt-4 mb-6 w-full xl:hidden"
+        onClick={() => setDisplayFilterPanel(true)}
+      >
+        {t('filter.controls.toggle')}
+      </Button>
+      <button
+        className={cn(
+          'text-blue-france mb-8 cursor-pointer items-center text-[13px] font-medium hidden',
+          { 'xl:flex': filterTags.length },
+        )}
+        onClick={() => dispatch(resetAllSelected())}
+      >
+        <RefreshCw
+          className="mr-2"
+          size={16}
+        />
+        {t('filter.controls.clear')}
+      </button>
+      <FilterItemWrapper
+        count={count}
+        FilterItemWrapperBackButtonLabel={t('filter.controls.label')}
+        setCloseAllPanel={() => setDisplayFilterPanel(false)}
+        setClosePanel={() => setDisplayFilterPanel(false)}
+        showFilterItemWrapper={displayFilterPanel}
+      >
+        <Accordion
+          type="multiple"
+          value={openAccordionItems}
+          onValueChange={setOpenAccordionItems}
+        >
+          {accordionItems.map((accordionItem, accordionItemIndex) => {
+            const itemValue = `item-${accordionItemIndex}`
 
-        if (accordionItem.filterType === FilterTypeEnum.Hierarchical && accordionItem.available) {
-          return (
-            <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
-              <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
-              <AccordionContent>
-                <CategoriesFilterItem
-                  categories={categories.value}
-                  subCategories={subCategories.value}
-                  keywords={keywords.value}
-                  selectedKeywordIds={keywordsSelected}
-                />
-              </AccordionContent>
-            </AccordionItem>
-          )
-        }
+            if (accordionItem.filterType === FilterTypeEnum.Basic && accordionItem.available) {
+              return (
+                <AccordionItem
+                  value={`item-${accordionItemIndex}`}
+                  key={accordionItemIndex}
+                >
+                  <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+                  <AccordionContent>
+                    <FilterItemWrapper
+                      FilterItemWrapperBackButtonLabel={t(accordionItem.accordionTriggerLabel)}
+                      showFilterItemWrapper={openAccordionItems.includes(itemValue)}
+                      setClosePanel={
+                        () => setOpenAccordionItems(prev => prev.filter(value => value !== itemValue))
+                      }
+                      setCloseAllPanel={() => setDisplayFilterPanel(false)}
+                      count={count}
+                    >
+                      <BasicFilterItem
+                        enabledSearch={accordionItem.search.enabled}
+                        searchPlaceholder={t(accordionItem.search.placeholder)}
+                        items={accordionItem.items as BasicValuesInterface[]}
+                        airtableBaseName={accordionItem.airtableBaseName}
+                        selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
+                        onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                        displayResultNumber={accordionItem.airtableBaseName === 'Countries'}
+                      />
+                    </FilterItemWrapper>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            }
 
-        if (accordionItem.filterType === FilterTypeEnum.NameToSplit && accordionItem.available) {
-          return (
-            <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
-              <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
-              <AccordionContent>
-                <GroupedFilterItem
-                  items={accordionItem.items as BasicValuesInterface[]}
-                  airtableBaseName={accordionItem.airtableBaseName}
-                  selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
-                  onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+            if (accordionItem.filterType === FilterTypeEnum.Hierarchical && accordionItem.available) {
+              return (
+                <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
+                  <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+                  <AccordionContent>
+                    <CategoriesFilterItem
+                      categories={categories.value}
+                      subCategories={subCategories.value}
+                      keywords={keywords.value}
+                      selectedKeywordIds={keywordsSelected}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            }
+
+            if (accordionItem.filterType === FilterTypeEnum.NameToSplit && accordionItem.available) {
+              return (
+                <AccordionItem
+                  value={`item-${accordionItemIndex}`}
+                  key={accordionItemIndex}
+                >
+                  <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+                  <AccordionContent>
+                    <FilterItemWrapper
+                      FilterItemWrapperBackButtonLabel={t(accordionItem.accordionTriggerLabel)}
+                      showFilterItemWrapper={openAccordionItems.includes(itemValue)}
+                      setClosePanel={
+                        () => setOpenAccordionItems(prev => prev.filter(value => value !== itemValue))
+                      }
+                      setCloseAllPanel={() => setDisplayFilterPanel(false)}
+                      count={count}
+                    >
+                      <GroupedFilterItem
+                        items={accordionItem.items as BasicValuesInterface[]}
+                        airtableBaseName={accordionItem.airtableBaseName}
+                        selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
+                        onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
+                      />
+                    </FilterItemWrapper>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            }
+          })}
+          <AccordionItem value="item-date">
+            <AccordionTrigger>{t('filter.decisionDate')}</AccordionTrigger>
+            <AccordionContent>
+              <FilterItemWrapper
+                FilterItemWrapperBackButtonLabel={t('filter.decisionDate')}
+                showFilterItemWrapper={openAccordionItems.includes('item-date')}
+                setClosePanel={
+                  () => setOpenAccordionItems(prev => prev.filter(value => value !== 'item-date'))
+                }
+                setCloseAllPanel={() => setDisplayFilterPanel(false)}
+                count={count}
+              >
+                <DateFilterItem
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  startDate={dateStart}
+                  endDate={dateEnd}
                 />
-              </AccordionContent>
-            </AccordionItem>
-          )
-        }
-      })}
-      <AccordionItem value="item-date">
-        <AccordionTrigger>{t('filter.decisionDate')}</AccordionTrigger>
-        <AccordionContent>
-          <DateFilterItem
-            minDate={minDate}
-            maxDate={maxDate}
-            startDate={dateStart}
-            endDate={dateEnd}
-          />
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+              </FilterItemWrapper>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </FilterItemWrapper>
+
+    </>
   )
 }

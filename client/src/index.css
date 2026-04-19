@@ -9,6 +9,7 @@
   --color-outcome-partial: #f59e0b;
   --color-outcome-neutral: #6b7280;
   --color-outcome-rejected: #ec221f;
+  --color-logo: var(--logo);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -46,9 +47,13 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-gray-count: var(--gray-count);
+  --color-gray-600: #25252A;
+  --color-blue-france: var(--blue-france);
 }
 
 :root {
+  --logo: #003366;
+  --blue-france: #000BA6;
   --radius: 0.625rem;
   --background: oklch(100% 0 0);
   --foreground: oklch(14.5% 0 0);
@@ -85,6 +90,8 @@
 }
 
 .dark {
+  --logo: oklch(98.5% 0 0);
+  --blue-france: #000BA6;
   --background: oklch(14.5% 0 0);
   --foreground: oklch(98.5% 0 0);
   --card: oklch(20.5% 0 0);

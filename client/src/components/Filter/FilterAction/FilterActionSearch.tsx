@@ -8,11 +8,14 @@ import { Input } from '@/components/ui'
 import { Search as SearchIcon } from 'lucide-react'
 import { useDebounce } from '@/hooks'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils'
 interface FilterActionSearchProps {
   setSearchCaselaw: Dispatch<SetStateAction<string>>
+  className?: string
 }
 export const FilterActionSearch = ({
   setSearchCaselaw,
+  className,
 }: FilterActionSearchProps) => {
   const [searchValue, setSearchValue] = useState('')
   const [prevValue, setPrevValue] = useState('')
@@ -31,7 +34,10 @@ export const FilterActionSearch = ({
   return (
     <>
       <div
-        className="border-input flex w-full rounded-md border px-4"
+        className={cn(
+          'border-input flex w-full rounded-md border px-4',
+          className,
+        )}
       >
         <label
           htmlFor="filterActionSearch"

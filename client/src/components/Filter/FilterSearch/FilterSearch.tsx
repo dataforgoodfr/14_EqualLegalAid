@@ -47,9 +47,9 @@ export const FilterSearch = ({
         value={searchValue}
         placeholder={placeholderContent.length > 0 ? placeholderContent : ''}
         onChange={event => handleSearchChange(event.target.value)}
-        className="pr-7"
+        className="py-3 pr-3 pl-9"
       />
-      <div className="absolute top-[50%] right-2 h-4 w-4 translate-y-[-50%]">
+      <div className="absolute top-[50%] left-2 h-4 w-4 translate-y-[-50%]">
         {!loading && (
           <SearchIcon className="text-muted-foreground h-full w-full" />
         )}

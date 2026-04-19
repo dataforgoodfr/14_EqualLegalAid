@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 import { DATE_FILTER_STATE_NAME, type FilterTagInterface } from '@/types'
 import { Button } from '@/components/ui'
-import { ArrowDownWideNarrow, ArrowUpNarrowWide, Ghost } from 'lucide-react'
+import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
 import { useAppSelector, useAppDispatch } from '@/hooks/reduxHook'
 import { X, SquareMousePointer } from 'lucide-react'
 import { resetDateEnd, resetDateStart, setFilterTag } from '@/redux/filtersSlice'
@@ -11,7 +11,6 @@ import {
   FilterActionSearch,
 } from '@/components/Filter'
 import { useTranslation } from 'react-i18next'
-import { cn } from '@/lib/utils'
 interface FilterActionProps {
   count: number
   setSort: Dispatch<SetStateAction<boolean>>

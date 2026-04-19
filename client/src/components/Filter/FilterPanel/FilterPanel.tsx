@@ -196,13 +196,29 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                       <BasicFilterItem
                         enabledSearch={accordionItem.search.enabled}
                         searchPlaceholder={t(accordionItem.search.placeholder)}
-                        items={accordionItem.items}
+                        items={accordionItem.items as BasicValuesInterface[]}
                         airtableBaseName={accordionItem.airtableBaseName}
                         selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
                         onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
                         displayResultNumber={accordionItem.airtableBaseName === 'Countries'}
                       />
                     </FilterItemWrapper>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            }
+
+            if (accordionItem.filterType === FilterTypeEnum.Hierarchical && accordionItem.available) {
+              return (
+                <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
+                  <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+                  <AccordionContent>
+                    <CategoriesFilterItem
+                      categories={categories.value}
+                      subCategories={subCategories.value}
+                      keywords={keywords.value}
+                      selectedKeywordIds={keywordsSelected}
+                    />
                   </AccordionContent>
                 </AccordionItem>
               )
@@ -226,7 +242,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                       count={count}
                     >
                       <GroupedFilterItem
-                        items={accordionItem.items}
+                        items={accordionItem.items as BasicValuesInterface[]}
                         airtableBaseName={accordionItem.airtableBaseName}
                         selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
                         onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}

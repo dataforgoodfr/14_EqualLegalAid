@@ -77,25 +77,25 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
 
           {/* Published + Country — same line */}
           <div className="flex flex-wrap gap-5">
-            <CardInfo title={t('caselaw.published')} info={formattedDate} />
+            <CardInfo label={t('caselaw.published')} value={formattedDate} />
             {caselaw.countryOfOrigin && (
-              <CardInfo title={t('caselaw.country')} info={lang(caselaw.countryOfOrigin, caselaw.countryOfOrigin_GR)} />
+              <CardInfo label={t('caselaw.country')} value={lang(caselaw.countryOfOrigin, caselaw.countryOfOrigin_GR)} />
             )}
           </div>
 
           {/* Court */}
           {caselaw.competentCourtOrAuthority && (
-            <CardInfo title={t('caselaw.court')} info={lang(caselaw.competentCourtOrAuthority, caselaw.competentCourtOrAuthority_GR)} />
+            <CardInfo label={t('caselaw.court')} value={lang(caselaw.competentCourtOrAuthority, caselaw.competentCourtOrAuthority_GR)} />
           )}
 
           {/* Application */}
           {caselaw.applicationTypes && (
-            <CardInfo title={t('caselaw.application')} info={lang(caselaw.applicationTypes, caselaw.applicationTypes_GR)} />
+            <CardInfo label={t('caselaw.application')} value={lang(caselaw.applicationTypes, caselaw.applicationTypes_GR)} />
           )}
 
           {/* Asylum Procedure */}
           {caselaw.asylumProcedure && (
-            <CardInfo title={t('caselaw.asylumProcedure')} info={lang(caselaw.asylumProcedure, caselaw.asylumProcedure_GR)} />
+            <CardInfo label={t('caselaw.asylumProcedure')} value={lang(caselaw.asylumProcedure, caselaw.asylumProcedure_GR)} />
           )}
 
           {/* Keywords */}

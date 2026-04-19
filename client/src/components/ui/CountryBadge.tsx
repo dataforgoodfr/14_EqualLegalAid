@@ -7,7 +7,7 @@ interface BadgeProps {
   fontColor?: string
   className?: string
 }
-const MAPPED_COUNTRY = {
+const MAPPED_COUNTRY: Record<string, string> = {
   'DR of Congo': 'cd',
   'China': 'cn',
   'Afghanistan': 'af',

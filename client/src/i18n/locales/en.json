@@ -65,7 +65,7 @@
       "show": "Show all the result {{count}}",
       "clear": "Delete all filter",
       "showFilterTags": "..show all selected filters",
-      "hiddeFilterTags": "..hidde selected filters"
+      "hiddeFilterTags": "..hide selected filters"
     }
   },
   "statistics": {

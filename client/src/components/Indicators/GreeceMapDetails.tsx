@@ -8,6 +8,7 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './GreeceRegionMap.css'
 import greeceRegionGeoJSONUrl from '@/assets/greece.geojson?url'
+import styleUrl from '@/assets/style.json?url'
 
 type year = number | null
 
@@ -26,36 +27,37 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
-      style: 'https://demotiles.maplibre.org/style.json',
+      style: styleUrl,
+      // style: 'https://demotiles.maplibre.org/style.json',
       center: [-117, 32],
       zoom: 0,
     })
 
     map.on('load', () => {
       map.resize()
-      map.addSource('countries', { type: 'geojson', data: greeceRegionGeoJSONUrl })
+      map.addSource('regions', { type: 'geojson', data: greeceRegionGeoJSONUrl })
 
       map.addLayer({
         id: 'region-fill',
         type: 'fill',
-        source: 'countries',
-        // filter: ['==', ['get', ISO_PROP], ''],
-        paint: { 'fill-color': 'red', 'fill-opacity': 1 },
+        source: 'regions',
+        paint: { 'fill-color': 'red', 'fill-opacity': 0.2 },
       })
-      // map.addLayer({
-      //   id: 'region-border',
-      //   type: 'line',
-      //   source: 'countries',
-      //   filter: ['==', ['get', ISO_PROP], ''],
-      //   paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
-      // })
-      // map.addLayer({
-      //   id: 'country-hover',
-      //   type: 'fill',
-      //   source: 'countries',
-      //   filter: ['==', ['get', ISO_PROP], ''],
-      //   paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
-      // })
+      map.addLayer({
+        id: 'region-border',
+        type: 'line',
+        source: 'regions',
+        paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
+      })
+      map.addLayer({
+        id: 'region-hover',
+        type: 'fill',
+        source: 'regions',
+        paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
+      })
+      map.on('mousemove', 'region-hover', (event) => {
+        console.log(event.features)
+      })
 
       mapRef.current = map
     })
@@ -78,7 +80,7 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
         Number of asylum seekers living in camps
       </h1>
 
-      { /* ──────────────── Year selector ──────────────── */ }
+      { /* ──────────────── Year selector ──────────────── */}
       <Select
         value={selectedYear?.toString() ?? ''}
         onValueChange={(selectedValue) => {
@@ -97,7 +99,7 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
           ))}
         </SelectContent>
       </Select>
-      { /* ──────────────── MAP ──────────────── */ }
+      { /* ──────────────── MAP ──────────────── */}
       <div className="map-wrap">
         <div ref={mapContainer} className="map" />
       </div>

@@ -12,8 +12,16 @@ import styleUrl from '@/assets/style.json?url'
 
 type year = number | null
 
-function dataBasedIntensity() {
-  return 'yellow'
+function dataBasedColour() {
+  // return a colour which depends on the name of the current data
+  return [
+    'match',
+    ['get', 'name'],
+    // string containing pairs of keys and values, if the key of the current data matches one of the key, we will use the corresponding value
+    ...['Thessalia', 'red', 'Stereá Elláda', 'green'],
+    // default value
+    'white',
+  ]
 }
 
 export function GreeceMapDetails({ records, loading, error }: { records: yearRegionMapOfMap, loading: boolean, error: string | null }) {
@@ -67,7 +75,7 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
       })
       // the opacity of the color will depend of the number of people in this region in a certain year
       // https://maplibre.org/maplibre-style-spec/expressions/
-      map.setPaintProperty('region-fill', 'fill-color', dataBasedIntensity())
+      map.setPaintProperty('region-fill', 'fill-color', dataBasedColour())
       // When the user moves their mouse over the state-fill layer, we'll update the
       // feature state for the feature under the mouse.
       map.on('mousemove', 'region-fill', (event) => {

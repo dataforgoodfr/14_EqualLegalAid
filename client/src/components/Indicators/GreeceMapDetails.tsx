@@ -15,10 +15,9 @@ type year = number | null
 export function GreeceMapDetails({ records, loading, error }: { records: yearRegionMapOfMap, loading: boolean, error: string | null }) {
   const { t } = useTranslation()
   const [selectedYear, setSelectedYear] = useState<year>(null)
-  const mapContainer = useRef(null)
-  const mapRef = useRef(null)
-  // const mapContainerRef = useRef<HTMLDivElement>(null)
-  // const mapRef = useRef<maplibregl.Map | null>(null)
+  const mapContainer = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<maplibregl.Map | null>(null)
+  const hoverRegionID = useRef<undefined | string | number>(undefined)
 
   // https://docs.maptiler.com/react/maplibre-gl-js/how-to-use-maplibre-gl-js/
   // https://maplibre.org/maplibre-gl-js/docs/examples/add-a-canvas-source/
@@ -38,29 +37,58 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
       map.addSource('regions', { type: 'geojson', data: greeceRegionGeoJSONUrl })
 
       map.addLayer({
-        id: 'region-fill',
-        type: 'fill',
-        source: 'regions',
-        paint: { 'fill-color': 'red', 'fill-opacity': 0.2 },
-      })
-      map.addLayer({
         id: 'region-border',
         type: 'line',
         source: 'regions',
         paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
       })
+      // https://maplibre.org/maplibre-gl-js/docs/examples/create-a-hover-effect
       map.addLayer({
-        id: 'region-hover',
+        id: 'region-fill',
         type: 'fill',
         source: 'regions',
-        paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
+        paint: {
+          'fill-color': 'red', 'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1,
+            0.5,
+          ],
+        },
       })
-      map.on('mousemove', 'region-hover', (event) => {
-        console.log(event.features)
+      // When the user moves their mouse over the state-fill layer, we'll update the
+      // feature state for the feature under the mouse.
+      map.on('mousemove', 'region-fill', (event) => {
+        if (event.features && event.features.length > 0) {
+          // deactivate the previous hover if different
+          const previousHoverRegionID = hoverRegionID.current
+          const newHoverRegionID = event.features[0].id
+          if (newHoverRegionID != previousHoverRegionID) {
+            hoverRegionID.current = newHoverRegionID
+            map.setFeatureState(
+              { source: 'regions', id: previousHoverRegionID },
+              { hover: false },
+            )
+            map.setFeatureState(
+              { source: 'regions', id: newHoverRegionID },
+              { hover: true },
+            )
+          }// end if
+        }// end if
       })
-
-      mapRef.current = map
+      map.on('mouseleave', 'region-fill', (event) => {
+        if (event.features && event.features.length > 0) {
+          const leavingRegion = event.features[0].id
+          hoverRegionID.current = undefined
+          map.setFeatureState(
+            { source: 'regions', id: leavingRegion },
+            { hover: false },
+          )
+        }
+      })
     })
+
+    mapRef.current = map
   }, [])
 
   if (loading) return <Loading />

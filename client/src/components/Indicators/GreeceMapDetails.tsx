@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './GreeceRegionMap.css'
+import greeceRegionGeoJSONUrl from '@/assets/greece.geojson?url'
 
 type year = number | null
 
@@ -14,20 +15,49 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
   const { t } = useTranslation()
   const [selectedYear, setSelectedYear] = useState<year>(null)
   const mapContainer = useRef(null)
-  const map = useRef(null)
+  const mapRef = useRef(null)
   // const mapContainerRef = useRef<HTMLDivElement>(null)
   // const mapRef = useRef<maplibregl.Map | null>(null)
 
   // https://docs.maptiler.com/react/maplibre-gl-js/how-to-use-maplibre-gl-js/
   // https://maplibre.org/maplibre-gl-js/docs/examples/add-a-canvas-source/
   useEffect(() => {
-    if (map.current) return // stops map from intializing more than once
+    if (mapRef.current || !mapContainer.current) return // stops map from intializing more than once
 
-    map.current = new maplibregl.Map({
+    const map = new maplibregl.Map({
       container: mapContainer.current,
       style: 'https://demotiles.maplibre.org/style.json',
       center: [-117, 32],
       zoom: 0,
+    })
+
+    map.on('load', () => {
+      map.resize()
+      map.addSource('countries', { type: 'geojson', data: greeceRegionGeoJSONUrl })
+
+      map.addLayer({
+        id: 'region-fill',
+        type: 'fill',
+        source: 'countries',
+        // filter: ['==', ['get', ISO_PROP], ''],
+        paint: { 'fill-color': 'red', 'fill-opacity': 1 },
+      })
+      // map.addLayer({
+      //   id: 'region-border',
+      //   type: 'line',
+      //   source: 'countries',
+      //   filter: ['==', ['get', ISO_PROP], ''],
+      //   paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
+      // })
+      // map.addLayer({
+      //   id: 'country-hover',
+      //   type: 'fill',
+      //   source: 'countries',
+      //   filter: ['==', ['get', ISO_PROP], ''],
+      //   paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
+      // })
+
+      mapRef.current = map
     })
   }, [])
 

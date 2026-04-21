@@ -12,6 +12,10 @@ import styleUrl from '@/assets/style.json?url'
 
 type year = number | null
 
+function dataBasedIntensity() {
+  return 'yellow'
+}
+
 export function GreeceMapDetails({ records, loading, error }: { records: yearRegionMapOfMap, loading: boolean, error: string | null }) {
   const { t } = useTranslation()
   const [selectedYear, setSelectedYear] = useState<year>(null)
@@ -30,6 +34,10 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
       // style: 'https://demotiles.maplibre.org/style.json',
       center: [-117, 32],
       zoom: 0,
+      // maxBounds:[
+      //   [-1000, 1000], // Southwest coordinates
+      //   [-1000, 1000] // Northeast coordinates
+      // ]
     })
 
     map.on('load', () => {
@@ -42,6 +50,7 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
         source: 'regions',
         paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
       })
+      // the opacity of the color will depend if the mouse is hover a region or not
       // https://maplibre.org/maplibre-gl-js/docs/examples/create-a-hover-effect
       map.addLayer({
         id: 'region-fill',
@@ -56,6 +65,9 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
           ],
         },
       })
+      // the opacity of the color will depend of the number of people in this region in a certain year
+      // https://maplibre.org/maplibre-style-spec/expressions/
+      map.setPaintProperty('region-fill', 'fill-color', dataBasedIntensity())
       // When the user moves their mouse over the state-fill layer, we'll update the
       // feature state for the feature under the mouse.
       map.on('mousemove', 'region-fill', (event) => {
@@ -65,10 +77,12 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
           const newHoverRegionID = event.features[0].id
           if (newHoverRegionID != previousHoverRegionID) {
             hoverRegionID.current = newHoverRegionID
-            map.setFeatureState(
-              { source: 'regions', id: previousHoverRegionID },
-              { hover: false },
-            )
+            if (previousHoverRegionID != undefined) {
+              map.setFeatureState(
+                { source: 'regions', id: previousHoverRegionID },
+                { hover: false },
+              )
+            }
             map.setFeatureState(
               { source: 'regions', id: newHoverRegionID },
               { hover: true },

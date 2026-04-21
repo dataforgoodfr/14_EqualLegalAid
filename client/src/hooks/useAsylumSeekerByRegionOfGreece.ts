@@ -14,6 +14,12 @@ export function useAsylumSeekerByRegionOfGreeceWithEmptyData() {
   const records = new Map<number, Map<string, number>>()
   const loading = false
   const error = null
+
+  // create a unique data
+  const regionMap = new Map<string, number>()
+  regionMap.set('Thessaly', 100)
+  records.set(2026, regionMap)
+
   return { records, loading, error }
 }
 

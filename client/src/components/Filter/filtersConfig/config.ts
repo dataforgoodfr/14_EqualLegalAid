@@ -6,6 +6,7 @@ import {
   toggleAsylumProceduresSelected,
   toggleAuthoritiesSelected,
   toggleCountriesSelected,
+  toggleKeywordsSelected,
   toggleLegalProcedureTypesSelected,
   toggleOutcomesSelected,
 } from '@/redux/filtersSlice'
@@ -37,6 +38,12 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     search: { enabled: false, placeholder: 'filter.search' },
   },
   {
+    accordionTriggerLabel: 'filter.categories',
+    airtableBaseName: AirtableBaseNameEnum.Categories,
+    filterType: FilterTypeEnum.Hierarchical,
+    search: { enabled: false, placeholder: 'filter.search' },
+  },
+  {
     accordionTriggerLabel: 'filter.typeOfLegalProcedure',
     airtableBaseName: AirtableBaseNameEnum.LegalProcedureTypes,
     filterType: FilterTypeEnum.Basic,
@@ -57,4 +64,5 @@ export const TOGGLE_ACTION_MAP: Partial<Record<AirtableBaseNameEnum, ActionCreat
   [AirtableBaseNameEnum.ApplicationTypes]: toggleApplicationTypesSelected,
   [AirtableBaseNameEnum.AsylumProcedures]: toggleAsylumProceduresSelected,
   [AirtableBaseNameEnum.Authorities]: toggleAuthoritiesSelected,
+  [AirtableBaseNameEnum.Keywords]: toggleKeywordsSelected,
 }

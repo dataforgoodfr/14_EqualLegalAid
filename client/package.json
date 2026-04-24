@@ -27,6 +27,7 @@
     "protomaps-themes-base": "^4.5.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
+    "react-circle-flags": "^0.0.29",
     "react-dom": "^19.2.0",
     "react-i18next": "^17.0.2",
     "react-redux": "^9.2.0",

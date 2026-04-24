@@ -142,3 +142,5 @@ export interface SelectedCaselawItem {
   id: string
   pdf: PdfObjectInterface
 }
+
+export type HeaderNavigationItemType = 'caselaw' | 'statistics'

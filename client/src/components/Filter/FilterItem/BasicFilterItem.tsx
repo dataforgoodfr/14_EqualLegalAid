@@ -9,6 +9,7 @@ import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
 import { useAppDispatch } from '@/hooks/reduxHook'
 import { setFilterTag } from '@/redux/filtersSlice'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils'
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
@@ -16,6 +17,7 @@ interface BasicFilterItemProps {
   items: BasicValuesInterface[]
   selectedIds: string[]
   onFilterChange: (id: string, checked: boolean) => void
+  displayResultNumber?: boolean
 }
 
 export const BasicFilterItem = ({
@@ -24,6 +26,7 @@ export const BasicFilterItem = ({
   items,
   airtableBaseName,
   selectedIds = [],
+  displayResultNumber = false,
   onFilterChange,
 }: BasicFilterItemProps) => {
   const dispatch = useAppDispatch()
@@ -44,9 +47,9 @@ export const BasicFilterItem = ({
     }))
   }
   return (
-    <div className="filter-item p-2">
+    <div className="filter-item rounded-md border-gray-200 bg-white xl:p-2">
       {enabledSearch && (
-        <div className="filter-item__search my-4 rounded-md border border-gray-200 bg-white p-3">
+        <div>
           <FilterSearch
             placeholderContent={searchPlaceholder}
             airtableBaseName={airtableBaseName}
@@ -54,19 +57,19 @@ export const BasicFilterItem = ({
         </div>
       )}
 
-      <div className="filter-item__content rounded-md border border-gray-200 bg-white px-4 py-2">
+      <div className="filter-item__content borde rounded-md">
         <FieldGroup>
           {items.map(item => (
             <Field
               key={item.id}
-              className="flex items-center justify-between py-3.5 not-last:border-b not-last:border-gray-100"
+              className="flex items-center justify-between py-3.5"
               orientation="horizontal"
             >
               <div className="flex items-center">
                 <Checkbox
                   id={item.id}
                   name={item.id}
-                  className="mr-3"
+                  className="rounded-0 mr-3"
                   checked={selectedIds.includes(item.id)}
                   onCheckedChange={checked => handleFilterChange(item.id, getItemName(item), checked as boolean)}
                 />
@@ -75,7 +78,12 @@ export const BasicFilterItem = ({
                 </Label>
               </div>
 
-              <p>{String(item.fields.Count_Caselaws)}</p>
+              <p className={cn(
+                { hidden: !displayResultNumber },
+              )}
+              >
+                {String(item.fields.Count_Caselaws)}
+              </p>
             </Field>
           ))}
         </FieldGroup>

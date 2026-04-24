@@ -1,37 +1,36 @@
 import { useTranslation } from 'react-i18next'
 import { LANGUAGES } from '@/i18n/i18n'
-
-export const LanguageSwitcher = () => {
+import { cn } from '@/lib/utils'
+interface LanguageSwitcherProps {
+  className?: string
+}
+export const LanguageSwitcher = ({ className }: LanguageSwitcherProps) => {
   const { i18n } = useTranslation()
+  const { t } = useTranslation()
   const currentLang = i18n.language
 
   return (
-    <div className="flex items-center gap-3">
-      <button
-        onClick={() => i18n.changeLanguage(LANGUAGES.en)}
-        className={[
-          'text-sm tracking-widest uppercase transition-all',
-          currentLang === LANGUAGES.en
-            ? 'font-bold text-white'
-            : 'font-normal text-white/50 hover:text-white/80',
-        ].join(' ')}
-        aria-label="Switch to English"
-      >
-        English
-      </button>
-      <span className="text-white/40 text-sm font-light">|</span>
-      <button
-        onClick={() => i18n.changeLanguage(LANGUAGES.el)}
-        className={[
-          'text-sm tracking-widest uppercase transition-all',
-          currentLang === LANGUAGES.el
-            ? 'font-bold text-white'
-            : 'font-normal text-white/50 hover:text-white/80',
-        ].join(' ')}
-        aria-label="Switch to Greek"
-      >
-        Greek
-      </button>
+    <div className={cn(
+      'flex items-center',
+      className,
+    )}
+    >
+      {Object.values(LANGUAGES).map((lang, index) => (
+        <button
+          onClick={() => i18n.changeLanguage(lang)}
+          key={lang}
+          className={cn(
+            'text-sm tracking-widest uppercase transition-all font-medium text-gray-700 not-last:mr-3 hover:text-blue-france cursor-pointer',
+            { 'text-blue-france': currentLang === lang },
+          )}
+          aria-label={`Switch to ${lang}`}
+        >
+          {t(`header.langSwitcher.${lang}`)}
+          {index < Object.values(LANGUAGES).length - 1 && (
+            <span className="ml-3 inline-block text-sm font-light text-gray-700">|</span>
+          )}
+        </button>
+      ))}
     </div>
   )
 }

@@ -5,7 +5,17 @@ import {
 } from '@/types'
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
-import { setApplicationTypesFilter, setAsylumProceduresFilter, setAuthoritiesFilter, setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
+import {
+  setApplicationTypesFilter,
+  setAsylumProceduresFilter,
+  setAuthoritiesFilter,
+  setCategoriesFilter,
+  setCountriesFilter,
+  setKeywordsFilter,
+  setLegalProcedureTypesFilter,
+  setOutcomesFilter,
+  setSubCategoriesFilter,
+} from '@/redux/filtersSlice'
 import { useAppDispatch, useAppSelector } from './reduxHook'
 import { useTranslation } from 'react-i18next'
 
@@ -29,6 +39,16 @@ export const useAirtableFilter = () => {
   const [errorFilterRecords, setErrorFilterRecords] = useState<string | null>(null)
   const [readyToUserSearchInFilter, setReadyToUserSearchInFilter] = useState(false)
 
+  const hasCountCaselaws = (tableName: AirtableBaseNameEnum): boolean =>
+    [
+      AirtableBaseNameEnum.Countries,
+      AirtableBaseNameEnum.Outcomes,
+      AirtableBaseNameEnum.LegalProcedureTypes,
+      AirtableBaseNameEnum.ApplicationTypes,
+      AirtableBaseNameEnum.AsylumProcedures,
+      AirtableBaseNameEnum.Authorities,
+    ].includes(tableName)
+
   const fetchFilterRecords = useCallback(async () => {
     if (filterFetched) return
     try {
@@ -41,17 +61,25 @@ export const useAirtableFilter = () => {
         AirtableBaseNameEnum.ApplicationTypes,
         AirtableBaseNameEnum.AsylumProcedures,
         AirtableBaseNameEnum.Authorities,
+        AirtableBaseNameEnum.Categories,
+        AirtableBaseNameEnum.SubCategories,
+        AirtableBaseNameEnum.Keywords,
       ]
       const results = await Promise.all(
         entries.map(async (tableName) => {
           try {
+            const selectConfig: any = {
+              cellFormat: 'json',
+            }
+
+            if (hasCountCaselaws(tableName)) {
+              selectConfig.filterByFormula = 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
+              selectConfig.sort = [{ field: 'Count_Caselaws', direction: 'desc' }]
+            }
+
             const records = await airtableService.fetchRecordsFromTable({
               tableName,
-              selectConfig: {
-                cellFormat: 'json',
-                filterByFormula: 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)',
-                sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
-              },
+              selectConfig,
             })
             return { label: tableName, value: records, available: true }
           }
@@ -67,6 +95,9 @@ export const useAirtableFilter = () => {
       const applicationTypesResult = results.find(r => r.label === AirtableBaseNameEnum.ApplicationTypes)
       const asylumProceduresResult = results.find(r => r.label === AirtableBaseNameEnum.AsylumProcedures)
       const authoritiesResult = results.find(r => r.label === AirtableBaseNameEnum.Authorities)
+      const categoriesResult = results.find(r => r.label === AirtableBaseNameEnum.Categories)
+      const subCategoriesResult = results.find(r => r.label === AirtableBaseNameEnum.SubCategories)
+      const keywordsResult = results.find(r => r.label === AirtableBaseNameEnum.Keywords)
       if (countriesResult) dispatch(setCountriesFilter({
         ...countriesResult,
         value: toBasicValues(countriesResult.value),
@@ -91,6 +122,9 @@ export const useAirtableFilter = () => {
         ...authoritiesResult,
         value: toBasicValues(authoritiesResult.value),
       }))
+      if (categoriesResult) dispatch(setCategoriesFilter(categoriesResult))
+      if (subCategoriesResult) dispatch(setSubCategoriesFilter(subCategoriesResult))
+      if (keywordsResult) dispatch(setKeywordsFilter(keywordsResult))
       setFilterFetched(true)
     }
     catch (err: unknown) {

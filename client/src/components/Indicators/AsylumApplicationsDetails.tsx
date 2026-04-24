@@ -17,16 +17,27 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  StatCard,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
+import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import { useTranslation } from 'react-i18next'
 
-export function AsylumApplicationsDetails({ records, loading, error }: { records: AsylumApplicationRecord[], loading: boolean, error: string | null }) {
-  const { t } = useTranslation()
+export function AsylumApplicationsDetails({
+  records,
+  loading,
+  error,
+  customText,
+}: {
+  records: AsylumApplicationRecord[]
+  loading: boolean
+  error: string | null
+  customText?: IndicatorCustomText | null
+}) {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language === 'el' ? 'gr' : 'en'
 
   const chartConfig = {
     first_time_applicants: {
@@ -48,7 +59,8 @@ export function AsylumApplicationsDetails({ records, loading, error }: { records
 
   useEffect(() => {
     if (!selectedCountry && countries.length > 0) {
-      setSelectedCountry(countries[0])
+      const eu27 = countries.find(c => c.toLowerCase().includes('european union'))
+      setSelectedCountry(eu27 ?? countries[0])
     }
   }, [countries, selectedCountry])
 
@@ -100,121 +112,136 @@ export function AsylumApplicationsDetails({ records, loading, error }: { records
     return Array.from(nonZeroByYear.values()).sort((a, b) => a.year - b.year)
   }, [records, selectedCountry])
 
-  const latestYear = chartData.at(-1)
-
-  const firstTimeRatio = latestYear && latestYear.total_applicants > 0
-    ? ((latestYear.first_time_applicants / latestYear.total_applicants) * 100).toFixed(1)
-    : null
-
   if (loading) return <Loading />
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
+  const isGr = lang === 'gr'
+  const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.euAsylumApplications')
+  const subtitle = (isGr ? customText?.subtitle_gr : customText?.subtitle_en) || t('statistics.firstTimeSubsequentPerYear')
+  const explanatoryTitle = isGr ? customText?.explanatory_text_title_gr : customText?.explanatory_text_title_en
+  const explanatoryText = isGr ? customText?.explanatory_text_gr : customText?.explanatory_text_en
+
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
+    <div className="mx-auto max-w-5xl my-6">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
-      {/* Header */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold" style={{ color: '#04356C' }}>
-          {t('statistics.euAsylumApplications')}
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          {t('statistics.firstTimeSubsequentPerYear')}
-        </p>
-      </div>
-
-      {/* Country selector */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">{t('statistics.country')}</span>
-        <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-          <SelectTrigger className="w-56">
-            <SelectValue placeholder={t('statistics.selectCountry')} />
-          </SelectTrigger>
-          <SelectContent>
-            {countries.map(c => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Chart */}
-      {chartData.length === 0
-        ? (
-          <p className="text-muted-foreground text-sm">{t('statistics.noData')}</p>
-        )
-        : (
-          <ChartContainer config={chartConfig} className="h-80 w-full">
-            <BarChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="year"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
-              />
-              <ChartTooltip
-                content={(
-                  <ChartTooltipContent
-                    labelFormatter={label => t('statistics.yearLabel', { year: label })}
-                  />
-                )}
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar
-                dataKey="first_time_applicants"
-                stackId="a"
-                fill="var(--color-first_time_applicants)"
-                radius={[0, 0, 0, 0]}
-              />
-              <Bar
-                dataKey="subsequent_applicants"
-                stackId="a"
-                fill="var(--color-subsequent_applicants)"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ChartContainer>
-        )}
-
-      {/* Stat cards — only meaningful for a single country */}
-      {latestYear && (
-        <div>
-          <p className="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
-            {t('statistics.latestData')} ·
-            {' '}
-            {latestYear.year}
+        {/* Card header */}
+        <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+          <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>
+            {title}
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {subtitle}
           </p>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <StatCard
-              label={t('statistics.totalApplicants')}
-              value={latestYear.total_applicants.toLocaleString()}
-            />
-            <StatCard
-              label={t('statistics.firstTimeApplicants')}
-              value={latestYear.first_time_applicants.toLocaleString()}
-              sub={firstTimeRatio ? `${firstTimeRatio}${t('statistics.percentOfTotal')}` : undefined}
-            />
-            <StatCard
-              label={t('statistics.subsequentApplicants')}
-              value={latestYear.subsequent_applicants.toLocaleString()}
-              sub={firstTimeRatio ? `${(100 - parseFloat(firstTimeRatio)).toFixed(1)}${t('statistics.percentOfTotal')}` : undefined}
-            />
-            {latestYear.percentage > 0 && (
-              <StatCard
-                label={t('statistics.percentOfPopulation')}
-                value={`${latestYear.percentage.toFixed(3)}%`}
-                sub={`${t('statistics.population')} ${latestYear.total_country_population.toLocaleString()}`}
-              />
+        </div>
+
+        {/* Card body */}
+        <div className="space-y-6 p-6">
+
+          {/* Country selector */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium">{t('statistics.country')}</span>
+            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder={t('statistics.selectCountry')} />
+              </SelectTrigger>
+              <SelectContent>
+                {countries.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Chart */}
+          {chartData.length === 0
+            ? (
+              <p className="text-muted-foreground text-sm">{t('statistics.noData')}</p>
+            )
+            : (
+              <ChartContainer config={chartConfig} className="h-80 w-full">
+                <BarChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="year"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
+                  />
+                  <ChartTooltip
+                    content={(
+                      <ChartTooltipContent
+                        labelFormatter={label => t('statistics.yearLabel', { year: label })}
+                      />
+                    )}
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Bar
+                    dataKey="first_time_applicants"
+                    stackId="a"
+                    fill="var(--color-first_time_applicants)"
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="subsequent_applicants"
+                    stackId="a"
+                    fill="var(--color-subsequent_applicants)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ChartContainer>
+            )}
+
+          {/* Explanatory text */}
+          {(explanatoryTitle || explanatoryText) && (
+            <div className="rounded-lg bg-gray-50 px-4 py-4 space-y-1.5">
+              {explanatoryTitle && (
+                <h3 className="text-sm font-semibold" style={{ color: '#04356C' }}>
+                  {explanatoryTitle}
+                </h3>
+              )}
+              {explanatoryText && (
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {explanatoryText}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Card footer — source & last updated */}
+        {(customText?.source || customText?.last_updated_on) && (
+          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
+            {customText.source && (
+              <span>
+                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                {' '}
+                <a
+                  href={customText.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-gray-800 transition-colors"
+                >
+                  {customText.source}
+                </a>
+              </span>
+            )}
+            {customText.last_updated_on && (
+              <span>
+                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                {' '}
+                {customText.last_updated_on}
+              </span>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

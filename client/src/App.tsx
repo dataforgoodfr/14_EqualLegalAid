@@ -37,7 +37,7 @@ function App() {
               title={t('caselaw.highlightTitle')}
             />
             <div className="flex flex-wrap xl:gap-10">
-              <div className="flex-auto xl:w-72 xl:shrink-0 xl:flex-none">
+              <div className="flex-auto xl:w-72 xl:shrink-0 xl:flex-none xl:sticky xl:top-0 xl:self-start xl:max-h-screen xl:overflow-y-auto">
                 <FilterPanel
                   onApplyFilters={fetchFilteredCaselaws}
                   minDate={dateBounds.minDate}

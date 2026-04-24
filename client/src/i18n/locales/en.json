@@ -9,8 +9,8 @@
     }
   },
   "nav": {
-    "caselaw": "Caselaw Database",
-    "statistics": "EU Asylum Statistics"
+    "caselaw": "Decisions",
+    "statistics": "Advocacy"
   },
   "language": {
     "english": "EN",
@@ -101,6 +101,8 @@
     "firstTimeShort": "First-time",
     "totalPerCapita": "Total per capita",
     "firstTimePerCapitaShort": "First-time per capita",
-    "subsequentPerCapita": "Subsequent per capita"
+    "subsequentPerCapita": "Subsequent per capita",
+    "source": "Source",
+    "lastUpdated": "Last updated"
   }
 }

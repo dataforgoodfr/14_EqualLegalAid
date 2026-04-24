@@ -12,15 +12,50 @@ import styleUrl from '@/assets/style.json?url'
 
 type year = number | null
 
-function dataBasedColour() {
+const DEFAULT_COLOUR = 'white'
+// 5-step ELA blues
+const BUCKET_COLORS = ['#bfdbfe', '#7db9f5', '#3b82f6', '#1d56c4', '#1e3a8a']
+
+// Fixed thresholds — independent of data
+const THRESHOLDS = [50, 100, 1_000, 5000]
+
+function getBucketColor(value: number, thresholds: number[]): string {
+  if (!thresholds.length) return BUCKET_COLORS[0]
+  for (let i = 0; i < thresholds.length; i++) {
+    if (value <= thresholds[i]) return BUCKET_COLORS[i]
+  }
+  return BUCKET_COLORS[BUCKET_COLORS.length - 1]
+}
+
+function dataBasedColour(selectedYear: year, records: yearRegionMapOfMap) {
   // return a colour which depends on the name of the current data
+
+  // prepare the argument of maplibregl MATCH function
+  // string containing pairs of keys and values, if the key of the current data matches one of the key, we will use the corresponding valueprepare a
+  if (!selectedYear) return DEFAULT_COLOUR
+  const regionMap = records?.get(selectedYear)
+  if (!regionMap) return DEFAULT_COLOUR
+
+  const regionColourList: string[] = []
+
+  for (const record of regionMap) {
+    const region: string = record[0]
+    const data: number = record[1]
+    const colour = getBucketColor(data, THRESHOLDS)
+    regionColourList.push(region)
+    regionColourList.push(colour)
+  }
+
+  console.log({ regionColourList })
+
   return [
     'match',
     ['get', 'name'],
-    // string containing pairs of keys and values, if the key of the current data matches one of the key, we will use the corresponding value
+
     ...['Thessalia', 'red', 'Stereá Elláda', 'green'],
+    // ...regionColourList,
     // default value
-    'white',
+    DEFAULT_COLOUR,
   ]
 }
 
@@ -73,9 +108,6 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
           ],
         },
       })
-      // the opacity of the color will depend of the number of people in this region in a certain year
-      // https://maplibre.org/maplibre-style-spec/expressions/
-      map.setPaintProperty('region-fill', 'fill-color', dataBasedColour())
       // When the user moves their mouse over the state-fill layer, we'll update the
       // feature state for the feature under the mouse.
       map.on('mousemove', 'region-fill', (event) => {
@@ -112,6 +144,25 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
 
     mapRef.current = map
   }, [])
+
+  // ── Re-apply whenever year changes ───────────────────────
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const apply = () => {
+      // the opacity of the color will depend of the number of people in this region in a certain year
+      // https://maplibre.org/maplibre-style-spec/expressions/
+      map.setPaintProperty('region-fill', 'fill-color', dataBasedColour(selectedYear, records))
+    }
+    if (map.isStyleLoaded()) {
+      apply()
+    }
+    else {
+      // Map not ready yet — apply as soon as it is
+      map.once('load', apply)
+      return () => { map.off('load', apply) }
+    }
+  }, [selectedYear, records])
 
   if (loading) return <Loading />
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />

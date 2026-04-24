@@ -101,6 +101,8 @@
     "firstTimeShort": "Πρώτη φορά",
     "totalPerCapita": "Σύνολο κατά κεφαλή",
     "firstTimePerCapitaShort": "Πρώτη φορά κατά κεφαλή",
-    "subsequentPerCapita": "Επακόλουθοι κατά κεφαλή"
+    "subsequentPerCapita": "Επακόλουθοι κατά κεφαλή",
+    "source": "Πηγή",
+    "lastUpdated": "Τελευταία ενημέρωση"
   }
 }

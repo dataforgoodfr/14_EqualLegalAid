@@ -69,90 +69,105 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
   // https://docs.maptiler.com/react/maplibre-gl-js/how-to-use-maplibre-gl-js/
   // https://maplibre.org/maplibre-gl-js/docs/examples/add-a-canvas-source/
   useEffect(() => {
-    if (mapRef.current || !mapContainer.current) return // stops map from intializing more than once
+    if (!mapContainer.current) {
+      console.log('mapContainer is not ready yet')
+      return
+    }
+    else {
+      if (mapRef.current) {
+        console.log('mapRef already defined')
+        return
+      }
+      else {
+        console.log('allright, we enter the useEffect')
+        const map = new maplibregl.Map({
+          container: mapContainer.current,
+          style: styleUrl,
+          // style: 'https://demotiles.maplibre.org/style.json',
+          center: [-117, 32],
+          zoom: 0,
+          // maxBounds:[
+          //   [-1000, 1000], // Southwest coordinates
+          //   [-1000, 1000] // Northeast coordinates
+          // ]
+        })
 
-    const map = new maplibregl.Map({
-      container: mapContainer.current,
-      style: styleUrl,
-      // style: 'https://demotiles.maplibre.org/style.json',
-      center: [-117, 32],
-      zoom: 0,
-      // maxBounds:[
-      //   [-1000, 1000], // Southwest coordinates
-      //   [-1000, 1000] // Northeast coordinates
-      // ]
-    })
+        map.on('load', () => {
+          console.log('map loaded')
+          map.resize()
+          map.addSource('regions', { type: 'geojson', data: greeceRegionGeoJSONUrl })
 
-    map.on('load', () => {
-      map.resize()
-      map.addSource('regions', { type: 'geojson', data: greeceRegionGeoJSONUrl })
-
-      map.addLayer({
-        id: 'region-border',
-        type: 'line',
-        source: 'regions',
-        paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
-      })
-      // the opacity of the color will depend if the mouse is hover a region or not
-      // https://maplibre.org/maplibre-gl-js/docs/examples/create-a-hover-effect
-      map.addLayer({
-        id: 'region-fill',
-        type: 'fill',
-        source: 'regions',
-        paint: {
-          'fill-color': 'red', 'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            1,
-            0.5,
-          ],
-        },
-      })
-      // When the user moves their mouse over the state-fill layer, we'll update the
-      // feature state for the feature under the mouse.
-      map.on('mousemove', 'region-fill', (event) => {
-        if (event.features && event.features.length > 0) {
-          // deactivate the previous hover if different
-          const previousHoverRegionID = hoverRegionID.current
-          const newHoverRegionID = event.features[0].id
-          if (newHoverRegionID != previousHoverRegionID) {
-            hoverRegionID.current = newHoverRegionID
-            if (previousHoverRegionID != undefined) {
+          map.addLayer({
+            id: 'region-border',
+            type: 'line',
+            source: 'regions',
+            paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
+          })
+          // the opacity of the color will depend if the mouse is hover a region or not
+          // https://maplibre.org/maplibre-gl-js/docs/examples/create-a-hover-effect
+          map.addLayer({
+            id: 'region-fill',
+            type: 'fill',
+            source: 'regions',
+            paint: {
+              'fill-color': 'red', 'fill-opacity': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                1,
+                0.5,
+              ],
+            },
+          })
+          // When the user moves their mouse over the state-fill layer, we'll update the
+          // feature state for the feature under the mouse.
+          map.on('mousemove', 'region-fill', (event) => {
+            if (event.features && event.features.length > 0) {
+              // deactivate the previous hover if different
+              const previousHoverRegionID = hoverRegionID.current
+              const newHoverRegionID = event.features[0].id
+              if (newHoverRegionID != previousHoverRegionID) {
+                hoverRegionID.current = newHoverRegionID
+                if (previousHoverRegionID != undefined) {
+                  map.setFeatureState(
+                    { source: 'regions', id: previousHoverRegionID },
+                    { hover: false },
+                  )
+                }
+                map.setFeatureState(
+                  { source: 'regions', id: newHoverRegionID },
+                  { hover: true },
+                )
+              }// end if
+            }// end if
+          })
+          map.on('mouseleave', 'region-fill', (event) => {
+            if (event.features && event.features.length > 0) {
+              const leavingRegion = event.features[0].id
+              hoverRegionID.current = undefined
               map.setFeatureState(
-                { source: 'regions', id: previousHoverRegionID },
+                { source: 'regions', id: leavingRegion },
                 { hover: false },
               )
             }
-            map.setFeatureState(
-              { source: 'regions', id: newHoverRegionID },
-              { hover: true },
-            )
-          }// end if
-        }// end if
-      })
-      map.on('mouseleave', 'region-fill', (event) => {
-        if (event.features && event.features.length > 0) {
-          const leavingRegion = event.features[0].id
-          hoverRegionID.current = undefined
-          map.setFeatureState(
-            { source: 'regions', id: leavingRegion },
-            { hover: false },
-          )
-        }
-      })
-    })
+          })
+        })
 
-    mapRef.current = map
-  }, [])
+        mapRef.current = map
+      }
+    }
+  }, [loading])
 
   // ── Re-apply whenever year changes ───────────────────────
   useEffect(() => {
+    const dataBasedColourMapping = dataBasedColour(selectedYear, records)
+    console.log({ dataBasedColourMapping })
+
     const map = mapRef.current
     if (!map) return
     const apply = () => {
       // the opacity of the color will depend of the number of people in this region in a certain year
       // https://maplibre.org/maplibre-style-spec/expressions/
-      map.setPaintProperty('region-fill', 'fill-color', dataBasedColour(selectedYear, records))
+      map.setPaintProperty('region-fill', 'fill-color', dataBasedColourMapping)
     }
     if (map.isStyleLoaded()) {
       apply()
@@ -203,6 +218,11 @@ export function GreeceMapDetails({ records, loading, error }: { records: yearReg
       { /* ──────────────── MAP ──────────────── */}
       <div className="map-wrap">
         <div ref={mapContainer} className="map" />
+        {loading && (
+          <div className="text-muted-foreground absolute inset-0 flex items-center justify-center bg-white/60 text-sm">
+            {t('loadingData')}
+          </div>
+        )}
       </div>
     </div>
   )

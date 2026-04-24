@@ -52,8 +52,8 @@ function dataBasedColour(selectedYear: year, records: yearRegionMapOfMap) {
     'match',
     ['get', 'name'],
 
-    ...['Thessalia', 'red', 'Stereá Elláda', 'green'],
-    // ...regionColourList,
+    // ...['Thessalia', 'red', 'Stereá Elláda', 'green'],
+    ...regionColourList,
     // default value
     DEFAULT_COLOUR,
   ]

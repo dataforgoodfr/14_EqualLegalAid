@@ -23,7 +23,7 @@
     "retry": "Retry"
   },
   "caselaw": {
-    "highlightTitle": "Find all the decision to | get the best chance",
+    "highlightTitle": "This platform is compiling | Greek caselaw on international protection",
     "noRecords": "No records found",
     "unknownStatus": "Unknown Status",
     "untitledCase": "Untitled Case",
@@ -47,7 +47,7 @@
     "downloadSelected": "Download selected caselaw ({{count}})",
     "clearSelected": "Clear selected caselaw",
     "decisionTitle": "Decision's title :",
-    "titlePlaceholder": "Thessaloniki - ΑΔ406/2025",
+    "titlePlaceholder": "ΑΔ406/2025",
     "decisionDate": "Decision date",
     "outcome": "Outcome",
     "countryOfOrigin": "Country of origin",

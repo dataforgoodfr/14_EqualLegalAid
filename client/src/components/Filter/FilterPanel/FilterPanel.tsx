@@ -213,12 +213,20 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                 <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
                   <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
                   <AccordionContent>
-                    <CategoriesFilterItem
-                      categories={categories.value}
-                      subCategories={subCategories.value}
-                      keywords={keywords.value}
-                      selectedKeywordIds={keywordsSelected}
-                    />
+                    <FilterItemWrapper
+                      count={count}
+                      FilterItemWrapperBackButtonLabel={t(accordionItem.accordionTriggerLabel)}
+                      setClosePanel={() => setOpenAccordionItems(prev => prev.filter(value => value !== itemValue))}
+                      setCloseAllPanel={() => setDisplayFilterPanel(false)}
+                      showFilterItemWrapper={openAccordionItems.includes(itemValue)}
+                    >
+                      <CategoriesFilterItem
+                        categories={categories.value}
+                        subCategories={subCategories.value}
+                        keywords={keywords.value}
+                        selectedKeywordIds={keywordsSelected}
+                      />
+                    </FilterItemWrapper>
                   </AccordionContent>
                 </AccordionItem>
               )

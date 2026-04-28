@@ -9,7 +9,10 @@ import {
   setApplicationTypesFilter,
   setAsylumProceduresFilter,
   setAuthoritiesFilter,
-  setCategoriesFilter,
+  setVulnerabilityFilter,
+  setGroundOfPersecutionFilter,
+  setLegalAndProceduralIssuesFilter,
+  setHouseholdIndividualStatusFilter,
   setCountriesFilter,
   setKeywordsFilter,
   setLegalProcedureTypesFilter,
@@ -122,8 +125,40 @@ export const useAirtableFilter = () => {
         ...authoritiesResult,
         value: toBasicValues(authoritiesResult.value),
       }))
-      if (categoriesResult) dispatch(setCategoriesFilter(categoriesResult))
+      if (categoriesResult ) {
+
+        const categoriesArray = categoriesResult.value;
+
+        const vulnerability: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Vulnerability");
+        const groundOfPersecution: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Ground of persecution");
+        const householdIndividualStatus: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Household/Individual status");
+        const legalProceduralIssues: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Legal and procedural issues");
+
+        console.log(vulnerability, groundOfPersecution, householdIndividualStatus, legalProceduralIssues);
+
+        dispatch(setVulnerabilityFilter({
+          label: AirtableBaseNameEnum.Vulnerability,
+          value: vulnerability ? [vulnerability] : [],
+          available: vulnerability ? true : false,
+        }))
+        dispatch(setGroundOfPersecutionFilter({
+          label: AirtableBaseNameEnum.GroundOfPersecution,
+          value: groundOfPersecution ? [groundOfPersecution] : [],
+          available: groundOfPersecution ? true : false,
+        }))
+        dispatch(setLegalAndProceduralIssuesFilter({
+          label: AirtableBaseNameEnum.LegalAndProceduralIssues,
+          value: legalProceduralIssues ? [legalProceduralIssues] : [],
+          available: legalProceduralIssues ? true : false,
+        }))
+        dispatch(setHouseholdIndividualStatusFilter({
+          label: AirtableBaseNameEnum.HouseholdIndividualStatus,
+          value: householdIndividualStatus ? [householdIndividualStatus] : [],
+          available: householdIndividualStatus ? true : false,
+        }))
+      }
       if (subCategoriesResult) dispatch(setSubCategoriesFilter(subCategoriesResult))
+      
       if (keywordsResult) dispatch(setKeywordsFilter(keywordsResult))
       setFilterFetched(true)
     }

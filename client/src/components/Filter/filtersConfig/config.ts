@@ -9,6 +9,10 @@ import {
   toggleKeywordsSelected,
   toggleLegalProcedureTypesSelected,
   toggleOutcomesSelected,
+  toggleVulnerabilitySelected,
+  toggleGroundOfPersecutionSelected,
+  toggleLegalAndProceduralIssuesSelected,
+  toggleHouseholdIndividualStatusSelected,
 } from '@/redux/filtersSlice'
 import type { ActionCreatorWithPayload } from '@reduxjs/toolkit'
 
@@ -38,8 +42,26 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     search: { enabled: false, placeholder: 'filter.search' },
   },
   {
-    accordionTriggerLabel: 'filter.categories',
-    airtableBaseName: AirtableBaseNameEnum.Categories,
+    accordionTriggerLabel: 'filter.vulnerability',
+    airtableBaseName: AirtableBaseNameEnum.Vulnerability,
+    filterType: FilterTypeEnum.Hierarchical,
+    search: { enabled: false, placeholder: 'filter.search' },
+  },
+  {
+    accordionTriggerLabel: 'filter.groundOfPersecution',
+    airtableBaseName: AirtableBaseNameEnum.GroundOfPersecution,
+    filterType: FilterTypeEnum.Hierarchical,
+    search: { enabled: false, placeholder: 'filter.search' },
+  },
+  {
+    accordionTriggerLabel: 'filter.legalAndProceduralIssues',
+    airtableBaseName: AirtableBaseNameEnum.LegalAndProceduralIssues,
+    filterType: FilterTypeEnum.Hierarchical,
+    search: { enabled: false, placeholder: 'filter.search' },
+  },
+  {
+    accordionTriggerLabel: 'filter.householdIndividualStatus',
+    airtableBaseName: AirtableBaseNameEnum.HouseholdIndividualStatus,
     filterType: FilterTypeEnum.Hierarchical,
     search: { enabled: false, placeholder: 'filter.search' },
   },
@@ -65,4 +87,8 @@ export const TOGGLE_ACTION_MAP: Partial<Record<AirtableBaseNameEnum, ActionCreat
   [AirtableBaseNameEnum.AsylumProcedures]: toggleAsylumProceduresSelected,
   [AirtableBaseNameEnum.Authorities]: toggleAuthoritiesSelected,
   [AirtableBaseNameEnum.Keywords]: toggleKeywordsSelected,
+  [AirtableBaseNameEnum.Vulnerability]: toggleVulnerabilitySelected,
+  [AirtableBaseNameEnum.GroundOfPersecution]: toggleGroundOfPersecutionSelected,
+  [AirtableBaseNameEnum.LegalAndProceduralIssues]: toggleLegalAndProceduralIssuesSelected,
+  [AirtableBaseNameEnum.HouseholdIndividualStatus]: toggleHouseholdIndividualStatusSelected,
 }

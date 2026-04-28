@@ -43,7 +43,7 @@ export const CountryBadge = ({
 }: BadgeProps) => {
   const countryOfOriginArray = countryOfOrigin.split(', ')
   const splittedLabel = label.split(', ')
-  console.log('countryOfOriginArray', countryOfOriginArray)
+
   return (
     <span
       className={cn(
@@ -55,7 +55,7 @@ export const CountryBadge = ({
       {countryOfOriginArray.map((country, index) => {
         const countryCode = MAPPED_COUNTRY[country]
         return (
-          <span className="flex overflow-hidden not-last:mr-2">
+          <span className="flex overflow-hidden not-last:mr-2" key={index}>
             <span className="mr-2 inline-block">
               <CircleFlag countryCode={countryCode} width={14} height={14} />
             </span>

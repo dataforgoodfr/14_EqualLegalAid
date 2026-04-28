@@ -28,6 +28,23 @@ import { useTranslation } from 'react-i18next'
 import { RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { resetAllSelected } from '@/redux/filtersSlice'
+
+const toIdArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string')
+  }
+
+  if (typeof value === 'string') {
+    return value.split(',').map(item => item.trim()).filter(Boolean)
+  }
+
+  return []
+}
+
+const getFieldValue = (record: AirtableRecord, key: string): unknown => {
+  const fieldKey = Object.keys(record.fields).find(fieldName => fieldName.toLowerCase() === key.toLowerCase())
+  return fieldKey ? record.fields[fieldKey] : undefined
+}
 export interface AccordionInterface {
   accordionTriggerLabel: string
   airtableBaseName: AirtableBaseNameEnum
@@ -77,6 +94,10 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
   const asylumProcedures = useAppSelector(state => state.filters.asylumProcedures)
   const authorities = useAppSelector(state => state.filters.authorities)
   const categories = useAppSelector(state => state.filters.categories)
+  const vulnerability = useAppSelector(state => state.filters.vulnerability)
+  const groundOfPersecution = useAppSelector(state => state.filters.groundOfPersecution)
+  const legalAndProceduralIssues = useAppSelector(state => state.filters.legalAndProceduralIssues)
+  const householdIndividualStatus = useAppSelector(state => state.filters.householdIndividualStatus)
   const subCategories = useAppSelector(state => state.filters.subCategories)
   const keywords = useAppSelector(state => state.filters.keywords)
 
@@ -86,6 +107,10 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
   const applicationTypesSelected = useAppSelector(state => state.filters.applicationTypesSelected)
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
   const authoritiesSelected = useAppSelector(state => state.filters.authoritiesSelected)
+  const vulnerabilitySelected = useAppSelector(state => state.filters.vulnerabilitySelected)
+  const groundOfPersecutionSelected = useAppSelector(state => state.filters.groundOfPersecutionSelected)
+  const legalAndProceduralIssuesSelected = useAppSelector(state => state.filters.legalAndProceduralIssuesSelected)
+  const householdIndividualStatusSelected = useAppSelector(state => state.filters.householdIndividualStatusSelected)
   const keywordsSelected = useAppSelector(state => state.filters.keywordsSelected)
 
   const dateStart = useAppSelector(state => state.filters.dateStart)
@@ -100,9 +125,13 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
     [AirtableBaseNameEnum.ApplicationTypes]: applicationTypesSelected,
     [AirtableBaseNameEnum.AsylumProcedures]: asylumProceduresSelected,
     [AirtableBaseNameEnum.Authorities]: authoritiesSelected,
+    [AirtableBaseNameEnum.Vulnerability]: vulnerabilitySelected,
+    [AirtableBaseNameEnum.GroundOfPersecution]: groundOfPersecutionSelected,
+    [AirtableBaseNameEnum.LegalAndProceduralIssues]: legalAndProceduralIssuesSelected,
+    [AirtableBaseNameEnum.HouseholdIndividualStatus]: householdIndividualStatusSelected,
   }
 
-  const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures, categories, authorities])
+  const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures, categories, vulnerability, groundOfPersecution, legalAndProceduralIssues, householdIndividualStatus, authorities])
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -120,6 +149,10 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
     asylumProceduresSelected,
     authoritiesSelected,
     keywordsSelected,
+    vulnerabilitySelected,
+    groundOfPersecutionSelected,
+    legalAndProceduralIssuesSelected,
+    householdIndividualStatusSelected,
     dateStart,
     dateEnd,
   ])
@@ -209,6 +242,43 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
             }
 
             if (accordionItem.filterType === FilterTypeEnum.Hierarchical && accordionItem.available) {
+              const filterDataMap = {
+                [AirtableBaseNameEnum.Vulnerability]: vulnerability,
+                [AirtableBaseNameEnum.GroundOfPersecution]: groundOfPersecution,
+                [AirtableBaseNameEnum.LegalAndProceduralIssues]: legalAndProceduralIssues,
+                [AirtableBaseNameEnum.HouseholdIndividualStatus]: householdIndividualStatus,
+              }
+
+              const filterData = filterDataMap[accordionItem.airtableBaseName as keyof typeof filterDataMap]
+
+              if (!filterData) return null
+
+              // Collecter les sous-catégories et keywords pertinents pour ce filtre
+              const relevantSubCategories = new Set<string>()
+              const categoryIds = new Set<string>()
+
+              filterData.value.forEach((category: AirtableRecord) => {
+                categoryIds.add(category.id)
+                const subCatIds = toIdArray(getFieldValue(category, 'SubCategories'))
+                subCatIds.forEach(id => relevantSubCategories.add(id))
+              })
+
+              const filterSubCategories = subCategories.value ? subCategories.value.filter((sc: AirtableRecord) => relevantSubCategories.has(sc.id)) : []
+              
+              // Filtrer les keywords via leur champ Categories ou SubCategory
+              const filterKeywords = keywords.value ? keywords.value.filter((kw: AirtableRecord) => {
+                const kwCategories = toIdArray(getFieldValue(kw, 'Categories'))
+                const kwSubCategories = toIdArray(getFieldValue(kw, 'SubCategory'))
+                
+                // Le keyword appartient à ce filtre si :
+                // - son champ Categories contient l'ID de la catégorie
+                // - ou son champ SubCategory contient un ID de sous-catégorie de ce filtre
+                const belongsToCategory = kwCategories.some(catId => categoryIds.has(catId))
+                const belongsToSubCategory = kwSubCategories.some(subId => relevantSubCategories.has(subId))
+                
+                return belongsToCategory || belongsToSubCategory
+              }) : []
+              console.log("toto", {filterKeywords,filterSubCategoriesfilterData :filterData.value})
               return (
                 <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
                   <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
@@ -221,10 +291,11 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                       showFilterItemWrapper={openAccordionItems.includes(itemValue)}
                     >
                       <CategoriesFilterItem
-                        categories={categories.value}
-                        subCategories={subCategories.value}
-                        keywords={keywords.value}
-                        selectedKeywordIds={keywordsSelected}
+                        categories={filterData.value as AirtableRecord[]}
+                        subCategories={filterSubCategories}
+                        keywords={filterKeywords}
+                        airtableBaseName={accordionItem.airtableBaseName}
+                        selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
                       />
                     </FilterItemWrapper>
                   </AccordionContent>

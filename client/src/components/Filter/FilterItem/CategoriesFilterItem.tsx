@@ -11,15 +11,17 @@ import {
 } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from '@/hooks/reduxHook'
-import { setFilterTag, toggleKeywordsSelected } from '@/redux/filtersSlice'
+import { setFilterTag } from '@/redux/filtersSlice'
 import { AirtableBaseNameEnum } from '@/types'
 import type { AirtableRecord } from '@/types'
+import { TOGGLE_ACTION_MAP } from '../filtersConfig/config'
 
 interface CategoriesFilterItemProps {
   categories: AirtableRecord[]
   subCategories: AirtableRecord[]
   keywords: AirtableRecord[]
-  selectedKeywordIds: string[]
+  airtableBaseName: AirtableBaseNameEnum
+  selectedIds: string[]
   displayResultNumber?: boolean
 }
 
@@ -78,7 +80,8 @@ export const CategoriesFilterItem = ({
   categories,
   subCategories,
   keywords,
-  selectedKeywordIds,
+  airtableBaseName,
+  selectedIds,
   displayResultNumber = false,
 }: CategoriesFilterItemProps) => {
   const { i18n } = useTranslation()
@@ -95,13 +98,14 @@ export const CategoriesFilterItem = ({
     [subCategories],
   )
 
-  const getKeywordsByIds = (ids: string[]) =>
-    ids
-      .map(id => keywordMap.get(id))
-      .filter((keyword): keyword is AirtableRecord => Boolean(keyword))
+  const getKeywordsBySubCategoryId = (subCategoryId: string) =>
+    keywords.filter(kw => {
+      const kwSubCategories = toIdArray(getFieldValue(kw, 'SubCategory'))
+      return kwSubCategories.includes(subCategoryId)
+    })
 
   const categoriesWithChildren = useMemo(() => categories.map((category) => {
-    const categoryKeywords = getKeywordsByIds(toIdArray(getFieldValue(category, 'Keywords')))
+
     const subCategoryIds = toIdArray(getFieldValue(category, 'SubCategories'))
     const subCategoryItems = subCategoryIds
       .map(id => subCategoryMap.get(id))
@@ -109,23 +113,25 @@ export const CategoriesFilterItem = ({
       .map(subCategory => ({
         id: subCategory.id,
         name: getSubCategoryName(subCategory, isGreek),
-        keywords: getKeywordsByIds(toIdArray(getFieldValue(subCategory, 'Keywords'))),
+        keywords: getKeywordsBySubCategoryId(subCategory.id),
       }))
-
     return {
       id: category.id,
       name: getCategoryName(category, isGreek),
-      keywords: categoryKeywords,
+      keywords: [], // Pas de keywords directs dans la catégorie
       subCategories: subCategoryItems,
     }
-  }), [categories, keywordMap, subCategoryMap, isGreek])
+  }), [categories, keywordMap, subCategoryMap, isGreek, keywords])
 
   const handleKeywordChange = (keyword: AirtableRecord, checked: boolean) => {
     const name = getKeywordName(keyword, isGreek)
-    dispatch(toggleKeywordsSelected({ id: keyword.id, checked }))
+    const toggleAction = TOGGLE_ACTION_MAP[airtableBaseName]
+    if (toggleAction) {
+      dispatch(toggleAction({ id: keyword.id, checked }))
+    }
     dispatch(setFilterTag({
       item: {
-        filterStateName: AirtableBaseNameEnum.Keywords,
+        filterStateName: airtableBaseName,
         id: keyword.id,
         name,
       },
@@ -140,12 +146,12 @@ export const CategoriesFilterItem = ({
     })
   }
 
-  const getKeywordSelectionState = (keyword: AirtableRecord) => selectedKeywordIds.includes(keyword.id)
+  const getKeywordSelectionState = (keyword: AirtableRecord) => selectedIds.includes(keyword.id)
 
   const getGroupSelectionState = (keywordRecords: AirtableRecord[]) => {
     const uniqueRecords = Array.from(new Map(keywordRecords.map(record => [record.id, record])).values())
     const total = uniqueRecords.length
-    const selectedCount = uniqueRecords.filter(keyword => selectedKeywordIds.includes(keyword.id)).length
+    const selectedCount = uniqueRecords.filter(keyword => selectedIds.includes(keyword.id)).length
 
     if (total === 0) {
       return false
@@ -171,6 +177,52 @@ export const CategoriesFilterItem = ({
         const categorySameNameKeywords = sameNameSubcategories.flatMap(sub => sub.keywords)
         const categoryChildKeywords = [...categoryKeywords, ...categorySameNameKeywords]
         const allKeywords = categoryChildKeywords.concat(...otherSubcategories.flatMap(sub => sub.keywords))
+        
+        // Cas spécial : une seule sous-catégorie avec le même nom que la catégorie
+        // → afficher directement les keywords sans niveau sous-catégorie
+        const isSingleSameNameSubcategory = 
+          category.subCategories.length === 1 && 
+          sameNameSubcategories.length === 1
+
+        // Si cas spécial : afficher les keywords directement SANS accordion
+        if (isSingleSameNameSubcategory) {
+         
+          return (
+            <div key={category.id} className="border-none bg-transparent not-last:mb-0">
+              <div className="pl-6">
+                {categoryChildKeywords.length > 0 && (
+                  <FieldGroup>
+                    {categoryChildKeywords.map(keyword => (
+                      <Field
+                        key={keyword.id}
+                        className="flex items-center justify-between py-2.5"
+                        orientation="horizontal"
+                      >
+                        <div className="flex items-center">
+                          <Checkbox
+                            id={keyword.id}
+                            name={keyword.id}
+                            className="mr-3"
+                            checked={getKeywordSelectionState(keyword)}
+                            onCheckedChange={checked => handleKeywordChange(keyword, checked === true)}
+                          />
+                          <Label htmlFor={keyword.id}>
+                            {getKeywordName(keyword, isGreek)}
+                          </Label>
+                        </div>
+                        {displayResultNumber && (
+                          <p>{String(getKeywordCount(keyword))}</p>
+                        )}
+                      </Field>
+                    ))}
+                  </FieldGroup>
+                )}
+              </div>
+            </div>
+          )
+        }
+
+        // Cas normal : afficher les sous-catégories
         const categoryChecked = getGroupSelectionState(allKeywords)
         const categoryCount = allKeywords.reduce((total, keyword) => total + getKeywordCount(keyword), 0)
 

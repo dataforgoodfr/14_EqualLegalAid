@@ -19,6 +19,10 @@ interface FiltersState {
   asylumProcedures: FilterInterface
   authorities: FilterInterface
   categories: FilterInterface<AirtableRecord>
+  vulnerability: FilterInterface<AirtableRecord>
+  groundOfPersecution: FilterInterface<AirtableRecord>
+  legalAndProceduralIssues: FilterInterface<AirtableRecord>
+  householdIndividualStatus: FilterInterface<AirtableRecord>
   subCategories: FilterInterface<AirtableRecord>
   keywords: FilterInterface<AirtableRecord>
   countriesSelected: string[]
@@ -28,6 +32,10 @@ interface FiltersState {
   asylumProceduresSelected: string[]
   authoritiesSelected: string[]
   keywordsSelected: string[]
+  vulnerabilitySelected: string[]
+  groundOfPersecutionSelected: string[]
+  legalAndProceduralIssuesSelected: string[]
+  householdIndividualStatusSelected: string[]
   dateStart: DatePartSelection
   dateEnd: DatePartSelection
   searchInGivenFilter: searchInGivenFilterInterface
@@ -75,6 +83,26 @@ const initialState: FiltersState = {
     value: [],
     available: false,
   },
+  vulnerability: {
+    label: AirtableBaseNameEnum.Vulnerability,
+    value: [],
+    available: false,
+  },
+  groundOfPersecution: {
+    label: AirtableBaseNameEnum.GroundOfPersecution,
+    value: [],
+    available: false,
+  },
+  legalAndProceduralIssues: {
+    label: AirtableBaseNameEnum.LegalAndProceduralIssues,
+    value: [],
+    available: false,
+  },
+  householdIndividualStatus: {
+    label: AirtableBaseNameEnum.HouseholdIndividualStatus,
+    value: [],
+    available: false,
+  },
   subCategories: {
     label: AirtableBaseNameEnum.SubCategories,
     value: [],
@@ -97,6 +125,10 @@ const initialState: FiltersState = {
   applicationTypesSelected: [],
   asylumProceduresSelected: [],
   keywordsSelected: [],
+  vulnerabilitySelected: [],
+  groundOfPersecutionSelected: [],
+  legalAndProceduralIssuesSelected: [],
+  householdIndividualStatusSelected: [],
   dateStart: {
     month: null,
     year: null,
@@ -148,6 +180,18 @@ const filtersSlice = createSlice({
     setCategoriesFilter: (state, action: PayloadAction<FilterInterface<AirtableRecord>>) => {
       state.categories = action.payload
     },
+    setVulnerabilityFilter: (state, action: PayloadAction<FilterInterface<AirtableRecord>>) => {
+      state.vulnerability = action.payload
+    },
+    setGroundOfPersecutionFilter: (state, action: PayloadAction<FilterInterface<AirtableRecord>>) => {
+      state.groundOfPersecution = action.payload
+    },
+    setLegalAndProceduralIssuesFilter: (state, action: PayloadAction<FilterInterface<AirtableRecord>>) => {
+      state.legalAndProceduralIssues = action.payload
+    },
+    setHouseholdIndividualStatusFilter: (state, action: PayloadAction<FilterInterface<AirtableRecord>>) => {
+      state.householdIndividualStatus = action.payload
+    },
     setSubCategoriesFilter: (state, action: PayloadAction<FilterInterface<AirtableRecord>>) => {
       state.subCategories = action.payload
     },
@@ -164,6 +208,10 @@ const filtersSlice = createSlice({
       state.dateEnd = action.payload
     },
     resetCategoriesFilter: (state) => { state.categories = initialState.categories },
+    resetVulnerabilityFilter: (state) => { state.vulnerability = initialState.vulnerability },
+    resetGroundOfPersecutionFilter: (state) => { state.groundOfPersecution = initialState.groundOfPersecution },
+    resetLegalAndProceduralIssuesFilter: (state) => { state.legalAndProceduralIssues = initialState.legalAndProceduralIssues },
+    resetHouseholdIndividualStatusFilter: (state) => { state.householdIndividualStatus = initialState.householdIndividualStatus },
     resetSubCategoriesFilter: (state) => { state.subCategories = initialState.subCategories },
     resetKeywordsFilter: (state) => { state.keywords = initialState.keywords },
     resetCountriesFilter: (state) => { state.countries = initialState.countries },
@@ -250,6 +298,46 @@ const filtersSlice = createSlice({
         state.keywordsSelected = state.keywordsSelected.filter(id => id !== action.payload.id)
       }
     },
+    toggleVulnerabilitySelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
+      if (action.payload.checked) {
+        if (!state.vulnerabilitySelected.includes(action.payload.id)) {
+          state.vulnerabilitySelected.push(action.payload.id)
+        }
+      }
+      else {
+        state.vulnerabilitySelected = state.vulnerabilitySelected.filter(id => id !== action.payload.id)
+      }
+    },
+    toggleGroundOfPersecutionSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
+      if (action.payload.checked) {
+        if (!state.groundOfPersecutionSelected.includes(action.payload.id)) {
+          state.groundOfPersecutionSelected.push(action.payload.id)
+        }
+      }
+      else {
+        state.groundOfPersecutionSelected = state.groundOfPersecutionSelected.filter(id => id !== action.payload.id)
+      }
+    },
+    toggleLegalAndProceduralIssuesSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
+      if (action.payload.checked) {
+        if (!state.legalAndProceduralIssuesSelected.includes(action.payload.id)) {
+          state.legalAndProceduralIssuesSelected.push(action.payload.id)
+        }
+      }
+      else {
+        state.legalAndProceduralIssuesSelected = state.legalAndProceduralIssuesSelected.filter(id => id !== action.payload.id)
+      }
+    },
+    toggleHouseholdIndividualStatusSelected: (state, action: PayloadAction<ToggleSelectedPayload>) => {
+      if (action.payload.checked) {
+        if (!state.householdIndividualStatusSelected.includes(action.payload.id)) {
+          state.householdIndividualStatusSelected.push(action.payload.id)
+        }
+      }
+      else {
+        state.householdIndividualStatusSelected = state.householdIndividualStatusSelected.filter(id => id !== action.payload.id)
+      }
+    },
 
     resetAllSelected: (state) => {
       state.countriesSelected = []
@@ -259,6 +347,10 @@ const filtersSlice = createSlice({
       state.asylumProceduresSelected = []
       state.authoritiesSelected = []
       state.keywordsSelected = []
+      state.vulnerabilitySelected = []
+      state.groundOfPersecutionSelected = []
+      state.legalAndProceduralIssuesSelected = []
+      state.householdIndividualStatusSelected = []
       state.dateStart = initialState.dateStart
       state.dateEnd = initialState.dateEnd
       state.filterTags = []
@@ -275,6 +367,10 @@ export const {
   setAsylumProceduresFilter,
   setAuthoritiesFilter,
   setCategoriesFilter,
+  setVulnerabilityFilter,
+  setGroundOfPersecutionFilter,
+  setLegalAndProceduralIssuesFilter,
+  setHouseholdIndividualStatusFilter,
   setSubCategoriesFilter,
   setKeywordsFilter,
   setDateStart,
@@ -286,6 +382,10 @@ export const {
   resetAsylumProceduresFilter,
   resetLegalProcedureTypesFilter,
   resetCategoriesFilter,
+  resetVulnerabilityFilter,
+  resetGroundOfPersecutionFilter,
+  resetLegalAndProceduralIssuesFilter,
+  resetHouseholdIndividualStatusFilter,
   resetSubCategoriesFilter,
   resetKeywordsFilter,
   resetDateStart,
@@ -297,6 +397,10 @@ export const {
   toggleAsylumProceduresSelected,
   toggleAuthoritiesSelected,
   toggleKeywordsSelected,
+  toggleVulnerabilitySelected,
+  toggleGroundOfPersecutionSelected,
+  toggleLegalAndProceduralIssuesSelected,
+  toggleHouseholdIndividualStatusSelected,
   resetAllSelected,
 } = filtersSlice.actions
 

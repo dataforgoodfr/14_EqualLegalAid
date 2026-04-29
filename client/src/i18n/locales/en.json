@@ -58,11 +58,11 @@
     "groundOfPersecution": "Ground of persecution",
     "legalAndProceduralIssues": "Legal and procedural issues",
     "householdIndividualStatus": "Household/individual status",
-    "typeOfLegalProcedure": "Type of legal procedure",
+    "typeOfLegalProcedure": "Type of legal proceeding",
     "competentCourt": "Competent Court",
     "search": "Search",
     "searchCountry": "Search a Country",
-    "searchLegalProcedure": "Search a Type of legal procedure",
+    "searchLegalProcedure": "Search a Type of legal proceeding",
     "controls": {
       "label": "Filter",
       "toggle": "Add filter",

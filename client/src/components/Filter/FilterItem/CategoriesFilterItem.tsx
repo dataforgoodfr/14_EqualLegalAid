@@ -1,80 +1,19 @@
 import { useMemo } from 'react'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-  Checkbox,
-  Field,
-  FieldGroup,
-  Label,
-} from '@/components/ui'
+import { Accordion, FieldGroup } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from '@/hooks/reduxHook'
 import { setFilterTag } from '@/redux/filtersSlice'
-import { AirtableBaseNameEnum } from '@/types'
 import type { AirtableRecord } from '@/types'
 import { TOGGLE_ACTION_MAP } from '../filtersConfig/config'
-
-interface CategoriesFilterItemProps {
-  categories: AirtableRecord[]
-  subCategories: AirtableRecord[]
-  keywords: AirtableRecord[]
-  airtableBaseName: AirtableBaseNameEnum
-  selectedIds: string[]
-  displayResultNumber?: boolean
-}
-
-const toIdArray = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value.filter((item): item is string => typeof item === 'string')
-  }
-
-  if (typeof value === 'string') {
-    return value.split(',').map(item => item.trim()).filter(Boolean)
-  }
-
-  return []
-}
-
-const getFieldValue = (record: AirtableRecord, key: string): unknown => {
-  const fieldKey = Object.keys(record.fields).find(fieldName => fieldName.toLowerCase() === key.toLowerCase())
-  return fieldKey ? record.fields[fieldKey] : undefined
-}
-
-const getStringField = (record: AirtableRecord, key: string): string => {
-  const value = getFieldValue(record, key)
-  return typeof value === 'string' ? value : ''
-}
-
-const getCategoryName = (record: AirtableRecord, isGreek: boolean): string => {
-  return isGreek
-    ? getStringField(record, 'Name_GR') || getStringField(record, 'Name_EN')
-    : getStringField(record, 'Name_EN') || getStringField(record, 'Name_GR')
-}
-
-const getSubCategoryName = (record: AirtableRecord, isGreek: boolean): string => {
-  return isGreek
-    ? getStringField(record, 'Name_GR') || getStringField(record, 'Name_EN')
-    : getStringField(record, 'Name_EN') || getStringField(record, 'Name_GR')
-}
-
-const getKeywordName = (record: AirtableRecord, isGreek: boolean): string => {
-  return isGreek
-    ? getStringField(record, 'Keyword_GR') || getStringField(record, 'Keyword_EN')
-    : getStringField(record, 'Keyword_EN') || getStringField(record, 'Keyword_GR')
-}
-
-const getKeywordCount = (record: AirtableRecord): number => {
-  const value = getFieldValue(record, 'Caselaws')
-  if (Array.isArray(value)) {
-    return value.length
-  }
-  if (typeof value === 'string') {
-    return value.split(',').map(item => item.trim()).filter(Boolean).length
-  }
-  return 0
-}
+import type { CategoriesFilterItemProps } from './types'
+import { KeywordField } from './KeywordField'
+import { SubCategoryAccordion } from './SubCategoryAccordion'
+import {
+  toIdArray,
+  getFieldValue,
+  getName,
+  getKeywordName
+} from './utils'
 
 export const CategoriesFilterItem = ({
   categories,
@@ -82,7 +21,6 @@ export const CategoriesFilterItem = ({
   keywords,
   airtableBaseName,
   selectedIds,
-  displayResultNumber = false,
 }: CategoriesFilterItemProps) => {
   const { i18n } = useTranslation()
   const isGreek = i18n.language === 'el'
@@ -104,24 +42,28 @@ export const CategoriesFilterItem = ({
       return kwSubCategories.includes(subCategoryId)
     })
 
-  const categoriesWithChildren = useMemo(() => categories.map((category) => {
+  const categoriesWithChildren = useMemo(
+    () =>
+      categories.map(category => {
+        const subCategoryIds = toIdArray(getFieldValue(category, 'SubCategories'))
+        const subCategoryItems = subCategoryIds
+          .map(id => subCategoryMap.get(id))
+          .filter((sub): sub is AirtableRecord => Boolean(sub))
+          .map(subCategory => ({
+            id: subCategory.id,
+            name: getName(subCategory, isGreek),
+            keywords: getKeywordsBySubCategoryId(subCategory.id),
+          }))
 
-    const subCategoryIds = toIdArray(getFieldValue(category, 'SubCategories'))
-    const subCategoryItems = subCategoryIds
-      .map(id => subCategoryMap.get(id))
-      .filter((subCategory): subCategory is AirtableRecord => Boolean(subCategory))
-      .map(subCategory => ({
-        id: subCategory.id,
-        name: getSubCategoryName(subCategory, isGreek),
-        keywords: getKeywordsBySubCategoryId(subCategory.id),
-      }))
-    return {
-      id: category.id,
-      name: getCategoryName(category, isGreek),
-      keywords: [], // Pas de keywords directs dans la catégorie
-      subCategories: subCategoryItems,
-    }
-  }), [categories, keywordMap, subCategoryMap, isGreek, keywords])
+        return {
+          id: category.id,
+          name: getName(category, isGreek),
+          keywords: [] as AirtableRecord[],
+          subCategories: subCategoryItems,
+        }
+      }),
+    [categories, keywordMap, subCategoryMap, isGreek, keywords],
+  )
 
   const handleKeywordChange = (keyword: AirtableRecord, checked: boolean) => {
     const name = getKeywordName(keyword, isGreek)
@@ -129,91 +71,71 @@ export const CategoriesFilterItem = ({
     if (toggleAction) {
       dispatch(toggleAction({ id: keyword.id, checked }))
     }
-    dispatch(setFilterTag({
-      item: {
-        filterStateName: airtableBaseName,
-        id: keyword.id,
-        name,
-      },
-      itemChecked: checked,
-    }))
+    dispatch(
+      setFilterTag({
+        item: { filterStateName: airtableBaseName, id: keyword.id, name },
+        itemChecked: checked,
+      }),
+    )
   }
 
   const handleGroupChange = (keywordRecords: AirtableRecord[], checked: boolean) => {
-    const uniqueRecords = Array.from(new Map(keywordRecords.map(record => [record.id, record])).values())
-    uniqueRecords.forEach((keyword) => {
-      handleKeywordChange(keyword, checked)
-    })
+    const uniqueRecords = Array.from(
+      new Map(keywordRecords.map(record => [record.id, record])).values(),
+    )
+    uniqueRecords.forEach(keyword => handleKeywordChange(keyword, checked))
   }
 
-  const getKeywordSelectionState = (keyword: AirtableRecord) => selectedIds.includes(keyword.id)
+  // ─── Selection state helpers ──────────────────────────────────────────────
+
+  const getKeywordSelectionState = (keyword: AirtableRecord) =>
+    selectedIds.includes(keyword.id)
 
   const getGroupSelectionState = (keywordRecords: AirtableRecord[]) => {
-    const uniqueRecords = Array.from(new Map(keywordRecords.map(record => [record.id, record])).values())
+    const uniqueRecords = Array.from(
+      new Map(keywordRecords.map(record => [record.id, record])).values(),
+    )
     const total = uniqueRecords.length
-    const selectedCount = uniqueRecords.filter(keyword => selectedIds.includes(keyword.id)).length
+    const selectedCount = uniqueRecords.filter(kw => selectedIds.includes(kw.id)).length
 
-    if (total === 0) {
-      return false
-    }
-
-    if (selectedCount === total) {
-      return true
-    }
-
-    if (selectedCount > 0) {
-      return 'indeterminate'
-    }
-
+    if (total === 0) return false
+    if (selectedCount === total) return true
+    if (selectedCount > 0) return 'indeterminate' as const
     return false
   }
 
+
   return (
     <Accordion type="multiple">
-      {categoriesWithChildren.map((category) => {
-        const categoryKeywords = category.keywords
-        const sameNameSubcategories = category.subCategories.filter(sub => sub.name === category.name)
-        const otherSubcategories = category.subCategories.filter(sub => sub.name !== category.name)
+      {categoriesWithChildren.map(category => {
+        const sameNameSubcategories = category.subCategories.filter(
+          sub => sub.name === category.name,
+        )
+        const otherSubcategories = category.subCategories.filter(
+          sub => sub.name !== category.name,
+        )
         const categorySameNameKeywords = sameNameSubcategories.flatMap(sub => sub.keywords)
-        const categoryChildKeywords = [...categoryKeywords, ...categorySameNameKeywords]
-        const allKeywords = categoryChildKeywords.concat(...otherSubcategories.flatMap(sub => sub.keywords))
-        
-        // Cas spécial : une seule sous-catégorie avec le même nom que la catégorie
-        // → afficher directement les keywords sans niveau sous-catégorie
-        const isSingleSameNameSubcategory = 
-          category.subCategories.length === 1 && 
-          sameNameSubcategories.length === 1
+        const categoryChildKeywords = [...category.keywords, ...categorySameNameKeywords]
 
-        // Si cas spécial : afficher les keywords directement SANS accordion
+        // Special case: single sub-category sharing the category name
+        // → render keywords directly without an accordion level
+        const isSingleSameNameSubcategory =
+          category.subCategories.length === 1 && sameNameSubcategories.length === 1
+
         if (isSingleSameNameSubcategory) {
-         
           return (
             <div key={category.id} className="border-none bg-transparent not-last:mb-0">
               <div className="pl-6">
                 {categoryChildKeywords.length > 0 && (
                   <FieldGroup>
                     {categoryChildKeywords.map(keyword => (
-                      <Field
+                      <KeywordField
                         key={keyword.id}
-                        className="flex items-center justify-between py-2.5"
-                        orientation="horizontal"
-                      >
-                        <div className="flex items-center">
-                          <Checkbox
-                            id={keyword.id}
-                            name={keyword.id}
-                            className="mr-3"
-                            checked={getKeywordSelectionState(keyword)}
-                            onCheckedChange={checked => handleKeywordChange(keyword, checked === true)}
-                          />
-                          <Label htmlFor={keyword.id}>
-                            {getKeywordName(keyword, isGreek)}
-                          </Label>
-                        </div>
-                        {displayResultNumber && (
-                          <p>{String(getKeywordCount(keyword))}</p>
-                        )}
-                      </Field>
+                        keyword={keyword}
+                        isGreek={isGreek}
+                        isChecked={getKeywordSelectionState(keyword)}
+                        onCheckedChange={handleKeywordChange}
+                      />
                     ))}
                   </FieldGroup>
                 )}
@@ -222,140 +144,19 @@ export const CategoriesFilterItem = ({
           )
         }
 
-        // Cas normal : afficher les sous-catégories
-        const categoryChecked = getGroupSelectionState(allKeywords)
-        const categoryCount = allKeywords.reduce((total, keyword) => total + getKeywordCount(keyword), 0)
-
         return (
-          <AccordionItem
-            value={category.id}
-            key={category.id}
-            className="border-none bg-transparent not-last:mb-0"
-          >
-            <AccordionTrigger
-              className="items-center"
-            >
-              <div className="flex w-full items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id={`category-${category.id}`}
-                    name={`category-${category.id}`}
-                    checked={categoryChecked}
-                    onCheckedChange={checked => handleGroupChange(allKeywords, checked === true)}
-                  />
-                  <Label htmlFor={`category-${category.id}`}>
-                    {category.name}
-                  </Label>
-                </div>
-                {displayResultNumber && (
-                  <span className="text-muted-foreground text-sm">
-                    {String(categoryCount)}
-                  </span>
-                )}
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              <div>
-                {categoryChildKeywords.length > 0 && (
-                  <FieldGroup className="pl-6">
-                    {categoryChildKeywords.map(keyword => (
-                      <Field
-                        key={keyword.id}
-                        className="flex items-center justify-between py-2.5"
-                        orientation="horizontal"
-                      >
-                        <div className="flex items-center">
-                          <Checkbox
-                            id={keyword.id}
-                            name={keyword.id}
-                            className="mr-3"
-                            checked={getKeywordSelectionState(keyword)}
-                            onCheckedChange={checked => handleKeywordChange(keyword, checked === true)}
-                          />
-                          <Label htmlFor={keyword.id}>
-                            {getKeywordName(keyword, isGreek)}
-                          </Label>
-                        </div>
-                        {displayResultNumber && (
-                          <p>{String(getKeywordCount(keyword))}</p>
-                        )}
-                      </Field>
-                    ))}
-                  </FieldGroup>
-                )}
-
-                {otherSubcategories.length > 0 && (
-                  <Accordion type="multiple">
-                    {otherSubcategories.map((subCategory) => {
-                      const subCategoryChecked = getGroupSelectionState(subCategory.keywords)
-                      const subCategoryCount = subCategory.keywords.reduce(
-                        (total, keyword) => total + getKeywordCount(keyword),
-                        0,
-                      )
-
-                      return (
-                        <AccordionItem
-                          value={subCategory.id}
-                          key={subCategory.id}
-                          className="border-none bg-transparent not-last:mb-0"
-                        >
-                          <AccordionTrigger className="items-center border-0 bg-transparent p-0 pl-4">
-                            <div className="flex w-full items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <Checkbox
-                                  id={`subcategory-${subCategory.id}`}
-                                  name={`subcategory-${subCategory.id}`}
-                                  className="mr-2"
-                                  checked={subCategoryChecked}
-                                  onCheckedChange={checked => handleGroupChange(subCategory.keywords, checked === true)}
-                                />
-                                <Label htmlFor={`subcategory-${subCategory.id}`} className="italic">
-                                  {subCategory.name}
-                                </Label>
-                              </div>
-                              {displayResultNumber && (
-                                <span className="text-muted-foreground text-sm">
-                                  {String(subCategoryCount)}
-                                </span>
-                              )}
-
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="pl-8">
-                            <div>
-                              <FieldGroup>
-                                {subCategory.keywords.map(keyword => (
-                                  <Field
-                                    key={keyword.id}
-                                    className="flex items-center justify-between py-2.5"
-                                    orientation="horizontal"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <Checkbox
-                                        id={keyword.id}
-                                        name={keyword.id}
-                                        className="mr-2"
-                                        checked={getKeywordSelectionState(keyword)}
-                                        onCheckedChange={checked => handleKeywordChange(keyword, checked === true)}
-                                      />
-                                      <Label htmlFor={keyword.id}>{getKeywordName(keyword, isGreek)}</Label>
-                                    </div>
-                                    {displayResultNumber && (
-                                      <p>{String(getKeywordCount(keyword))}</p>
-                                    )}
-                                  </Field>
-                                ))}
-                              </FieldGroup>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )
-                    })}
-                  </Accordion>
-                )}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+          <div key={category.id}>
+            {otherSubcategories.length > 0 && (
+              <SubCategoryAccordion
+                subCategories={otherSubcategories}
+                isGreek={isGreek}
+                getKeywordSelectionState={getKeywordSelectionState}
+                getGroupSelectionState={getGroupSelectionState}
+                onKeywordChange={handleKeywordChange}
+                onGroupChange={handleGroupChange}
+              />
+            )}
+          </div>
         )
       })}
     </Accordion>

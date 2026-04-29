@@ -1,6 +1,5 @@
 export * from './FilterItem/BasicFilterItem'
 export * from './FilterItem/CategoriesFilterItem'
-export * from './FilterItem/HierarchicalFilterItem'
 export * from './FilterItem/DateFilterItem'
 export * from './FilterItem/GroupedFilterItem'
 export * from './FilterPanel/FilterPanel'

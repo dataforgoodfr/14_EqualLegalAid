@@ -9,7 +9,6 @@ import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
 import { useAppDispatch } from '@/hooks/reduxHook'
 import { setFilterTag } from '@/redux/filtersSlice'
 import { useTranslation } from 'react-i18next'
-import { cn } from '@/lib/utils'
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
@@ -17,7 +16,6 @@ interface BasicFilterItemProps {
   items: BasicValuesInterface[]
   selectedIds: string[]
   onFilterChange: (id: string, checked: boolean) => void
-  displayResultNumber?: boolean
 }
 
 export const BasicFilterItem = ({
@@ -26,7 +24,6 @@ export const BasicFilterItem = ({
   items,
   airtableBaseName,
   selectedIds = [],
-  displayResultNumber = false,
   onFilterChange,
 }: BasicFilterItemProps) => {
   const dispatch = useAppDispatch()
@@ -77,13 +74,6 @@ export const BasicFilterItem = ({
                   {getItemName(item)}
                 </Label>
               </div>
-
-              <p className={cn(
-                { hidden: !displayResultNumber },
-              )}
-              >
-                {String(item.fields.Count_Caselaws)}
-              </p>
             </Field>
           ))}
         </FieldGroup>

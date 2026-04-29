@@ -233,7 +233,6 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                         airtableBaseName={accordionItem.airtableBaseName}
                         selectedIds={SELECTED_IDS_MAP[accordionItem.airtableBaseName] ?? []}
                         onFilterChange={(id, checked) => handleFilterChange(accordionItem.airtableBaseName, id, checked)}
-                        displayResultNumber={accordionItem.airtableBaseName === 'Countries'}
                       />
                     </FilterItemWrapper>
                   </AccordionContent>

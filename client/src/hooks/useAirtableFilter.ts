@@ -134,8 +134,6 @@ export const useAirtableFilter = () => {
         const householdIndividualStatus: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Household/Individual status");
         const legalProceduralIssues: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Legal and procedural issues");
 
-        console.log(vulnerability, groundOfPersecution, householdIndividualStatus, legalProceduralIssues);
-
         dispatch(setVulnerabilityFilter({
           label: AirtableBaseNameEnum.Vulnerability,
           value: vulnerability ? [vulnerability] : [],

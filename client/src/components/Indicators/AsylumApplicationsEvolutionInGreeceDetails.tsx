@@ -90,13 +90,6 @@ export function AsylumApplicationsEvolutionInGreeceDetails({ records, loading, e
           <Line type="monotone" dataKey="subsequent_applicants" stroke={chartConfig.subsequent_applicants.color} />
         </LineChart>
       </ChartContainer>
-      {/* <button
-        onClick={() => {
-          console.log({ records }, { loading }, { error })
-        }}
-      >
-        My Button
-      </button> */}
     </div>
   )
 }

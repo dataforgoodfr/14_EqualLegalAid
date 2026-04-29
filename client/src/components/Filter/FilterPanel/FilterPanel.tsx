@@ -277,7 +277,6 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                 
                 return belongsToCategory || belongsToSubCategory
               }) : []
-              console.log("toto", {filterKeywords,filterSubCategoriesfilterData :filterData.value})
               return (
                 <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
                   <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>

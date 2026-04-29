@@ -15,7 +15,6 @@ interface GroupedFilterItemProps {
   airtableBaseName: AirtableBaseNameEnum
   items: BasicValuesInterface[]
   selectedIds: string[]
-  displayResultNumber?: boolean
   onFilterChange: (id: string, checked: boolean) => void
 }
 
@@ -62,7 +61,6 @@ export const GroupedFilterItem = ({
   airtableBaseName,
   selectedIds = [],
   onFilterChange,
-  displayResultNumber = false,
 }: GroupedFilterItemProps) => {
   const dispatch = useAppDispatch()
   const { i18n } = useTranslation()
@@ -103,7 +101,6 @@ export const GroupedFilterItem = ({
             const selectedChildrenCount = group.items.filter(item => selectedIds.includes(item.id)).length
             const allChildrenSelected = group.items.length > 0 && selectedChildrenCount === group.items.length
             const someChildrenSelected = selectedChildrenCount > 0 && !allChildrenSelected
-            const groupCount = group.items.reduce((total, item) => total + item.fields.Count_Caselaws, 0)
             const isSingleUnsplitItem = group.items.length === 1 && splitItemName(getItemDisplayName(group.items[0])).subcategory === null
 
             if (isSingleUnsplitItem) {
@@ -127,10 +124,6 @@ export const GroupedFilterItem = ({
                       {getItemDisplayName(item)}
                     </Label>
                   </div>
-
-                  {displayResultNumber && (
-                    <p>{String(item.fields.Count_Caselaws)}</p>
-                  )}
                 </Field>
               )
             }
@@ -153,7 +146,6 @@ export const GroupedFilterItem = ({
                       {group.category}
                     </Label>
                   </div>
-                  {displayResultNumber && (<p>{String(groupCount)}</p>)}
                 </Field>
                 <FieldGroup className="mt-3 ml-8">
                   {group.items.map((item) => {
@@ -178,10 +170,6 @@ export const GroupedFilterItem = ({
                             {subcategory ?? displayName}
                           </Label>
                         </div>
-
-                        {displayResultNumber && (
-                          <p>{String(item.fields.Count_Caselaws)}</p>
-                        )}
                       </Field>
                     )
                   })}

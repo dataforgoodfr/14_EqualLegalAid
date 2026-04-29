@@ -13,6 +13,10 @@ const FILTER_COLUMN_MAP: Record<keyof FacetSelectedFilters, string> = {
   [AirtableBaseNameEnum.AsylumProcedures]: 'AsylumProcedure',
   [AirtableBaseNameEnum.Authorities]: 'CompetentCourtOrAuthority',
   [AirtableBaseNameEnum.Keywords]: 'Keywords',
+  [AirtableBaseNameEnum.Vulnerability]: 'Keywords',
+  [AirtableBaseNameEnum.GroundOfPersecution]: 'Keywords',
+  [AirtableBaseNameEnum.LegalAndProceduralIssues]: 'Keywords',
+  [AirtableBaseNameEnum.HouseholdIndividualStatus]: 'Keywords',
 }
 
 const PUBLISHED_AT_FIELD = 'PublishedAt'

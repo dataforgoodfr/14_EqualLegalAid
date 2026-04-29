@@ -1,6 +1,8 @@
 import type { AirtableRecord, AirtableBaseNameEnum } from '@/types'
 
 export interface CategoriesFilterItemProps {
+  enabledSearch?: boolean
+  searchPlaceholder?: string
   categories: AirtableRecord[]
   subCategories: AirtableRecord[]
   keywords: AirtableRecord[]

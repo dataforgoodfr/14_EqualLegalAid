@@ -45,7 +45,7 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     accordionTriggerLabel: 'filter.vulnerability',
     airtableBaseName: AirtableBaseNameEnum.Vulnerability,
     filterType: FilterTypeEnum.Hierarchical,
-    search: { enabled: false, placeholder: 'filter.search' },
+    search: { enabled: true, placeholder: 'filter.search' },
   },
   {
     accordionTriggerLabel: 'filter.groundOfPersecution',
@@ -57,7 +57,7 @@ export const ACCORDION_CONFIG: AccordionInterface[] = [
     accordionTriggerLabel: 'filter.legalAndProceduralIssues',
     airtableBaseName: AirtableBaseNameEnum.LegalAndProceduralIssues,
     filterType: FilterTypeEnum.Hierarchical,
-    search: { enabled: false, placeholder: 'filter.search' },
+    search: { enabled: true, placeholder: 'filter.search' },
   },
   {
     accordionTriggerLabel: 'filter.householdIndividualStatus',

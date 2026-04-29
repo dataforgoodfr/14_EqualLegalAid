@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Accordion, FieldGroup } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch } from '@/hooks/reduxHook'
+import { useAppDispatch, useAppSelector } from '@/hooks/reduxHook'
 import { setFilterTag } from '@/redux/filtersSlice'
 import type { AirtableRecord } from '@/types'
 import { TOGGLE_ACTION_MAP } from '../filtersConfig/config'
@@ -14,8 +14,11 @@ import {
   getName,
   getKeywordName
 } from './utils'
+import { FilterSearch } from '../FilterSearch/FilterSearch'
 
 export const CategoriesFilterItem = ({
+  enabledSearch = false,
+  searchPlaceholder = '',
   categories,
   subCategories,
   keywords,
@@ -25,6 +28,10 @@ export const CategoriesFilterItem = ({
   const { i18n } = useTranslation()
   const isGreek = i18n.language === 'el'
   const dispatch = useAppDispatch()
+  
+  // Récupérer la valeur de recherche depuis le Redux
+  const searchInGivenFilter = useAppSelector(state => state.filters.searchInGivenFilter)
+  const searchValue = searchInGivenFilter.airtableBaseName === airtableBaseName ? searchInGivenFilter.value : ''
 
   const keywordMap = useMemo(
     () => new Map(keywords.map(keyword => [keyword.id, keyword])),
@@ -64,6 +71,51 @@ export const CategoriesFilterItem = ({
       }),
     [categories, keywordMap, subCategoryMap, isGreek, keywords],
   )
+
+  // Filtrer les catégories/sous-catégories/keywords en fonction de la recherche
+  const filteredCategoriesWithChildren = useMemo(() => {
+    if (!searchValue.trim()) {
+      return categoriesWithChildren
+    }
+    
+    const searchLower = searchValue.toLowerCase()
+    
+    return categoriesWithChildren
+      .map(category => {
+        // Filtrer les sous-catégories
+        const filteredSubCategories = category.subCategories
+          .map(subCategory => {
+            // Filtrer les keywords dans la sous-catégorie
+            const filteredKeywords = subCategory.keywords.filter(keyword => {
+              const keywordName = getKeywordName(keyword, isGreek).toLowerCase()
+              return keywordName.includes(searchLower)
+            })
+            
+            // Garder la sous-catégorie si son nom correspond ou si elle a des keywords correspondants
+            const subCategoryNameMatch = subCategory.name.toLowerCase().includes(searchLower)
+            
+            return {
+              ...subCategory,
+              keywords: filteredKeywords,
+              // Garder cette sous-catégorie si son nom correspond ou si elle a des keywords
+              _keep: subCategoryNameMatch || filteredKeywords.length > 0
+            }
+          })
+          .filter(sub => sub._keep)
+          .map(({ _keep, ...sub }) => sub)
+        
+        // Garder la catégorie si son nom correspond ou si elle a des sous-catégories gardées
+        const categoryNameMatch = category.name.toLowerCase().includes(searchLower)
+        
+        return {
+          ...category,
+          subCategories: filteredSubCategories,
+          _keep: categoryNameMatch || filteredSubCategories.length > 0
+        }
+      })
+      .filter(category => category._keep)
+      .map(({ _keep, ...category }) => category)
+  }, [categoriesWithChildren, searchValue, isGreek])
 
   const handleKeywordChange = (keyword: AirtableRecord, checked: boolean) => {
     const name = getKeywordName(keyword, isGreek)
@@ -107,7 +159,7 @@ export const CategoriesFilterItem = ({
 
   return (
     <Accordion type="multiple">
-      {categoriesWithChildren.map(category => {
+      {filteredCategoriesWithChildren.map(category => {
         const sameNameSubcategories = category.subCategories.filter(
           sub => sub.name === category.name,
         )
@@ -146,6 +198,14 @@ export const CategoriesFilterItem = ({
 
         return (
           <div key={category.id}>
+            {enabledSearch && (
+                    <div>
+                      <FilterSearch
+                        placeholderContent={searchPlaceholder}
+                        airtableBaseName={airtableBaseName}
+                      />
+                    </div>
+                  )}
             {otherSubcategories.length > 0 && (
               <SubCategoryAccordion
                 subCategories={otherSubcategories}

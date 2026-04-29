@@ -289,6 +289,8 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                       showFilterItemWrapper={openAccordionItems.includes(itemValue)}
                     >
                       <CategoriesFilterItem
+                        enabledSearch={accordionItem.search.enabled}
+                        searchPlaceholder={t(accordionItem.search.placeholder)}
                         categories={filterData.value as AirtableRecord[]}
                         subCategories={filterSubCategories}
                         keywords={filterKeywords}

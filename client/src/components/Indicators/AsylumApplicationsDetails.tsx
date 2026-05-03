@@ -21,9 +21,15 @@ import {
 import type { ChartConfig } from '@/components/ui'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
+import { IndicatorInfoButton } from '@/components/ui/IndicatorInfoButton'
 import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import { useTranslation } from 'react-i18next'
+
+function fmtK(n: number): string {
+  if (n >= 1_000) return `${Math.round(n / 1_000)}k`
+  return n.toLocaleString('en-US')
+}
 
 export function AsylumApplicationsDetails({
   records,
@@ -66,7 +72,6 @@ export function AsylumApplicationsDetails({
 
   const chartData = useMemo(() => {
     const filtered = records.filter(r => r.name_country === selectedCountry)
-
     const nonZeroByYear = new Map<number, {
       year: number
       first_time_applicants: number
@@ -75,40 +80,31 @@ export function AsylumApplicationsDetails({
       total_country_population: number
       percentage: number
     }>()
-
     for (const record of filtered) {
       const first_time_applicants = record.first_time_applicants
       const subsequent_applicants = record.subsequent_applicants
       const total_applicants = first_time_applicants + subsequent_applicants
-
-      // we do nothing if there is no applicants in one record
       if (total_applicants > 0) {
-        const year = record.year
-        const percentage = record.percentage
-        const total_country_population = record.total_country_population
-
         const existing = nonZeroByYear.get(record.year)
         if (existing) {
-          // we already have one record for this year and update it
           existing.first_time_applicants += first_time_applicants
           existing.subsequent_applicants += subsequent_applicants
           existing.total_applicants += total_applicants
-          existing.total_country_population += total_country_population
-          existing.percentage += percentage
+          existing.total_country_population += record.total_country_population
+          existing.percentage += record.percentage
         }
         else {
-          nonZeroByYear.set(year, {
-            year: year,
-            first_time_applicants: first_time_applicants,
-            subsequent_applicants: subsequent_applicants,
-            total_applicants: total_applicants,
-            total_country_population: total_country_population,
-            percentage: percentage,
+          nonZeroByYear.set(record.year, {
+            year: record.year,
+            first_time_applicants,
+            subsequent_applicants,
+            total_applicants,
+            total_country_population: record.total_country_population,
+            percentage: record.percentage,
           })
         }
       }
     }
-
     return Array.from(nonZeroByYear.values()).sort((a, b) => a.year - b.year)
   }, [records, selectedCountry])
 
@@ -121,36 +117,79 @@ export function AsylumApplicationsDetails({
   const explanatoryTitle = isGr ? customText?.explanatory_text_title_gr : customText?.explanatory_text_title_en
   const explanatoryText = isGr ? customText?.explanatory_text_gr : customText?.explanatory_text_en
 
+  const information = isGr ? customText?.information_gr : customText?.information_en
+  const mostRecentData = chartData.length > 0 ? chartData[chartData.length - 1] : null
+  const firstYear = chartData.length > 0 ? chartData[0].year : null
+  const lastYear = chartData.length > 0 ? chartData[chartData.length - 1].year : null
+
   return (
     <div className="mx-auto max-w-5xl my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
-        <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
-          <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>
-            {title}
-          </h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {subtitle}
-          </p>
+        <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5 flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+              <IndicatorInfoButton text={information} />
+            </div>
+            {customText?.source && (
+              <p className="text-xs text-gray-500 mt-1">
+                {t('statistics.source')} :{' '}
+                <a
+                  href={customText.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-gray-800 transition-colors"
+                >
+                  {customText.source}
+                </a>
+                {firstYear && lastYear ? ` — From ${firstYear} to ${lastYear}` : ''}
+              </p>
+            )}
+          </div>
+
+          <Select value={selectedCountry} onValueChange={setSelectedCountry} disabled={countries.length === 0}>
+            <SelectTrigger className="w-56 flex-shrink-0">
+              <SelectValue placeholder={t('statistics.selectCountry')} />
+            </SelectTrigger>
+            <SelectContent>
+              {countries.map(c => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Card body */}
         <div className="space-y-6 p-6">
 
-          {/* Country selector */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium">{t('statistics.country')}</span>
-            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-              <SelectTrigger className="w-56">
-                <SelectValue placeholder={t('statistics.selectCountry')} />
-              </SelectTrigger>
-              <SelectContent>
-                {countries.map(c => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Two info cards */}
+          <div className="grid grid-cols-2 gap-4">
+            {(explanatoryTitle || explanatoryText) && (
+              <div className="rounded-lg border border-gray-200 p-5">
+                {explanatoryTitle && (
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">{explanatoryTitle}</h3>
+                )}
+                {explanatoryText && (
+                  <p className="text-sm text-gray-600 leading-relaxed">{explanatoryText}</p>
+                )}
+              </div>
+            )}
+
+            {mostRecentData && (
+              <div className="rounded-lg border border-gray-200 p-5">
+                {subtitle && (
+                  <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p>
+                )}
+                <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
+                  {fmtK(mostRecentData.first_time_applicants)}
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  {t('statistics.firstTimeApplicantsLabel')} in {mostRecentData.year}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Chart */}
@@ -197,48 +236,15 @@ export function AsylumApplicationsDetails({
                 </BarChart>
               </ChartContainer>
             )}
-
-          {/* Explanatory text */}
-          {(explanatoryTitle || explanatoryText) && (
-            <div className="rounded-lg bg-gray-50 px-4 py-4 space-y-1.5">
-              {explanatoryTitle && (
-                <h3 className="text-sm font-semibold" style={{ color: '#04356C' }}>
-                  {explanatoryTitle}
-                </h3>
-              )}
-              {explanatoryText && (
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {explanatoryText}
-                </p>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Card footer — source & last updated */}
-        {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
-            {customText.source && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
-                {' '}
-                <a
-                  href={customText.source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-gray-800 transition-colors"
-                >
-                  {customText.source}
-                </a>
-              </span>
-            )}
-            {customText.last_updated_on && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
-                {' '}
-                {customText.last_updated_on}
-              </span>
-            )}
+        {/* Card footer — last updated */}
+        {customText?.last_updated_on && (
+          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex justify-end text-xs text-gray-500">
+            <span>
+              <span className="font-medium text-gray-600">{t('statistics.lastUpdated')} :</span>
+              {' '}{customText.last_updated_on}
+            </span>
           </div>
         )}
       </div>

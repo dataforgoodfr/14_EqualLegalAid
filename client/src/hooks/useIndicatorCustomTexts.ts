@@ -3,6 +3,7 @@ import { useAirtableService } from '@/providers'
 
 export interface IndicatorCustomText {
   id: string
+  name: string
   title_en: string
   title_gr: string
   subtitle_en: string
@@ -11,6 +12,8 @@ export interface IndicatorCustomText {
   explanatory_text_title_gr: string
   explanatory_text_en: string
   explanatory_text_gr: string
+  information_en: string
+  information_gr: string
   source: string
   last_updated_on: string
 }
@@ -34,6 +37,7 @@ export const useIndicatorCustomTexts = () => {
       })
       const parsed: IndicatorCustomText[] = raw.map(r => ({
         id: r.id,
+        name: toStr(r.fields['Name']),
         title_en: toStr(r.fields['Title_EN']),
         title_gr: toStr(r.fields['Title_GR']),
         subtitle_en: toStr(r.fields['Subtitle_EN']),
@@ -42,6 +46,8 @@ export const useIndicatorCustomTexts = () => {
         explanatory_text_title_gr: toStr(r.fields['Explanatory_text_title_GR']),
         explanatory_text_en: toStr(r.fields['Explanatory_text_EN']),
         explanatory_text_gr: toStr(r.fields['Explanatory_text_GR']),
+        information_en: toStr(r.fields['Information_EN']),
+        information_gr: toStr(r.fields['Information_GR']),
         source: toStr(r.fields['Source']),
         last_updated_on: toStr(r.fields['Last_updated_on']),
       }))

@@ -137,6 +137,17 @@
     "recognitionRates": "Recognition rates",
     "firstInstanceRate": "First instance recognition rate",
     "firstInstanceRateLatest": "First instance rate ({{year}})",
-    "periodCovered": "Period covered"
+    "periodCovered": "Period covered",
+    "protectionGranted": "Protection granted",
+    "protectionRejected": "Protection rejected",
+    "rejectionOnMerits": "Rejection on the merits",
+    "rejectionInadmissible": "Rejection as inadmissible",
+    "withdrawalsArchived": "Withdrawals and archived cases",
+    "exclusionRefugeeStatus": "Exclusion from refugee status",
+    "negativeFirstInstance": "Negative first instance",
+    "negativeAccelerated": "Negative after accelerated procedure",
+    "clickForDetails": "Click on the chart to see details",
+    "granted": "Granted",
+    "rejected": "Rejected"
   }
 }

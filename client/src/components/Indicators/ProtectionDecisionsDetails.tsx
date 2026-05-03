@@ -1,87 +1,100 @@
 import { useState, useMemo } from 'react'
-import { PieChart, Pie, Cell, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip } from 'recharts'
+import { ChevronRight, ChevronDown } from 'lucide-react'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import type { FirstInstanceRecord, SecondInstanceRecord } from '@/hooks/useProtectionDecisions'
 import { aggregateDecisionsByYear } from '@/hooks/useProtectionDecisions'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
-import { ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton } from '@/components/ui'
-import type { ChartConfig } from '@/components/ui'
+import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 
-const DONUT_COLORS = {
-  refugee_status: '#04356C',
-  subsidiary_protection: '#3F9FD8',
-  rejected_as_unfounded: '#EF4444',
-  formal_grounds_rejections: '#F97316',
-  explicit_withdrawals: '#FBBF24',
-  implicit_withdrawals: '#D1D5DB',
+const GRANTED_COLOR = '#3F9FD8'
+const REJECTED_COLOR = '#04356C'
+
+function TreeRow({
+  label,
+  value,
+  total,
+  depth,
+  expandable,
+  expanded,
+  onToggle,
+  isBold,
+}: {
+  label: string
+  value: number
+  total: number
+  depth: number
+  expandable: boolean
+  expanded?: boolean
+  onToggle?: () => void
+  isBold?: boolean
+}) {
+  const pct = total > 0 ? `${Math.round((value / total) * 100)}%` : '—'
+  return (
+    <tr
+      className={`border-t ${depth === 0 ? 'border-gray-200 bg-gray-50' : 'border-gray-100'} ${expandable ? 'cursor-pointer hover:bg-gray-50' : ''} ${isBold ? 'border-t-2 border-gray-300 font-bold' : ''}`}
+      onClick={expandable ? onToggle : undefined}
+    >
+      <td className="px-4 py-2" style={{ paddingLeft: `${16 + depth * 20}px` }}>
+        <span className="flex items-center gap-1">
+          {expandable && (
+            expanded
+              ? <ChevronDown size={14} className="text-gray-400 flex-shrink-0" />
+              : <ChevronRight size={14} className="text-gray-400 flex-shrink-0" />
+          )}
+          {!expandable && depth > 0 && <span className="w-[14px] flex-shrink-0" />}
+          <span className={depth === 0 ? 'font-semibold text-gray-800' : 'text-gray-600 text-sm'}>
+            {label}
+          </span>
+        </span>
+      </td>
+      <td className="px-4 py-2 text-right text-sm">{value.toLocaleString()}</td>
+      <td className="px-4 py-2 text-right text-sm text-gray-400">{pct}</td>
+    </tr>
+  )
 }
 
 function DecisionsContent({
   records,
   instanceLabel,
+  isFirstInstance,
 }: {
   records: (FirstInstanceRecord | SecondInstanceRecord)[]
   instanceLabel: string
+  isFirstInstance: boolean
 }) {
   const { t } = useTranslation()
-
   const yearly = useMemo(() => aggregateDecisionsByYear(records), [records])
   const years = useMemo(() => yearly.map(r => r.year).filter(y => y > 0), [yearly])
-
   const latestYear = years[years.length - 1]
   const [selectedYear, setSelectedYear] = useState<number>(latestYear ?? 0)
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    granted: false,
+    rejected: true,
+    onMerits: false,
+    inadmissible: false,
+    withdrawals: false,
+  })
 
-  const latestData = useMemo(() => yearly.find(r => r.year === selectedYear), [yearly, selectedYear])
+  const data = useMemo(() => yearly.find(r => r.year === selectedYear), [yearly, selectedYear])
+
+  const toggle = (key: string) =>
+    setExpanded(prev => ({ ...prev, [key]: !prev[key] }))
 
   const donutData = useMemo(() => {
-    if (!latestData) return []
+    if (!data) return []
     return [
-      { name: t('statistics.refugeeStatus'), value: latestData.refugee_status, key: 'refugee_status' },
-      { name: t('statistics.subsidiaryProtection'), value: latestData.subsidiary_protection, key: 'subsidiary_protection' },
-      { name: t('statistics.rejectedUnfounded'), value: latestData.rejected_as_unfounded, key: 'rejected_as_unfounded' },
-      { name: t('statistics.formalGrounds'), value: latestData.formal_grounds_rejections, key: 'formal_grounds_rejections' },
-      { name: t('statistics.explicitWithdrawals'), value: latestData.explicit_withdrawals, key: 'explicit_withdrawals' },
-      { name: t('statistics.implicitWithdrawals'), value: latestData.implicit_withdrawals, key: 'implicit_withdrawals' },
+      { name: t('statistics.granted'), value: data.positive, color: GRANTED_COLOR },
+      { name: t('statistics.rejected'), value: data.negative, color: REJECTED_COLOR },
     ].filter(d => d.value > 0)
-  }, [latestData, t])
+  }, [data, t])
 
-  const chartConfig = {
-    positive: { label: t('statistics.positiveDecisions'), color: '#04356C' },
-    negative: { label: t('statistics.negativeDecisions'), color: '#EF4444' },
-  } satisfies ChartConfig
-
-  const tableRows = useMemo(() => {
-    if (!latestData) return []
-    return [
-      {
-        label: t('statistics.positiveDecisions'),
-        value: latestData.positive,
-        isHeader: true,
-        percent: latestData.total > 0 ? Math.round((latestData.positive / latestData.total) * 100) : 0,
-        children: [
-          { label: t('statistics.refugeeStatus'), value: latestData.refugee_status },
-          { label: t('statistics.subsidiaryProtection'), value: latestData.subsidiary_protection },
-        ],
-      },
-      {
-        label: t('statistics.negativeDecisions'),
-        value: latestData.negative,
-        isHeader: true,
-        percent: latestData.total > 0 ? Math.round((latestData.negative / latestData.total) * 100) : 0,
-        children: [
-          { label: t('statistics.rejectedUnfounded'), value: latestData.rejected_as_unfounded },
-          { label: t('statistics.formalGrounds'), value: latestData.formal_grounds_rejections },
-          { label: t('statistics.explicitWithdrawals'), value: latestData.explicit_withdrawals },
-          { label: t('statistics.implicitWithdrawals'), value: latestData.implicit_withdrawals },
-        ],
-      },
-    ]
-  }, [latestData, t])
+  if (!data) return null
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-gray-700">{instanceLabel}</h3>
         <select
@@ -93,102 +106,152 @@ function DecisionsContent({
         </select>
       </div>
 
-      {latestData && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-          {/* Hierarchical table */}
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
-                <tr>
-                  <th className="px-4 py-2 text-left">{t('statistics.decisionType')}</th>
-                  <th className="px-4 py-2 text-right">{t('statistics.count')}</th>
-                  <th className="px-4 py-2 text-right">%</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tableRows.map(row => (
-                  <>
-                    <tr key={row.label} className="border-t border-gray-200 bg-gray-50 font-semibold">
-                      <td className="px-4 py-2">{row.label}</td>
-                      <td className="px-4 py-2 text-right">{row.value.toLocaleString()}</td>
-                      <td className="px-4 py-2 text-right text-gray-500">{row.percent}%</td>
-                    </tr>
-                    {row.children.map(child => (
-                      <tr key={child.label} className="border-t border-gray-100 hover:bg-gray-50">
-                        <td className="px-4 py-2 pl-8 text-gray-600">{child.label}</td>
-                        <td className="px-4 py-2 text-right">{child.value.toLocaleString()}</td>
-                        <td className="px-4 py-2 text-right text-gray-400">
-                          {latestData.total > 0 ? `${Math.round((child.value / latestData.total) * 100)}%` : '—'}
-                        </td>
-                      </tr>
-                    ))}
-                  </>
-                ))}
-                <tr className="border-t-2 border-gray-300 font-bold">
-                  <td className="px-4 py-2">{t('statistics.totalDecisions')}</td>
-                  <td className="px-4 py-2 text-right">{latestData.total.toLocaleString()}</td>
-                  <td className="px-4 py-2 text-right">100%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        {/* Tree table */}
+        <div className="lg:col-span-3 overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
+              <tr>
+                <th className="px-4 py-2 text-left">{t('statistics.decisionType')}</th>
+                <th className="px-4 py-2 text-right">{t('statistics.count')}</th>
+                <th className="px-4 py-2 text-right">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Protection granted */}
+              <TreeRow
+                label={t('statistics.protectionGranted')}
+                value={data.positive}
+                total={data.total}
+                depth={0}
+                expandable
+                expanded={expanded.granted}
+                onToggle={() => toggle('granted')}
+              />
+              {expanded.granted && (
+                <>
+                  <TreeRow label={t('statistics.refugeeStatus')} value={data.refugee_status} total={data.total} depth={1} expandable={false} />
+                  <TreeRow label={t('statistics.subsidiaryProtection')} value={data.subsidiary_protection} total={data.total} depth={1} expandable={false} />
+                </>
+              )}
 
-          {/* Donut chart */}
-          <ChartContainer config={{}} className="h-64 w-full flex items-center justify-center">
+              {/* Protection rejected */}
+              <TreeRow
+                label={t('statistics.protectionRejected')}
+                value={data.negative}
+                total={data.total}
+                depth={0}
+                expandable
+                expanded={expanded.rejected}
+                onToggle={() => toggle('rejected')}
+              />
+              {expanded.rejected && (
+                <>
+                  {/* Rejection on the merits */}
+                  <TreeRow
+                    label={t('statistics.rejectionOnMerits')}
+                    value={data.rejection_on_merits}
+                    total={data.total}
+                    depth={1}
+                    expandable
+                    expanded={expanded.onMerits}
+                    onToggle={() => toggle('onMerits')}
+                  />
+                  {expanded.onMerits && (
+                    <>
+                      <TreeRow label={t('statistics.rejectedUnfounded')} value={data.rejected_as_unfounded} total={data.total} depth={2} expandable={false} />
+                      {isFirstInstance && (
+                        <>
+                          <TreeRow label={t('statistics.exclusionRefugeeStatus')} value={data.exclusion_from_refugee_status} total={data.total} depth={2} expandable={false} />
+                          <TreeRow label={t('statistics.negativeFirstInstance')} value={data.negative_first_instance} total={data.total} depth={2} expandable={false} />
+                          <TreeRow label={t('statistics.negativeAccelerated')} value={data.negative_accelerated} total={data.total} depth={2} expandable={false} />
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  {/* Rejection as inadmissible */}
+                  <TreeRow
+                    label={t('statistics.rejectionInadmissible')}
+                    value={data.formal_grounds_rejections}
+                    total={data.total}
+                    depth={1}
+                    expandable={false}
+                  />
+
+                  {/* Withdrawals */}
+                  <TreeRow
+                    label={t('statistics.withdrawalsArchived')}
+                    value={data.withdrawals_archived}
+                    total={data.total}
+                    depth={1}
+                    expandable={false}
+                  />
+                </>
+              )}
+
+              {/* Total */}
+              <TreeRow
+                label={t('statistics.totalDecisions')}
+                value={data.total}
+                total={data.total}
+                depth={0}
+                expandable={false}
+                isBold
+              />
+            </tbody>
+          </table>
+        </div>
+
+        {/* Donut panel */}
+        <div className="lg:col-span-2 flex flex-col items-center justify-start gap-4">
+          <ChartContainer config={{}} className="h-52 w-full">
             <PieChart>
               <Pie
                 data={donutData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={100}
+                innerRadius={55}
+                outerRadius={90}
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${Math.round((percent ?? 0) * 100)}%`}
                 labelLine={false}
               >
                 {donutData.map(entry => (
-                  <Cell key={entry.key} fill={DONUT_COLORS[entry.key as keyof typeof DONUT_COLORS] ?? '#ccc'} />
+                  <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip formatter={(value) => (value != null ? Number(value).toLocaleString() : '')} />
             </PieChart>
           </ChartContainer>
+          <div className="w-full space-y-2 px-2">
+            {donutData.map(d => (
+              <div key={d.name} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                <span className="text-sm text-gray-700">{d.name}</span>
+                <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
-
-      {/* Decisions evolution chart */}
-      <ChartContainer config={chartConfig} className="h-64 w-full">
-        <LineChart data={yearly}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
-          <YAxis />
-          <Tooltip content={<ChartTooltipContent labelFormatter={label => String(label)} />} />
-          <Legend content={<ChartLegendContent />} />
-          <Line type="monotone" dataKey="positive" stroke={chartConfig.positive.color} />
-          <Line type="monotone" dataKey="negative" stroke={chartConfig.negative.color} />
-        </LineChart>
-      </ChartContainer>
+      </div>
     </div>
   )
 }
 
 export function ProtectionDecisionsDetails({
   firstInstance,
-  secondInstance,
   loading,
   error,
   customText,
 }: {
   firstInstance: FirstInstanceRecord[]
-  secondInstance: SecondInstanceRecord[]
   loading: boolean
   error: string | null
   customText?: IndicatorCustomText | null
 }) {
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
-  const [activeSubTab, setActiveSubTab] = useState(0)
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.protectionDecisions')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
@@ -212,37 +275,13 @@ export function ProtectionDecisionsDetails({
           {subtitle && <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>}
         </div>
 
-        {/* Sub-tabs */}
-        <div className="flex border-b border-gray-200 px-6">
-          {[t('statistics.firstInstanceDecisions'), t('statistics.appealsDecisions')].map((label, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveSubTab(i)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px ${
-                activeSubTab === i
-                  ? 'border-[#04356C] text-[#04356C]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
         {/* Card body */}
         <div className="space-y-6 p-6">
-          {activeSubTab === 0 && (
-            <DecisionsContent
-              records={firstInstance}
-              instanceLabel={t('statistics.firstInstanceDecisions')}
-            />
-          )}
-          {activeSubTab === 1 && (
-            <DecisionsContent
-              records={secondInstance}
-              instanceLabel={t('statistics.appealsDecisions')}
-            />
-          )}
+          <DecisionsContent
+            records={firstInstance}
+            instanceLabel={t('statistics.firstInstanceDecisions')}
+            isFirstInstance={true}
+          />
 
           {/* Explanatory text */}
           {(explanatoryTitle || explanatoryText) && (

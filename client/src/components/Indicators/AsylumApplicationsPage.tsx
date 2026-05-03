@@ -25,19 +25,20 @@ export function AsylumApplicationsPage() {
   const asylumApplicationsInEuropeanUnion = customTexts.filter(ct => ct.name === 'AsylumApplicationsInEuropeanUnion')[0] ?? null
   const arrivalsInGreece = customTexts.filter(ct => ct.name === 'ArrivalsInGreece')[0] ?? null
   const asylumApplicationsEvolutionInGreece = customTexts.filter(ct => ct.name === 'AsylumApplicationsEvolutionInGreece')[0] ?? null
-  const text5 = customTexts[5] ?? null
-  const text6 = customTexts[6] ?? null
-  const text7 = customTexts[7] ?? null
+  const asylumSeekersCamps = customTexts.filter(ct => ct.name === 'AsylumSeekersCamps')[0] ?? null
+  const applicationsEvolutionGreece = customTexts.filter(ct => ct.name === 'ApplicationsEvolutionGreece')[0] ?? null
+  const protectionGrantedVsRejected = customTexts.filter(ct => ct.name === 'ProtectionGrantedVsRejected')[0] ?? null
+  const recognitionRates = customTexts.filter(ct => ct.name === 'RecognitionRates')[0] ?? null
 
   const tabLabels = [
     (isGr ? asylumApplicationsInEurope?.title_gr : asylumApplicationsInEurope?.title_en) || t('statistics.euAsylumApplications'),
     (isGr ? asylumApplicationsInEuropeanUnion?.title_gr : asylumApplicationsInEuropeanUnion?.title_en) || t('statistics.euAsylumApplications'),
     (isGr ? arrivalsInGreece?.title_gr : arrivalsInGreece?.title_en) || t('statistics.arrivalsGreece'),
     (isGr ? asylumApplicationsEvolutionInGreece?.title_gr : asylumApplicationsEvolutionInGreece?.title_en) || t('statistics.asylumEvolutionGreece'),
-    // (isGr ? text4?.title_gr : text4?.title_en) || t('statistics.asylumSeekersCamps'),
-    // (isGr ? text5?.title_gr : text5?.title_en) || t('statistics.applicationsEvolutionGreece'),
-    // (isGr ? text6?.title_gr : text6?.title_en) || t('statistics.protectionDecisions'),
-    // (isGr ? text7?.title_gr : text7?.title_en) || t('statistics.recognitionRates'),
+    (isGr ? protectionGrantedVsRejected?.title_gr : protectionGrantedVsRejected?.title_en) || t('statistics.protectionDecisions'),
+    //(isGr ? asylumSeekersCamps?.title_gr : asylumSeekersCamps?.title_en) || t('statistics.asylumSeekersCamps'),
+    //(isGr ? applicationsEvolutionGreece?.title_gr : applicationsEvolutionGreece?.title_en) || t('statistics.applicationsEvolutionGreece'),
+    //(isGr ? recognitionRates?.title_gr : recognitionRates?.title_en) || t('statistics.recognitionRates'),
   ]
 
   return (
@@ -73,16 +74,19 @@ export function AsylumApplicationsPage() {
         <AsylumApplicationsEvolutionInGreece customText={asylumApplicationsEvolutionInGreece} />
       )}
       {activeTab === 4 && (
-        <AsylumSeekersCamps customText={text5} />
+        <ProtectionDecisions customText={protectionGrantedVsRejected} />
       )}
       {activeTab === 5 && (
-        <ApplicationsEvolutionGreece customText={text5} />
+        <AsylumSeekersCamps customText={asylumSeekersCamps} />
       )}
       {activeTab === 6 && (
-        <ProtectionDecisions customText={text6} />
+        <ApplicationsEvolutionGreece customText={applicationsEvolutionGreece} />
       )}
       {activeTab === 7 && (
-        <RecognitionRates customText={text7} />
+        <ProtectionDecisions customText={protectionGrantedVsRejected} />
+      )}
+      {activeTab === 8 && (
+        <RecognitionRates customText={recognitionRates} />
       )}
     </>
   )

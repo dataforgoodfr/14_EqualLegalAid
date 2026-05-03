@@ -40,9 +40,14 @@ export interface DecisionsYearly {
   subsidiary_protection: number
   positive: number
   rejected_as_unfounded: number
+  exclusion_from_refugee_status: number
+  negative_first_instance: number
+  negative_accelerated: number
+  rejection_on_merits: number
   formal_grounds_rejections: number
   explicit_withdrawals: number
   implicit_withdrawals: number
+  withdrawals_archived: number
   negative: number
   total: number
 }
@@ -143,17 +148,28 @@ export function useProtectionDecisions() {
 export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondInstanceRecord)[]): DecisionsYearly[] {
   const map = new Map<number, DecisionsYearly>()
   for (const r of records) {
-    const existing = map.get(r.year)
+    const isFirst = 'negative_first_instance' in r
+    const exclusion = isFirst ? (r as FirstInstanceRecord).exclusion_from_refugee_status : 0
+    const negFirst = isFirst ? (r as FirstInstanceRecord).negative_first_instance : 0
+    const negAccel = isFirst ? (r as FirstInstanceRecord).negative_accelerated : 0
     const positive = r.refugee_status + r.subsidiary_protection
-    const negative = r.rejected_as_unfounded + r.formal_grounds_rejections + r.explicit_withdrawals + r.implicit_withdrawals
+    const rejection_on_merits = r.rejected_as_unfounded + exclusion + negFirst + negAccel
+    const withdrawals_archived = r.explicit_withdrawals + r.implicit_withdrawals
+    const negative = rejection_on_merits + r.formal_grounds_rejections + withdrawals_archived
+    const existing = map.get(r.year)
     if (existing) {
       existing.refugee_status += r.refugee_status
       existing.subsidiary_protection += r.subsidiary_protection
       existing.positive += positive
       existing.rejected_as_unfounded += r.rejected_as_unfounded
+      existing.exclusion_from_refugee_status += exclusion
+      existing.negative_first_instance += negFirst
+      existing.negative_accelerated += negAccel
+      existing.rejection_on_merits += rejection_on_merits
       existing.formal_grounds_rejections += r.formal_grounds_rejections
       existing.explicit_withdrawals += r.explicit_withdrawals
       existing.implicit_withdrawals += r.implicit_withdrawals
+      existing.withdrawals_archived += withdrawals_archived
       existing.negative += negative
       existing.total += positive + negative
     }
@@ -164,9 +180,14 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
         subsidiary_protection: r.subsidiary_protection,
         positive,
         rejected_as_unfounded: r.rejected_as_unfounded,
+        exclusion_from_refugee_status: exclusion,
+        negative_first_instance: negFirst,
+        negative_accelerated: negAccel,
+        rejection_on_merits,
         formal_grounds_rejections: r.formal_grounds_rejections,
         explicit_withdrawals: r.explicit_withdrawals,
         implicit_withdrawals: r.implicit_withdrawals,
+        withdrawals_archived,
         negative,
         total: positive + negative,
       })

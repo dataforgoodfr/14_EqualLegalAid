@@ -137,7 +137,18 @@
     "recognitionRates": "Ποσοστά αναγνώρισης",
     "firstInstanceRate": "Ποσοστό αναγνώρισης πρώτου βαθμού",
     "firstInstanceRateLatest": "Ποσοστό πρώτου βαθμού ({{year}})",
-    "periodCovered": "Περίοδος κάλυψης"
+    "periodCovered": "Περίοδος κάλυψης",
+    "protectionGranted": "Χορήγηση προστασίας",
+    "protectionRejected": "Απόρριψη προστασίας",
+    "rejectionOnMerits": "Απόρριψη επί της ουσίας",
+    "rejectionInadmissible": "Απόρριψη ως απαράδεκτη",
+    "withdrawalsArchived": "Αποσύρσεις και αρχειοθετημένες υποθέσεις",
+    "exclusionRefugeeStatus": "Αποκλεισμός από το καθεστώς πρόσφυγα",
+    "negativeFirstInstance": "Αρνητική πρώτου βαθμού",
+    "negativeAccelerated": "Αρνητική μετά από ταχεία διαδικασία",
+    "clickForDetails": "Κάντε κλικ στο γράφημα για λεπτομέρειες",
+    "granted": "Χορηγήθηκε",
+    "rejected": "Απορρίφθηκε"
   }
 }
 

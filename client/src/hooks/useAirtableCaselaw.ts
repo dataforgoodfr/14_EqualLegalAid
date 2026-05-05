@@ -84,7 +84,7 @@ const PUBLISHED_FILTER = '{Published} = TRUE()'
 const escapeFormulaValue = (value: string) => value.replace(/"/g, '\\"')
 
 const buildFilterFormula = (selectedFilters: SelectedFilters): string => {
-  const andClauses = (Object.entries(FILTER_COLUMN_MAP) as [keyof FacetSelectedFilters, string][]) 
+  const andClauses = (Object.entries(FILTER_COLUMN_MAP) as [keyof FacetSelectedFilters, string][])
     .map(([filterKey, column]) => ({
       column,
       values: selectedFilters[filterKey],
@@ -118,7 +118,7 @@ export const useAirtableCaselaw = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCaseLawsRecords = useCallback(async (config?: Omit<FetchRecordsFromTableConfig, 'tableName'>) => {
+  const fetchCaseLawsRecords = useCallback(async(config?: Omit<FetchRecordsFromTableConfig, 'tableName'>) => {
     try {
       setLoading(true)
       setError(null)
@@ -137,7 +137,7 @@ export const useAirtableCaselaw = () => {
       setCaselawRecords(fetchedRecords)
       setDateBounds(getDateBounds(fetchedRecords))
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch case laws from Airtable'
       setError(errorMessage)
       console.error('Airtable case laws error:', err)
@@ -147,7 +147,7 @@ export const useAirtableCaselaw = () => {
     }
   }, [airtableService])
 
-  const fetchFilteredCaselaws = useCallback(async (selectedFilters: SelectedFilters) => {
+  const fetchFilteredCaselaws = useCallback(async(selectedFilters: SelectedFilters) => {
     try {
       setLoading(true)
       setError(null)
@@ -162,7 +162,7 @@ export const useAirtableCaselaw = () => {
       })
       setCaselawRecords(fetchedRecords)
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch filtered case laws'
       setError(errorMessage)
       console.error('Airtable filtered case laws error:', err)

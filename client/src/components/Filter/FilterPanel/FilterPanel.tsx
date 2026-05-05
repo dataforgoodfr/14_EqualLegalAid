@@ -132,7 +132,6 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
   }
 
   const accordionItems = createAccordionItems([countries, outcomes, legalProcedureTypes, applicationTypes, asylumProcedures, categories, vulnerability, groundOfPersecution, legalAndProceduralIssues, householdIndividualStatus, authorities])
-
   useEffect(() => {
     if (!isMounted.current) {
       isMounted.current = true
@@ -263,18 +262,18 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
               })
 
               const filterSubCategories = subCategories.value ? subCategories.value.filter((sc: AirtableRecord) => relevantSubCategories.has(sc.id)) : []
-              
+
               // Filtrer les keywords via leur champ Categories ou SubCategory
               const filterKeywords = keywords.value ? keywords.value.filter((kw: AirtableRecord) => {
                 const kwCategories = toIdArray(getFieldValue(kw, 'Categories'))
                 const kwSubCategories = toIdArray(getFieldValue(kw, 'SubCategory'))
-                
+
                 // Le keyword appartient à ce filtre si :
                 // - son champ Categories contient l'ID de la catégorie
                 // - ou son champ SubCategory contient un ID de sous-catégorie de ce filtre
                 const belongsToCategory = kwCategories.some(catId => categoryIds.has(catId))
                 const belongsToSubCategory = kwSubCategories.some(subId => relevantSubCategories.has(subId))
-                
+
                 return belongsToCategory || belongsToSubCategory
               }) : []
               return (

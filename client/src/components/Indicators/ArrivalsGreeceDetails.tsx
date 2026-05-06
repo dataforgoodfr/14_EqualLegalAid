@@ -37,7 +37,7 @@ const REGION_DEFS: Record<string, RegionDef> = {
   },
 }
 
-const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly; label: string; color: string }[] = [
+const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly, label: string, color: string }[] = [
   { key: 'lesvos', label: 'Lesvos', color: '#3b82f6' },
   { key: 'chios', label: 'Chios', color: '#4f8ff7' },
   { key: 'samos', label: 'Samos', color: '#6366f1' },
@@ -152,28 +152,39 @@ export function ArrivalsGreeceDetails({
       map.resize()
       map.addSource('greece', { type: 'geojson', data: grUrl })
 
+      const layers = map.getStyle().layers
+      // Find the index of the first symbol layer in the map style to put the new layers below it
+      // https://maplibre.org/maplibre-gl-js/docs/examples/add-a-new-layer-below-labels/
+      let firstSymbolId
+      for (let i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+          firstSymbolId = layers[i].id
+          break
+        }
+      }
+
       map.addLayer({
         id: 'region-fill',
         type: 'fill',
         source: 'greece',
         paint: { 'fill-color': '#e5e7eb', 'fill-opacity': 0.85 },
-      })
+      }, firstSymbolId)
       map.addLayer({
         id: 'region-border',
         type: 'line',
         source: 'greece',
         paint: { 'line-color': '#ffffff', 'line-width': 0.8, 'line-opacity': 0.9 },
-      })
+      }, firstSymbolId)
       map.addLayer({
         id: 'region-hover',
         type: 'fill',
         source: 'greece',
         paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
-      })
+      }, firstSymbolId)
 
       applyMapData(map, regionValuesRef.current)
 
-      map.on('mousemove', 'region-hover', e => {
+      map.on('mousemove', 'region-hover', (e) => {
         if (!e.features?.length) return
         map.getCanvas().style.cursor = 'pointer'
         const name = e.features[0].properties?.[NAME_PROP] as string | undefined
@@ -216,17 +227,17 @@ export function ArrivalsGreeceDetails({
   }, [regionValues])
 
   return (
-    <div className="mx-auto max-w-5xl my-6">
+    <div className="mx-auto my-6 max-w-5xl">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
-        <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5 flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           <select
-            className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm flex-shrink-0"
+            className="flex-shrink-0 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
             value={effectiveYear ?? ''}
             onChange={e => setSelectedYear(Number(e.target.value))}
           >
@@ -235,26 +246,26 @@ export function ArrivalsGreeceDetails({
         </div>
 
         {/* Card body */}
-        <div className="p-6 space-y-4">
+        <div className="space-y-4 p-6">
 
           {/* Explanatory text */}
           {(explanatoryTitle || explanatoryText) && (
             <div className="rounded-lg border border-gray-200 p-5">
               {explanatoryTitle && (
-                <h3 className="text-sm font-bold text-gray-900 mb-2">{explanatoryTitle}</h3>
+                <h3 className="mb-2 text-sm font-bold text-gray-900">{explanatoryTitle}</h3>
               )}
               {explanatoryText && (
-                <p className="text-sm text-gray-600 leading-relaxed">{explanatoryText}</p>
+                <p className="text-sm leading-relaxed text-gray-600">{explanatoryText}</p>
               )}
             </div>
           )}
 
           {/* Map + ranking */}
           <div className="flex gap-4" style={{ height: 460 }}>
-            <div className="flex-1 rounded-lg overflow-hidden border border-gray-200 relative">
+            <div className="relative flex-1 overflow-hidden rounded-lg border border-gray-200">
               <div ref={containerRef} className="h-full w-full" />
               {loading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-muted-foreground">
+                <div className="text-muted-foreground absolute inset-0 flex items-center justify-center bg-white/70 text-sm">
                   {t('loadingData')}
                 </div>
               )}
@@ -266,24 +277,24 @@ export function ArrivalsGreeceDetails({
             </div>
 
             {/* Ranking panel */}
-            <div className="w-64 flex-shrink-0 rounded-lg border border-gray-200 p-4 overflow-y-auto">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">{t('statistics.rankingLocations')}</h3>
+            <div className="w-64 flex-shrink-0 overflow-y-auto rounded-lg border border-gray-200 p-4">
+              <h3 className="mb-4 text-sm font-bold text-gray-900">{t('statistics.rankingLocations')}</h3>
 
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <h4 className="mb-3 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                 {t('statistics.seaArrivals')}
               </h4>
-              <div className="space-y-2.5 mb-5">
+              <div className="mb-5 space-y-2.5">
                 {seaRanking.map(({ label, color, value }) => (
                   <div key={label}>
                     <span className="text-xs text-gray-700">{label}</span>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="flex-1 h-5 bg-gray-100 rounded-sm overflow-hidden">
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <div className="h-5 flex-1 overflow-hidden rounded-sm bg-gray-100">
                         <div
                           className="h-full rounded-sm"
                           style={{ width: `${(value / maxRankValue) * 100}%`, backgroundColor: color }}
                         />
                       </div>
-                      <span className="text-xs tabular-nums text-gray-700 w-12 text-right flex-shrink-0">
+                      <span className="w-12 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
                         {value.toLocaleString()}
                       </span>
                     </div>
@@ -291,19 +302,19 @@ export function ArrivalsGreeceDetails({
                 ))}
               </div>
 
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <h4 className="mb-3 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                 {t('statistics.landArrivals')}
               </h4>
               <div>
                 <span className="text-xs text-gray-700">Evros</span>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <div className="flex-1 h-5 bg-gray-100 rounded-sm overflow-hidden">
+                <div className="mt-0.5 flex items-center gap-2">
+                  <div className="h-5 flex-1 overflow-hidden rounded-sm bg-gray-100">
                     <div
                       className="h-full rounded-sm bg-blue-900"
                       style={{ width: `${(evrosValue / maxRankValue) * 100}%` }}
                     />
                   </div>
-                  <span className="text-xs tabular-nums text-gray-700 w-12 text-right flex-shrink-0">
+                  <span className="w-12 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
                     {evrosValue.toLocaleString()}
                   </span>
                 </div>
@@ -314,17 +325,21 @@ export function ArrivalsGreeceDetails({
 
         {/* Card footer */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
             <span>
               {customText.source && (
                 <>
-                  <span className="font-medium text-gray-600">{t('statistics.source')} :</span>
+                  <span className="font-medium text-gray-600">
+                    {t('statistics.source')}
+                    {' '}
+                    :
+                  </span>
                   {' '}
                   <a
                     href={customText.source}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline hover:text-gray-800 transition-colors"
+                    className="underline transition-colors hover:text-gray-800"
                   >
                     {customText.source}
                   </a>
@@ -333,8 +348,13 @@ export function ArrivalsGreeceDetails({
             </span>
             {customText.last_updated_on && (
               <span>
-                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')} :</span>
-                {' '}{customText.last_updated_on}
+                <span className="font-medium text-gray-600">
+                  {t('statistics.lastUpdated')}
+                  {' '}
+                  :
+                </span>
+                {' '}
+                {customText.last_updated_on}
               </span>
             )}
           </div>

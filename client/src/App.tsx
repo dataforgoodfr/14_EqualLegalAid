@@ -12,7 +12,7 @@ const DecisionPage = lazy(() =>
 import type { HeaderNavigationItemType } from '@/types'
 
 function App() {
-  const [activeTab, setActiveTab] = useState<HeaderNavigationItemType>('statistics')
+  const [activeTab, setActiveTab] = useState<HeaderNavigationItemType>('caselaw')
 
   return (
     <div className="app mx-auto my-0 w-full xl:max-w-315">

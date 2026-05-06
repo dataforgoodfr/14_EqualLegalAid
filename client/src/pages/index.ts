@@ -1,2 +1,2 @@
 export * from './CaselawPage'
-export * from './StatisticsPage'
+export * from './StatisticsPage/index'

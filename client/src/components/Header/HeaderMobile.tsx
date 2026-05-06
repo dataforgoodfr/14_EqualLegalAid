@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { HeaderNavigationItemType } from '@/types'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
 import { HeaderNavigation } from '@/components/Header'
@@ -8,9 +7,8 @@ interface HeaderBurgerButtonProps {
   className?: string
   showMobileMenu: boolean
   setShowMobileMenu: Dispatch<SetStateAction<boolean>>
-  setActiveTab: Dispatch<SetStateAction<HeaderNavigationItemType>>
 }
-export const HeaderMobile = ({ className, showMobileMenu, setShowMobileMenu, setActiveTab }: HeaderBurgerButtonProps) => {
+export const HeaderMobile = ({ className, showMobileMenu, setShowMobileMenu }: HeaderBurgerButtonProps) => {
   return (
     <div className={cn(
       'fixed top-0 left-0 z-800 h-screen w-full bg-white translate-y-full transition-transform px-4 py-6',
@@ -29,10 +27,7 @@ export const HeaderMobile = ({ className, showMobileMenu, setShowMobileMenu, set
         </button>
       </div>
       <div className="pb-24">
-        <HeaderNavigation
-          setActiveTab={setActiveTab}
-          onClick={() => setShowMobileMenu(false)}
-        />
+        <HeaderNavigation />
       </div>
       <div className="absolute right-4 bottom-6 left-4 flex flex-col items-center">
         <LanguageSwitcher />

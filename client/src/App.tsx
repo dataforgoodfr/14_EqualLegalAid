@@ -8,6 +8,9 @@ import { useTranslation } from 'react-i18next'
 const AsylumApplicationsPage = lazy(() =>
   import('@/components/Indicators/AsylumApplicationsPage').then(m => ({ default: m.AsylumApplicationsPage })),
 )
+const DecisionPage = lazy(() =>
+  import('@/components/Indicators/DecisionPage').then(m => ({ default: m.DecisionPage })),
+)
 import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 import type { HeaderNavigationItemType } from '@/types'
@@ -23,7 +26,7 @@ function App() {
     findSpecificCaseLawBasedOnId,
   } = useAirtableCaselaw()
   const [sortDesc, setSortDesc] = useState(true)
-  const [activeTab, setActiveTab] = useState<HeaderNavigationItemType>('caselaw')
+  const [activeTab, setActiveTab] = useState<HeaderNavigationItemType>('statistics')
   const { t } = useTranslation()
   useAirtableFilter()
 
@@ -31,7 +34,7 @@ function App() {
     <div className="app mx-auto my-0 w-full xl:max-w-315">
       <HeaderComponent setActiveTab={setActiveTab} />
       <main className="main-content px-4 xl:px-0">
-        {activeTab === 'caselaw' && (
+        {/* {activeTab === 'caselaw' && (
           <>
             <HighlightTitle
               title={t('caselaw.highlightTitle')}
@@ -66,6 +69,12 @@ function App() {
               </div>
             </div>
           </>
+        )} */}
+
+        {activeTab === 'caselaw' && (
+          <Suspense fallback={<Loading />}>
+            <DecisionPage />
+          </Suspense>
         )}
 
         {activeTab === 'statistics' && (

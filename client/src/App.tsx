@@ -37,16 +37,18 @@ function App() {
               title={t('caselaw.highlightTitle')}
             />
             <div className="flex flex-wrap xl:gap-10">
-              <div className="flex-auto xl:w-72 xl:shrink-0 xl:flex-none">
-                <FilterPanel
-                  onApplyFilters={fetchFilteredCaselaws}
-                  minDate={dateBounds.minDate}
-                  maxDate={dateBounds.maxDate}
-                  count={caselawRecords.length}
-                />
+              <div className="flex-auto xl:w-72 xl:flex-none xl:shrink-0">
+                <div className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-100px)] xl:overflow-y-auto">
+                  <FilterPanel
+                    onApplyFilters={fetchFilteredCaselaws}
+                    minDate={dateBounds.minDate}
+                    maxDate={dateBounds.maxDate}
+                    count={caselawRecords.length}
+                  />
+                </div>
               </div>
               <div className="w-full flex-auto xl:w-222">
-                <div>
+                <div className="sticky top-0 z-10 bg-white pb-2 xl:top-14">
                   <FilterAction
                     count={caselawRecords.length}
                     setSort={value => setSortDesc(value)}

@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { HeaderNavigationItemType } from '@/types'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
-import { HeaderNavigation, HeaderContactButton } from '@/components/Header'
+import { HeaderNavigation } from '@/components/Header'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 interface HeaderBurgerButtonProps {
   className?: string
@@ -35,8 +35,7 @@ export const HeaderMobile = ({ className, showMobileMenu, setShowMobileMenu, set
         />
       </div>
       <div className="absolute right-4 bottom-6 left-4 flex flex-col items-center">
-        <LanguageSwitcher className="mb-8" />
-        <HeaderContactButton />
+        <LanguageSwitcher />
       </div>
     </div>
   )

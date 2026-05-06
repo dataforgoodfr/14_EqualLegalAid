@@ -8,11 +8,13 @@ import { Map as MapIcon, LayoutList } from 'lucide-react'
 import countriesUrl from '@/assets/countries.geojson?url'
 import { useMapIndicators } from '@/hooks/useMapIndicators'
 import type { MapIndicatorRecord } from '@/hooks/useMapIndicators'
+import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import { CountryMapPopup } from './CountryMapPopup'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { IndicatorsDataTable } from './IndicatorsDataTable'
+import { IndicatorInfoButton } from '@/components/ui/IndicatorInfoButton'
 import { useTranslation } from 'react-i18next'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
@@ -78,8 +80,9 @@ function formatValue(n: number, perCapita: boolean) {
   return n.toLocaleString('en-US')
 }
 
-export function EuropeRegionMap() {
-  const { t } = useTranslation()
+export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomText | null }) {
+  const { t, i18n } = useTranslation()
+  const isGr = i18n.language === 'el'
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
@@ -253,139 +256,184 @@ export function EuropeRegionMap() {
     }
   }, [yearRecords, perCapita, thresholds])
 
-  return (
-    <section className="p-6">
-      {/* ── Header ── */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-base font-semibold">{t('statistics.numberOfApplicationsEurope')}</h2>
+  const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.numberOfApplicationsEurope')
+  const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
+  const explanatoryTitle = isGr ? customText?.explanatory_text_title_gr : customText?.explanatory_text_title_en
+  const explanatoryText = isGr ? customText?.explanatory_text_gr : customText?.explanatory_text_en
+  const information = isGr ? customText?.information_gr : customText?.information_en
 
-        <div className="flex items-center gap-3">
-          {/* Per-capita toggle */}
+  return (
+    <div className="mx-auto max-w-5xl my-6">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+        {/* Card header */}
+        <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <Label htmlFor="per-capita-switch" className="text-sm select-none text-muted-foreground">
-              {t('statistics.perCapita')}
-            </Label>
-            <Switch
-              id="per-capita-switch"
-              checked={perCapita}
-              onCheckedChange={setPerCapita}
+            <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+            <IndicatorInfoButton text={information} />
+          </div>
+          {subtitle && (
+            <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+          )}
+        </div>
+
+        {/* Card body */}
+        <div className="space-y-4 p-6">
+
+          {/* Controls row */}
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="per-capita-switch" className="text-sm select-none text-muted-foreground">
+                {t('statistics.perCapita')}
+              </Label>
+              <Switch
+                id="per-capita-switch"
+                checked={perCapita}
+                onCheckedChange={setPerCapita}
+              />
+            </div>
+
+            <Select
+              value={effectiveYear?.toString() ?? ''}
+              onValueChange={v => setSelectedYear(Number(v))}
+              disabled={loading || years.length === 0}
+            >
+              <SelectTrigger size="sm" className="w-24">
+                <SelectValue placeholder={t('statistics.year')} />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map(y => (
+                  <SelectItem key={y} value={y.toString()}>
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex items-center rounded-md border border-border overflow-hidden">
+              <button
+                className={`flex items-center justify-center px-2.5 py-1.5 ${view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                title={t('statistics.mapView')}
+                onClick={() => setView('map')}
+              >
+                <MapIcon size={14} />
+              </button>
+              <button
+                className={`flex items-center justify-center px-2.5 py-1.5 border-l border-border ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                title={t('statistics.tableView')}
+                onClick={() => setView('table')}
+              >
+                <LayoutList size={14} />
+              </button>
+            </div>
+          </div>
+
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
+          <div className={`border border-border rounded-lg overflow-hidden ${view === 'table' ? '' : 'hidden'}`} style={{ height: '480px' }}>
+            <IndicatorsDataTable
+              data={activeRecords.filter(r => r.country_code !== 'EU27')}
+              perCapita={perCapita}
             />
           </div>
 
-          {/* Year selector */}
-          <Select
-            value={effectiveYear?.toString() ?? ''}
-            onValueChange={v => setSelectedYear(Number(v))}
-            disabled={loading || years.length === 0}
-          >
-            <SelectTrigger size="sm" className="w-24">
-              <SelectValue placeholder={t('statistics.year')} />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map(y => (
-                <SelectItem key={y} value={y.toString()}>
-                  {y}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className={`flex border border-border rounded-lg overflow-hidden ${view === 'map' ? '' : 'hidden'}`} style={{ height: '480px' }}>
+            <div className="flex flex-col justify-between p-5 bg-muted/30 border-r border-border" style={{ width: 240, flexShrink: 0 }}>
+              <div className="space-y-4">
+                {(explanatoryTitle || explanatoryText) && (
+                  <div>
+                    {explanatoryTitle && (
+                      <p className="text-sm font-bold text-foreground leading-snug">
+                        {explanatoryTitle}
+                      </p>
+                    )}
+                    {explanatoryText && (
+                      <p className="text-xs text-muted-foreground leading-relaxed mt-2">
+                        {explanatoryText}
+                      </p>
+                    )}
+                  </div>
+                )}
 
-          {/* View toggle buttons */}
-          <div className="flex items-center rounded-md border border-border overflow-hidden">
-            <button
-              className={`flex items-center justify-center px-2.5 py-1.5 ${view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-              title={t('statistics.mapView')}
-              onClick={() => setView('map')}
-            >
-              <MapIcon size={14} />
-            </button>
-            <button
-              className={`flex items-center justify-center px-2.5 py-1.5 border-l border-border ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-              title={t('statistics.tableView')}
-              onClick={() => setView('table')}
-            >
-              <LayoutList size={14} />
-            </button>
-          </div>
-        </div>
-      </div>
+                {greeceRecord ? (
+                  <div>
+                    <p className="text-5xl font-bold text-foreground tabular-nums leading-none">
+                      {formatValue(greeceRecord.first_time_applicants, false)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t('statistics.firstTimeApplicantsLabel')}{effectiveYear ? ` in ${effectiveYear}` : ''}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">—</p>
+                )}
+              </div>
 
-      {error && <p className="text-destructive mb-2 text-sm">{error}</p>}
-      
-      <div className={`border border-border rounded-lg overflow-hidden ${view === 'table' ? '' : 'hidden'}`} style={{ height: '480px' }}>
-        <IndicatorsDataTable
-          data={activeRecords.filter(r => r.country_code !== 'EU27')}
-          perCapita={perCapita}
-        />
-      </div>
-      
-      <div className={`flex border border-border rounded-lg overflow-hidden ${view === 'map' ? '' : 'hidden'}`} style={{ height: '480px' }}>
-
-        <div className="flex flex-col justify-between p-5 bg-muted/30 border-r border-border" style={{ width: 220, flexShrink: 0 }}>
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1">
-              {t('statistics.greece')}
-            </p>
-            <p className="text-sm text-foreground leading-snug mb-4">
-              {perCapita
-                ? t('statistics.firstTimePerCapitaLabel')
-                : t('statistics.firstTimeApplicantsLabel')}
-            </p>
-
-            {greeceRecord ? (
-              <>
-                <p className="text-4xl font-bold text-primary tabular-nums leading-none mb-1">
-                  {formatValue(
-                    perCapita
-                      ? greeceRecord.first_time_applicants_per_capita
-                      : greeceRecord.first_time_applicants,
-                    perCapita,
+              {bucketLabels.length > 0 && (
+                <div>
+                  {euRecord && (
+                    <p className="text-[11px] text-muted-foreground mb-2">
+                      {t('statistics.euEquals')}{' '}
+                      <span className="font-semibold tabular-nums">
+                        {formatValue(euRecord[valueKey], perCapita)}
+                      </span>
+                    </p>
                   )}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {effectiveYear}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">—</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
+                    {perCapita ? t('statistics.perCapita') : t('statistics.totalApplicantsLegend')}
+                  </p>
+                  <div className="space-y-1">
+                    {[...bucketLabels].reverse().map(({ color, label }) => (
+                      <div key={label} className="flex items-center gap-2">
+                        <div className="h-3 w-5 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
+                        <span className="text-[10px] text-muted-foreground tabular-nums">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="relative flex-1 overflow-hidden">
+              <div ref={containerRef} className="h-full w-full" />
+              {loading && (
+                <div className="text-muted-foreground absolute inset-0 flex items-center justify-center bg-white/60 text-sm">
+                  {t('loadingData')}
+                </div>
+              )}
+            </div>
+          </div>
+
+
+        </div>
+
+        {/* Card footer — source & last updated */}
+        {(customText?.source || customText?.last_updated_on) && (
+          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
+            {customText.source && (
+              <span>
+                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                {' '}
+                <a
+                  href={customText.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-gray-800 transition-colors"
+                >
+                  {customText.source}
+                </a>
+              </span>
+            )}
+            {customText.last_updated_on && (
+              <span>
+                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                {' '}
+                {customText.last_updated_on}
+              </span>
             )}
           </div>
-
-          {bucketLabels.length > 0 && (
-            <div>
-              {euRecord && (
-                <p className="text-[11px] text-muted-foreground mb-2">
-                  {t('statistics.euEquals')}{' '}
-                  <span className="font-semibold tabular-nums">
-                    {formatValue(euRecord[valueKey], perCapita)}
-                  </span>
-                </p>
-              )}
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
-                {perCapita ? t('statistics.perCapita') : t('statistics.totalApplicantsLegend')}
-              </p>
-              <div className="space-y-1">
-                {[...bucketLabels].reverse().map(({ color, label }) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <div className="h-3 w-5 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
-                    <span className="text-[10px] text-muted-foreground tabular-nums">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="relative flex-1 overflow-hidden">
-          <div ref={containerRef} className="h-full w-full" />
-
-          {loading && (
-            <div className="text-muted-foreground absolute inset-0 flex items-center justify-center bg-white/60 text-sm">
-              {t('loadingData')}
-            </div>
-          )}
-        </div>
+        )}
       </div>
-    </section>
+    </div>
   )
 }

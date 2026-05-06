@@ -47,10 +47,9 @@ export const FilterActionSearch = ({
             className="mr-4"
             width="24"
           />
-          <span className="inline-block whitespace-nowrap">{t('filter.decisionTitle')}</span>
         </label>
         <Input
-          className="border-0"
+          className="border-0 shadow-none bg-transparent focus-visible:ring-0 focus-visible:border-0 outline-none"
           id="filterActionSearch"
           placeholder={t('filter.titlePlaceholder')}
           value={searchValue}

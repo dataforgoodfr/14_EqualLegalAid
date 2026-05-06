@@ -11,6 +11,10 @@ export interface FacetSelectedFilters {
   [AirtableBaseNameEnum.AsylumProcedures]: string[]
   [AirtableBaseNameEnum.Authorities]: string[]
   [AirtableBaseNameEnum.Keywords]: string[]
+  [AirtableBaseNameEnum.Vulnerability]: string[]
+  [AirtableBaseNameEnum.GroundOfPersecution]: string[]
+  [AirtableBaseNameEnum.LegalAndProceduralIssues]: string[]
+  [AirtableBaseNameEnum.HouseholdIndividualStatus]: string[]
 }
 
 export interface SelectedFilters extends FacetSelectedFilters {
@@ -100,6 +104,10 @@ export const useApplyFilters = () => {
   const asylumProceduresSelected = useAppSelector(state => state.filters.asylumProceduresSelected)
   const authoritiesSelected = useAppSelector(state => state.filters.authoritiesSelected)
   const keywordsSelected = useAppSelector(state => state.filters.keywordsSelected)
+  const vulnerabilitySelected = useAppSelector(state => state.filters.vulnerabilitySelected)
+  const groundOfPersecutionSelected = useAppSelector(state => state.filters.groundOfPersecutionSelected)
+  const legalAndProceduralIssuesSelected = useAppSelector(state => state.filters.legalAndProceduralIssuesSelected)
+  const householdIndividualStatusSelected = useAppSelector(state => state.filters.householdIndividualStatusSelected)
 
   const dateStart = useAppSelector(state => state.filters.dateStart)
   const dateEnd = useAppSelector(state => state.filters.dateEnd)
@@ -112,6 +120,10 @@ export const useApplyFilters = () => {
     || asylumProceduresSelected.length > 0
     || authoritiesSelected.length > 0
     || keywordsSelected.length > 0
+    || vulnerabilitySelected.length > 0
+    || groundOfPersecutionSelected.length > 0
+    || legalAndProceduralIssuesSelected.length > 0
+    || householdIndividualStatusSelected.length > 0
     || isCompleteDateSelection(dateStart)
     || isCompleteDateSelection(dateEnd)
 
@@ -123,6 +135,10 @@ export const useApplyFilters = () => {
     [AirtableBaseNameEnum.AsylumProcedures]: getNamesByIds(AirtableBaseNameEnum.AsylumProcedures, asylumProceduresSelected, asylumProcedures.value, isGreek),
     [AirtableBaseNameEnum.Authorities]: getNamesByIds(AirtableBaseNameEnum.Authorities, authoritiesSelected, authorities.value, isGreek),
     [AirtableBaseNameEnum.Keywords]: getNamesByIds(AirtableBaseNameEnum.Keywords, keywordsSelected, keywords.value, isGreek),
+    [AirtableBaseNameEnum.Vulnerability]: getNamesByIds(AirtableBaseNameEnum.Keywords, vulnerabilitySelected, keywords.value, isGreek),
+    [AirtableBaseNameEnum.GroundOfPersecution]: getNamesByIds(AirtableBaseNameEnum.Keywords, groundOfPersecutionSelected, keywords.value, isGreek),
+    [AirtableBaseNameEnum.LegalAndProceduralIssues]: getNamesByIds(AirtableBaseNameEnum.Keywords, legalAndProceduralIssuesSelected, keywords.value, isGreek),
+    [AirtableBaseNameEnum.HouseholdIndividualStatus]: getNamesByIds(AirtableBaseNameEnum.Keywords, householdIndividualStatusSelected, keywords.value, isGreek),
     startDate: toDateValue(dateStart, 'start'),
     endDate: toDateValue(dateEnd, 'end'),
   }), [
@@ -140,6 +156,10 @@ export const useApplyFilters = () => {
     authorities.value,
     keywordsSelected,
     keywords.value,
+    vulnerabilitySelected,
+    groundOfPersecutionSelected,
+    legalAndProceduralIssuesSelected,
+    householdIndividualStatusSelected,
     dateStart,
     dateEnd,
     isGreek,

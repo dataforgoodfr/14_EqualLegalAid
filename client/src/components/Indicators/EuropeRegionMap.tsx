@@ -96,7 +96,6 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   const [perCapita, setPerCapita] = useState(false)
   const [view, setView] = useState<'map' | 'table'>('map')
 
-
   const years = useMemo(
     () => [...new Set(records.filter(r => r.total_applicants > 0).map(r => r.year))].sort((a, b) => b - a),
     [records],
@@ -180,29 +179,40 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
       map.resize()
       map.addSource('countries', { type: 'geojson', data: countriesUrl })
 
+      const layers = map.getStyle().layers
+      // Find the index of the first symbol layer in the map style to put the new layers below it
+      // https://maplibre.org/maplibre-gl-js/docs/examples/add-a-new-layer-below-labels/
+      let firstSymbolId
+      for (let i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+          firstSymbolId = layers[i].id
+          break
+        }
+      }
+
       map.addLayer({
         id: 'region-fill',
         type: 'fill',
         source: 'countries',
         filter: ['==', ['get', ISO_PROP], ''],
         paint: { 'fill-color': '#dbeafe', 'fill-opacity': 0.85 },
-      })
+      }, firstSymbolId)
       map.addLayer({
         id: 'region-border',
         type: 'line',
         source: 'countries',
         filter: ['==', ['get', ISO_PROP], ''],
         paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
-      })
+      }, firstSymbolId)
       map.addLayer({
         id: 'country-hover',
         type: 'fill',
         source: 'countries',
         filter: ['==', ['get', ISO_PROP], ''],
         paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
-      })
+      }, firstSymbolId)
 
-      map.on('mousemove', 'country-hover', e => {
+      map.on('mousemove', 'country-hover', (e) => {
         if (!e.features?.length) return
         map.getCanvas().style.cursor = 'pointer'
         const isoCode = e.features[0].properties?.[ISO_PROP] as string | undefined
@@ -249,7 +259,8 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
     const apply = () => applyMapData(map, yearRecords, perCapita, thresholds)
     if (map.isStyleLoaded()) {
       apply()
-    } else {
+    }
+    else {
       // Map not ready yet — apply as soon as it is
       map.once('load', apply)
       return () => { map.off('load', apply) }
@@ -263,7 +274,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   const information = isGr ? customText?.information_gr : customText?.information_en
 
   return (
-    <div className="mx-auto max-w-5xl my-6">
+    <div className="mx-auto my-6 max-w-5xl">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
@@ -283,7 +294,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
           {/* Controls row */}
           <div className="flex flex-wrap items-center justify-end gap-3">
             <div className="flex items-center gap-2">
-              <Label htmlFor="per-capita-switch" className="text-sm select-none text-muted-foreground">
+              <Label htmlFor="per-capita-switch" className="text-muted-foreground text-sm select-none">
                 {t('statistics.perCapita')}
               </Label>
               <Switch
@@ -310,7 +321,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
               </SelectContent>
             </Select>
 
-            <div className="flex items-center rounded-md border border-border overflow-hidden">
+            <div className="border-border flex items-center overflow-hidden rounded-md border">
               <button
                 className={`flex items-center justify-center px-2.5 py-1.5 ${view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
                 title={t('statistics.mapView')}
@@ -319,7 +330,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
                 <MapIcon size={14} />
               </button>
               <button
-                className={`flex items-center justify-center px-2.5 py-1.5 border-l border-border ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                className={`border-border flex items-center justify-center border-l px-2.5 py-1.5 ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
                 title={t('statistics.tableView')}
                 onClick={() => setView('table')}
               >
@@ -330,63 +341,67 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
 
           {error && <p className="text-destructive text-sm">{error}</p>}
 
-          <div className={`border border-border rounded-lg overflow-hidden ${view === 'table' ? '' : 'hidden'}`} style={{ height: '480px' }}>
+          <div className={`border-border overflow-hidden rounded-lg border ${view === 'table' ? '' : 'hidden'}`} style={{ height: '480px' }}>
             <IndicatorsDataTable
               data={activeRecords.filter(r => r.country_code !== 'EU27')}
               perCapita={perCapita}
             />
           </div>
 
-          <div className={`flex border border-border rounded-lg overflow-hidden ${view === 'map' ? '' : 'hidden'}`} style={{ height: '480px' }}>
-            <div className="flex flex-col justify-between p-5 bg-muted/30 border-r border-border" style={{ width: 240, flexShrink: 0 }}>
+          <div className={`border-border flex overflow-hidden rounded-lg border ${view === 'map' ? '' : 'hidden'}`} style={{ height: '480px' }}>
+            <div className="bg-muted/30 border-border flex flex-col justify-between border-r p-5" style={{ width: 240, flexShrink: 0 }}>
               <div className="space-y-4">
                 {(explanatoryTitle || explanatoryText) && (
                   <div>
                     {explanatoryTitle && (
-                      <p className="text-sm font-bold text-foreground leading-snug">
+                      <p className="text-foreground text-sm leading-snug font-bold">
                         {explanatoryTitle}
                       </p>
                     )}
                     {explanatoryText && (
-                      <p className="text-xs text-muted-foreground leading-relaxed mt-2">
+                      <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
                         {explanatoryText}
                       </p>
                     )}
                   </div>
                 )}
 
-                {greeceRecord ? (
-                  <div>
-                    <p className="text-5xl font-bold text-foreground tabular-nums leading-none">
-                      {formatValue(greeceRecord.first_time_applicants, false)}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t('statistics.firstTimeApplicantsLabel')}{effectiveYear ? ` in ${effectiveYear}` : ''}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">—</p>
-                )}
+                {greeceRecord
+                  ? (
+                    <div>
+                      <p className="text-foreground text-5xl leading-none font-bold tabular-nums">
+                        {formatValue(greeceRecord.first_time_applicants, false)}
+                      </p>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {t('statistics.firstTimeApplicantsLabel')}
+                        {effectiveYear ? ` in ${effectiveYear}` : ''}
+                      </p>
+                    </div>
+                  )
+                  : (
+                    <p className="text-muted-foreground text-sm">—</p>
+                  )}
               </div>
 
               {bucketLabels.length > 0 && (
                 <div>
                   {euRecord && (
-                    <p className="text-[11px] text-muted-foreground mb-2">
-                      {t('statistics.euEquals')}{' '}
+                    <p className="text-muted-foreground mb-2 text-[11px]">
+                      {t('statistics.euEquals')}
+                      {' '}
                       <span className="font-semibold tabular-nums">
                         {formatValue(euRecord[valueKey], perCapita)}
                       </span>
                     </p>
                   )}
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
+                  <p className="text-muted-foreground mb-1.5 text-[10px] font-medium tracking-wide uppercase">
                     {perCapita ? t('statistics.perCapita') : t('statistics.totalApplicantsLegend')}
                   </p>
                   <div className="space-y-1">
                     {[...bucketLabels].reverse().map(({ color, label }) => (
                       <div key={label} className="flex items-center gap-2">
-                        <div className="h-3 w-5 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
-                        <span className="text-[10px] text-muted-foreground tabular-nums">{label}</span>
+                        <div className="h-3 w-5 flex-shrink-0 rounded-sm" style={{ backgroundColor: color }} />
+                        <span className="text-muted-foreground text-[10px] tabular-nums">{label}</span>
                       </div>
                     ))}
                   </div>
@@ -404,21 +419,23 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
             </div>
           </div>
 
-
         </div>
 
         {/* Card footer — source & last updated */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
             {customText.source && (
               <span>
-                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                <span className="font-medium text-gray-600">
+                  {t('statistics.source')}
+                  :
+                </span>
                 {' '}
                 <a
                   href={customText.source}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline hover:text-gray-800 transition-colors"
+                  className="underline transition-colors hover:text-gray-800"
                 >
                   {customText.source}
                 </a>
@@ -426,7 +443,10 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
             )}
             {customText.last_updated_on && (
               <span>
-                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                <span className="font-medium text-gray-600">
+                  {t('statistics.lastUpdated')}
+                  :
+                </span>
                 {' '}
                 {customText.last_updated_on}
               </span>

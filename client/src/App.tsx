@@ -3,10 +3,10 @@ import { Loading } from '@/components'
 import { HeaderComponent } from '@/components/Header'
 
 const StatisticPage = lazy(() =>
-  import('@/components/Indicators/StatisticPage').then(m => ({ default: m.StatisticPage })),
+  import('@/components/Pages/StatisticPage').then(m => ({ default: m.StatisticPage })),
 )
 const DecisionPage = lazy(() =>
-  import('@/components/Indicators/DecisionPage').then(m => ({ default: m.DecisionPage })),
+  import('@/components/Pages/DecisionPage').then(m => ({ default: m.DecisionPage })),
 )
 
 import type { HeaderNavigationItemType } from '@/types'

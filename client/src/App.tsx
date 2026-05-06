@@ -2,8 +2,8 @@ import { lazy, Suspense, useState } from 'react'
 import { Loading } from '@/components'
 import { HeaderComponent } from '@/components/Header'
 
-const AsylumApplicationsPage = lazy(() =>
-  import('@/components/Indicators/AsylumApplicationsPage').then(m => ({ default: m.AsylumApplicationsPage })),
+const StatisticPage = lazy(() =>
+  import('@/components/Indicators/StatisticPage').then(m => ({ default: m.StatisticPage })),
 )
 const DecisionPage = lazy(() =>
   import('@/components/Indicators/DecisionPage').then(m => ({ default: m.DecisionPage })),
@@ -12,7 +12,7 @@ const DecisionPage = lazy(() =>
 import type { HeaderNavigationItemType } from '@/types'
 
 function App() {
-  const [activeTab, setActiveTab] = useState<HeaderNavigationItemType>('caselaw')
+  const [activeTab, setActiveTab] = useState<HeaderNavigationItemType>('statistics')
 
   return (
     <div className="app mx-auto my-0 w-full xl:max-w-315">
@@ -27,7 +27,7 @@ function App() {
 
         {activeTab === 'statistics' && (
           <Suspense fallback={<Loading />}>
-            <AsylumApplicationsPage />
+            <StatisticPage />
           </Suspense>
         )}
       </main>

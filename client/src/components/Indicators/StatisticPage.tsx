@@ -13,7 +13,7 @@ import { useIndicatorCustomTexts } from '@/hooks/useIndicatorCustomTexts'
 import { useKeyFigures } from '@/hooks/useKeyFigures'
 import { useTranslation } from 'react-i18next'
 
-export function AsylumApplicationsPage() {
+export function StatisticPage() {
   const { records, loading, error } = useAsylumApplications()
   const { records: customTexts } = useIndicatorCustomTexts()
   const keyFigures = useKeyFigures()

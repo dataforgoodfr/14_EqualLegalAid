@@ -6,7 +6,7 @@ import { AirtableProvider } from '@/providers'
 import { store } from './redux/store.ts'
 import { Provider } from 'react-redux'
 import { DownloadCaselawProvider } from '@/context/'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import {
   CaselawPage,
   AsylumApplicationsInEuropePage,
@@ -28,7 +28,11 @@ createRoot(document.getElementById('root')!).render(
                 <Route index element={<CaselawPage />} />
               </Route>
               <Route path="advocacy" element={<StatisticLayoutPage />}>
-                <Route index path="AsylumApplicationsInEurope" element={<AsylumApplicationsInEuropePage />} />
+                <Route
+                  index
+                  element={<Navigate to="AsylumApplicationsInEurope" replace />}
+                />
+                <Route path="AsylumApplicationsInEurope" element={<AsylumApplicationsInEuropePage />} />
                 <Route path="AsylumApplicationsInEuropeanUnion" element={<AsylumApplicationsInEuropeanUnion />} />
                 <Route path="ArrivalsInGreece" element={<ArrivalsInGreecePage />} />
                 <Route path="AsylumApplicationsEvolutionInGreece" element={<AsylumApplicationsEvolutionInGreecePage />} />

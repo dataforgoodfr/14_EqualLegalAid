@@ -12,7 +12,7 @@ import { useIndicatorCustomTexts } from '@/hooks/useIndicatorCustomTexts'
 import { useKeyFigures } from '@/hooks/useKeyFigures'
 import { useTranslation } from 'react-i18next'
 
-export function StatisticPage() {
+export default function StatisticPage() {
   const { records: customTexts } = useIndicatorCustomTexts()
   const keyFigures = useKeyFigures()
   const { t, i18n } = useTranslation()

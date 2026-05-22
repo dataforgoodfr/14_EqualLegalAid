@@ -52,6 +52,7 @@ export const useAirtableFilter = () => {
       AirtableBaseNameEnum.Authorities,
     ].includes(tableName)
 
+
   const fetchFilterRecords = useCallback(async () => {
     if (filterFetched) return
     try {
@@ -77,7 +78,9 @@ export const useAirtableFilter = () => {
 
             if (hasCountCaselaws(tableName)) {
               selectConfig.filterByFormula = 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
-              selectConfig.sort = [{ field: 'Count_Caselaws', direction: 'desc' }]
+              if (![AirtableBaseNameEnum.Outcomes, AirtableBaseNameEnum.LegalProcedureTypes, AirtableBaseNameEnum.AsylumProcedures].includes(tableName)) {
+                selectConfig.sort = [{ field: 'Count_Caselaws', direction: 'desc' }]
+              }
             }
 
             const records = await airtableService.fetchRecordsFromTable({
@@ -177,12 +180,13 @@ export const useAirtableFilter = () => {
     try {
       setLoadingFilterRecords(true)
       setErrorFilterRecords(null)
+      const useAirtableOrder = [AirtableBaseNameEnum.Outcomes, AirtableBaseNameEnum.LegalProcedureTypes, AirtableBaseNameEnum.AsylumProcedures].includes(airtableBaseName)
       const records = await airtableService.fetchRecordsFromTable({
         tableName: airtableBaseName,
         selectConfig: {
           cellFormat: 'json',
           filterByFormula,
-          sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
+          ...(useAirtableOrder ? {} : { sort: [{ field: 'Count_Caselaws', direction: 'desc' }] }),
         },
       })
 

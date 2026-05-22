@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui'
 import { useAppDispatch } from '@/hooks/reduxHook'
-import { resetDateEnd, setDateEnd, setDateStart, setFilterTag } from '@/redux/filtersSlice'
+import { resetDateEnd, resetDateStart, setDateEnd, setDateStart, setFilterTag } from '@/redux/filtersSlice'
 import { DATE_FILTER_STATE_NAME, type DatePartSelection } from '@/types'
 
 interface DateFilterItemProps {
@@ -218,16 +218,34 @@ export const DateFilterItem = ({
   }
 
   const isDisabled = allOptions.length === 0
+  const hasSelection = startDate.year !== null || startDate.month !== null || endDate.year !== null || endDate.month !== null
+
+  const handleClear = () => {
+    dispatch(resetDateStart())
+    updateStartTag({ month: null, year: null })
+    resetEndSelection()
+  }
 
   return (
     <div className="filter-item p-2">
       <div className="filter-item__content borde rounded-md px-4 py-4">
+        {hasSelection && (
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={handleClear}
+              className="text-xs text-muted-foreground hover:text-foreground underline"
+            >
+              Clear
+            </button>
+          </div>
+        )}
         <FieldGroup className="gap-5">
           <Field className="rounded-md ">
             <FieldContent>
               <Label>Start date</Label>
               <div className="grid grid-cols-2 gap-3">
                 <Select
+                  key={`start-year-${startDate.year === null ? 'empty' : 'filled'}`}
                   disabled={isDisabled}
                   value={startDate.year !== null ? toYearValue(startDate.year) : undefined}
                   onValueChange={handleStartYearChange}
@@ -244,6 +262,7 @@ export const DateFilterItem = ({
                   </SelectContent>
                 </Select>
                 <Select
+                  key={`start-month-${startDate.month === null ? 'empty' : 'filled'}`}
                   disabled={isDisabled || startDate.year === null}
                   value={startDate.month !== null ? toMonthValue(startDate.month) : undefined}
                   onValueChange={handleStartMonthChange}
@@ -267,6 +286,7 @@ export const DateFilterItem = ({
               <Label>End date</Label>
               <div className="grid grid-cols-2 gap-3">
                 <Select
+                  key={`end-year-${endDate.year === null ? 'empty' : 'filled'}`}
                   disabled={isDisabled}
                   value={endDate.year !== null ? toYearValue(endDate.year) : undefined}
                   onValueChange={handleEndYearChange}
@@ -284,6 +304,7 @@ export const DateFilterItem = ({
                 </Select>
 
                 <Select
+                  key={`end-month-${endDate.month === null ? 'empty' : 'filled'}`}
                   disabled={isDisabled || endDate.year === null}
                   value={endDate.month !== null ? toMonthValue(endDate.month) : undefined}
                   onValueChange={handleEndMonthChange}

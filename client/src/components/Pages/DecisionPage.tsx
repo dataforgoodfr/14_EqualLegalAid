@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 
-export function DecisionPage() {
+export default function DecisionPage() {
   const {
     caselawRecords,
     dateBounds,

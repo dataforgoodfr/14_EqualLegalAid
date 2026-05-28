@@ -21,10 +21,6 @@ export const StatisticLayoutPage = () => {
   const asylumApplicationsEvolutionInGreece = customTexts.filter(ct => ct.name === 'AsylumApplicationsEvolutionInGreece')[0] ?? null
   const protectionGrantedVsRejected = customTexts.filter(ct => ct.name === 'ProtectionGrantedVsRejected')[0] ?? null
 
-  const asylumSeekersCamps = customTexts.filter(ct => ct.name === 'AsylumSeekersCamps')[0] ?? null
-  const applicationsEvolutionGreece = customTexts.filter(ct => ct.name === 'ApplicationsEvolutionGreece')[0] ?? null
-  const recognitionRates = customTexts.filter(ct => ct.name === 'RecognitionRates')[0] ?? null
-
   const getCustomText = (name: string) => customTexts.find(ct => ct.name === name) ?? null
 
   const tabItems: NavLinkItem[] = [
@@ -47,7 +43,7 @@ export const StatisticLayoutPage = () => {
             <NavLink
               to={tabItem.to}
               key={tabItem.to}
-              className={({ isActive }) => cn(
+              className={({ isActive }: { isActive: boolean }) => cn(
                 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
                 { 'bg-[#04356C] text-white': isActive },
               )}

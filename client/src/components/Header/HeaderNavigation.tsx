@@ -31,12 +31,12 @@ export const HeaderNavigation = ({ className }: HeaderNavigationProps) => {
         >
           <NavLink
             to={tab.path}
-            className={({ isActive }) => cn(
+            className={({ isActive }: { isActive: boolean }) => cn(
               'block hover:text-blue-france group transition-colors xl:px-3 xl:py-4  cursor-pointer xl:text-[14px] xl:text-gray-800 text-blue-france font-bold xl:font-normal text-[20px] relative text-center overflow-hidden pl-8.25 py-4',
               { 'xl:text-blue-france': isActive },
             )}
           >
-            {({ isActive }) => (
+            {({ isActive }: { isActive: boolean }) => (
               <>
                 {tab.label}
 

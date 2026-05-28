@@ -77,7 +77,9 @@ export const useAirtableFilter = () => {
 
             if (hasCountCaselaws(tableName)) {
               selectConfig.filterByFormula = 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
-              selectConfig.sort = [{ field: 'Count_Caselaws', direction: 'desc' }]
+              selectConfig.sort = tableName === AirtableBaseNameEnum.Countries
+                ? [{ field: 'Name_EN', direction: 'asc' }]
+                : [{ field: 'Count_Caselaws', direction: 'desc' }]
             }
 
             const records = await airtableService.fetchRecordsFromTable({
@@ -181,7 +183,9 @@ export const useAirtableFilter = () => {
         selectConfig: {
           cellFormat: 'json',
           filterByFormula,
-          sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
+          sort: airtableBaseName === AirtableBaseNameEnum.Countries
+            ? [{ field: 'Name_EN', direction: 'asc' }]
+            : [{ field: 'Count_Caselaws', direction: 'desc' }],
         },
       })
 

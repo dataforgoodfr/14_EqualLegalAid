@@ -52,7 +52,7 @@ export const useAirtableFilter = () => {
       AirtableBaseNameEnum.Authorities,
     ].includes(tableName)
 
-  const fetchFilterRecords = useCallback(async () => {
+  const fetchFilterRecords = useCallback(async() => {
     if (filterFetched) return
     try {
       setLoadingFilterRecords(true)
@@ -69,7 +69,7 @@ export const useAirtableFilter = () => {
         AirtableBaseNameEnum.Keywords,
       ]
       const results = await Promise.all(
-        entries.map(async (tableName) => {
+        entries.map(async(tableName) => {
           try {
             const selectConfig: any = {
               cellFormat: 'json',
@@ -125,14 +125,13 @@ export const useAirtableFilter = () => {
         ...authoritiesResult,
         value: toBasicValues(authoritiesResult.value),
       }))
-      if (categoriesResult ) {
+      if (categoriesResult) {
+        const categoriesArray = categoriesResult.value
 
-        const categoriesArray = categoriesResult.value;
-
-        const vulnerability: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Vulnerability");
-        const groundOfPersecution: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Ground of persecution");
-        const householdIndividualStatus: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Household/Individual status");
-        const legalProceduralIssues: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === "Legal and procedural issues");
+        const vulnerability: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Vulnerability')
+        const groundOfPersecution: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Ground of persecution')
+        const householdIndividualStatus: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Household/Individual status')
+        const legalProceduralIssues: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Legal and procedural issues')
 
         dispatch(setVulnerabilityFilter({
           label: AirtableBaseNameEnum.Vulnerability,
@@ -156,11 +155,11 @@ export const useAirtableFilter = () => {
         }))
       }
       if (subCategoriesResult) dispatch(setSubCategoriesFilter(subCategoriesResult))
-      
+
       if (keywordsResult) dispatch(setKeywordsFilter(keywordsResult))
       setFilterFetched(true)
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch filters'
       setErrorFilterRecords(errorMessage)
     }
@@ -169,7 +168,7 @@ export const useAirtableFilter = () => {
     }
   }, [airtableService, filterFetched, dispatch])
 
-  const fetchFilterRecordsForSpecificUserSearch = useCallback(async () => {
+  const fetchFilterRecordsForSpecificUserSearch = useCallback(async() => {
     const { value, airtableBaseName } = searchInGivenFilter
     const searchField = isGreek ? 'Name_GR' : 'Name_EN'
     const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({${searchField}})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
@@ -213,7 +212,7 @@ export const useAirtableFilter = () => {
           break
       }
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch specific filter'
       setErrorFilterRecords(errorMessage)
     }

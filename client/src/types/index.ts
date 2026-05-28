@@ -148,3 +148,9 @@ export interface SelectedCaselawItem {
 }
 
 export type HeaderNavigationItemType = 'caselaw' | 'statistics'
+
+export type StatisticCustomTextName = 'AsylumApplicationsInEurope' | 'AsylumApplicationsInEuropeanUnion' | 'ArrivalsInGreece' | 'AsylumApplicationsEvolutionInGreece' | 'ProtectionGrantedVsRejected'
+export type StatisticOutletContext = {
+  customTexts: any[]
+  getCustomText: (name: StatisticCustomTextName) => any | null
+}

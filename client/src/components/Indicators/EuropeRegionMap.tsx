@@ -179,27 +179,38 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
       map.resize()
       map.addSource('countries', { type: 'geojson', data: countriesUrl })
 
+      const layers = map.getStyle().layers
+      // Find the index of the first symbol layer in the map style to put the new layers below it
+      // https://maplibre.org/maplibre-gl-js/docs/examples/add-a-new-layer-below-labels/
+      let firstSymbolId
+      for (let i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+          firstSymbolId = layers[i].id
+          break
+        }
+      }
+
       map.addLayer({
         id: 'region-fill',
         type: 'fill',
         source: 'countries',
         filter: ['==', ['get', ISO_PROP], ''],
         paint: { 'fill-color': '#dbeafe', 'fill-opacity': 0.85 },
-      })
+      }, firstSymbolId)
       map.addLayer({
         id: 'region-border',
         type: 'line',
         source: 'countries',
         filter: ['==', ['get', ISO_PROP], ''],
         paint: { 'line-color': '#ffffff', 'line-width': 0.5, 'line-opacity': 0.85 },
-      })
+      }, firstSymbolId)
       map.addLayer({
         id: 'country-hover',
         type: 'fill',
         source: 'countries',
         filter: ['==', ['get', ISO_PROP], ''],
         paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
-      })
+      }, firstSymbolId)
 
       map.on('mousemove', 'country-hover', (e) => {
         if (!e.features?.length) return

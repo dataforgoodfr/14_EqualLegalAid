@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
+import { toNum, toStr } from '@/lib/utils'
 
 export interface AsylumApplicationRecord {
   id: string
@@ -11,18 +12,6 @@ export interface AsylumApplicationRecord {
   total_country_population: number
   percentage: number
 }
-
-const toNum = (v: unknown): number => {
-  if (typeof v === 'number') return v
-  if (typeof v === 'string') {
-    const n = parseFloat(v.replace(/,/g, ''))
-    return isNaN(n) ? 0 : n
-  }
-  return 0
-}
-
-const toStr = (v: unknown): string =>
-  typeof v === 'string' ? v : String(v ?? '')
 
 export const useAsylumApplications = () => {
   const airtableService = useAirtableService()
@@ -58,7 +47,7 @@ export const useAsylumApplications = () => {
 
       setRecords(parsed)
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch asylum applications')
     }
     finally {

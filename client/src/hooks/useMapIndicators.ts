@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
+import { toNum, toStr } from '@/lib/utils'
 
 export interface MapIndicatorRecord {
   id: string
@@ -14,24 +15,13 @@ export interface MapIndicatorRecord {
   subsequent_applicants_per_capita: number
 }
 
-const toNum = (v: unknown): number => {
-  if (typeof v === 'number') return v
-  if (typeof v === 'string') {
-    const n = parseFloat(v.replace(/,/g, ''))
-    return isNaN(n) ? 0 : n
-  }
-  return 0
-}
-
-const toStr = (v: unknown): string => (typeof v === 'string' ? v : String(v ?? ''))
-
 export function useMapIndicators() {
   const airtableService = useAirtableService()
   const [records, setRecords] = useState<MapIndicatorRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchRecords = useCallback(async () => {
+  const fetchRecords = useCallback(async() => {
     try {
       setLoading(true)
       setError(null)
@@ -57,7 +47,7 @@ export function useMapIndicators() {
       }))
       setRecords(parsed)
     }
-    catch (err) {
+    catch(err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch map indicators')
     }
     finally {

@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import filtersReducer from './filtersSlice'
+import chartReducer from './chartSlice'
 
 export const store = configureStore({
   reducer: {
     filters: filtersReducer,
+    charts: chartReducer,
   },
 })
 

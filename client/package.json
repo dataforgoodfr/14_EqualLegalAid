@@ -30,6 +30,7 @@
     "react-circle-flags": "^0.0.29",
     "react-dom": "^19.2.0",
     "react-i18next": "^17.0.2",
+    "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.15.0",
     "recharts": "^3.8.0",

@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react'
 import { Popover as PopoverPrimitive } from 'radix-ui'
+import ReactMarkdown from 'react-markdown';
 
 export function IndicatorInfoButton({ text }: { text?: string }) {
   if (!text) return null
@@ -13,9 +14,12 @@ export function IndicatorInfoButton({ text }: { text?: string }) {
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           sideOffset={8}
-          className="z-50 max-w-sm rounded-lg border border-gray-200 bg-white p-4 shadow-lg text-sm text-gray-700 leading-relaxed"
+          collisionPadding={16}
+          className="z-50 max-w-sm rounded-lg border border-gray-200 bg-white p-4 shadow-lg text-xs text-gray-700 leading-relaxed max-h-[var(--radix-popover-content-available-height)] overflow-y-auto"
         >
-          {text}
+          <div className="whitespace-pre-wrap">
+            <ReactMarkdown>{text}</ReactMarkdown>
+          </div>
           <PopoverPrimitive.Arrow className="fill-white stroke-gray-200" />
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>

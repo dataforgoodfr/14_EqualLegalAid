@@ -28,15 +28,15 @@ export enum AirtableBaseNameEnum {
  */
 export type AirtableFieldValue
   = | string
-    | number
-    | boolean
-    | null
-    | undefined
-    | AirtableAttachment[]
-    | AirtableUser[]
-    | string[]
-    | number[]
-    | Record<string, unknown>
+  | number
+  | boolean
+  | null
+  | undefined
+  | AirtableAttachment[]
+  | AirtableUser[]
+  | string[]
+  | number[]
+  | Record<string, unknown>
 
 /**
  * Represents a record from Airtable
@@ -149,7 +149,7 @@ export interface SelectedCaselawItem {
 
 export type HeaderNavigationItemType = 'caselaw' | 'statistics'
 
-export type StatisticCustomTextName = 'AsylumApplicationsInEurope' | 'AsylumApplicationsInEuropeanUnion' | 'ArrivalsInGreece' | 'AsylumApplicationsEvolutionInGreece' | 'ProtectionGrantedVsRejected'
+export type StatisticCustomTextName = 'AsylumApplicationsInEurope' | 'AsylumApplicationsInEuropeanUnion' | 'ArrivalsInGreece' | 'AsylumApplicationsEvolutionInGreece' | 'ProtectionGrantedVsRejected' | 'AsylumSeekersLivingInCamps'
 export type StatisticOutletContext = {
   customTexts: any[]
   getCustomText: (name: StatisticCustomTextName) => any | null

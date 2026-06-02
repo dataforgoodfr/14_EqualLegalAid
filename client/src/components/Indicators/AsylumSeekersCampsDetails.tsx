@@ -97,6 +97,34 @@ export function AsylumSeekersCampsDetails({
         {/* Card body */}
         <div className="space-y-6 p-6">
 
+          <div className="grid grid-cols-[2fr_1fr] gap-4">
+            {(explanatoryTitle || explanatoryText) && (
+              <div className="rounded-lg border border-gray-200 p-5">
+                {explanatoryTitle && (
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">{explanatoryTitle}</h3>
+                )}
+                {explanatoryText && (
+                  <p className="text-sm text-gray-600 leading-relaxed">{explanatoryText}</p>
+                )}
+              </div>
+            )}
+
+            {/* TODO */}
+            {/* {mostRecentData && ( */}
+            {/*   <div className="rounded-lg border border-gray-200 p-5"> */}
+            {/*     {subtitle && ( */}
+            {/*       <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p> */}
+            {/*     )} */}
+            {/*     <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums"> */}
+            {/*       {mostRecentData.first_time_applicants} */}
+            {/*     </p> */}
+            {/*     <p className="text-sm text-gray-600 mt-2"> */}
+            {/*       {t('statistics.firstTimeApplicantsLabel')} in {mostRecentData.year} */}
+            {/*     </p> */}
+            {/*   </div> */}
+            {/* )} */}
+          </div>
+
           {/* Line chart */}
           <ChartContainer config={chartConfig} className="h-80 w-full">
             <LineChart data={chartData}>
@@ -117,22 +145,11 @@ export function AsylumSeekersCampsDetails({
             </LineChart>
           </ChartContainer>
 
-          {/* Explanatory text */}
-          {(explanatoryTitle || explanatoryText) && (
-            <div className="rounded-lg bg-gray-50 px-4 py-4 space-y-1.5">
-              {explanatoryTitle && (
-                <h3 className="text-sm font-semibold" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
-              )}
-              {explanatoryText && (
-                <p className="text-muted-foreground text-sm leading-relaxed">{explanatoryText}</p>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Card footer */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
+          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-xs text-gray-500">
             {customText.source && (
               <span>
                 <span className="font-medium text-gray-600">{t('statistics.source')}:</span>

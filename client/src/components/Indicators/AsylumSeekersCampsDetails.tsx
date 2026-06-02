@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import type { AsylumSeekersCampsRecord } from '@/hooks/useAsylumSeekersCamps'
@@ -12,6 +12,23 @@ const REGION_COLORS = [
   '#04356C', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
   '#7C3AED', '#A78BFA', '#B45309', '#D97706', '#065F46', '#059669',
 ]
+const CAMP_COLORS = [
+  '#0000b8', '#0170b9', '#0090ff', '#d5d5d5'
+]
+const CAMP_TYPES = [
+  "CCAC",
+  "RIC",
+  "Sites",
+  "ESTIA"
+]
+
+// Camp types are specified in a string with additional data,
+// but the camp type is always the first word in the string.
+// So we split on spaces and take the first word as the camp type.
+function isCampType(record: AsylumSeekersCampsRecord, campType: string): boolean {
+  let type = record.area.split(' ')[0];
+  return type.toLowerCase().includes(campType.toLowerCase())
+}
 
 export function AsylumSeekersCampsDetails({
   records,
@@ -24,42 +41,83 @@ export function AsylumSeekersCampsDetails({
   error: string | null
   customText?: IndicatorCustomText | null
 }) {
+  console.log(records);
+
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
 
   const [selectedRegion, setSelectedRegion] = useState<string>('all')
+  const [selectedCampType, setSelectedCampType] = useState<string>('all')
+  const [byRegion, setByRegion] = useState(true)
 
+  // Collect all region names based on the data records.
   const regions = useMemo(() => {
     const set = new Set<string>()
     for (const r of records) if (r.region) set.add(r.region)
     return Array.from(set).sort()
   }, [records])
 
-  // Group by year-month, then by region — one series per region
+  // Cache a lookup of record ids to their camp types.
+  // Some camps are labeled as multiple types, in particular "CCAC/RIC".
+  const campTypes = useMemo(() => {
+    const types = new Map<string, string[]>()
+    for (const r of records) {
+      types.set(r.id, CAMP_TYPES.filter(t => isCampType(r, t)));
+    }
+    return types
+  }, [records])
+
+  // Group by year-month, then by region/camp type — one series per region/camp type
   const chartData = useMemo(() => {
-    const filtered = selectedRegion === 'all' ? records : records.filter(r => r.region === selectedRegion)
+    const filtered = records.filter(r => {
+      return (selectedRegion == 'all' || r.region === selectedRegion)
+        &&
+        (selectedCampType == 'all' || isCampType(r, selectedCampType))
+    })
+
     // Aggregate by date
     const map = new Map<string, Record<string, number>>()
     for (const r of filtered) {
       const key = r.date.slice(0, 7) // YYYY-MM
       const entry = map.get(key) ?? {}
-      entry[r.region] = (entry[r.region] ?? 0) + r.asylum_seekers
+
+      // Because some records are labeled as multiple camp types,
+      // we have to treat records as potentially belonging to multiple groups.
+      // However, records always belong to only one region.
+      let groups = byRegion ? [r.region] : (campTypes.get(r.id) || []);
+      for (const group of groups) {
+        entry[group] = (entry[group] ?? 0) + r.asylum_seekers
+      }
+
       map.set(key, entry)
     }
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, values]) => ({ date, ...values }))
-  }, [records, selectedRegion])
+  }, [records, selectedRegion, selectedCampType, byRegion])
 
-  const activeRegions = useMemo(() => {
-    return selectedRegion === 'all' ? regions : [selectedRegion]
-  }, [regions, selectedRegion])
+  // Line label/key and color information.
+  const chartLines = useMemo(() => {
+    if (byRegion) {
+      const groups = selectedRegion === 'all' ? regions : [selectedRegion];
+      return groups.map((region, i) => ({
+        label: region,
+        color: REGION_COLORS[i % REGION_COLORS.length],
+      }))
+    } else {
+      const groups = selectedCampType === 'all' ? CAMP_TYPES : [selectedCampType];
+      return groups.map((campType, i) => ({
+        label: campType,
+        color: CAMP_COLORS[i % CAMP_COLORS.length],
+      }))
+    }
+  }, [regions, selectedRegion, selectedCampType, byRegion])
 
   const chartConfig = useMemo(() => {
     return Object.fromEntries(
-      activeRegions.map((region, i) => [region, { label: region, color: REGION_COLORS[i % REGION_COLORS.length] }]),
+      chartLines.map(meta => [meta.label, meta]),
     ) as ChartConfig
-  }, [activeRegions])
+  }, [chartLines])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.asylumSeekersCamps')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
@@ -84,14 +142,38 @@ export function AsylumSeekersCampsDetails({
             </div>
             {subtitle && <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>}
           </div>
-          <select
-            className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
-            value={selectedRegion}
-            onChange={e => setSelectedRegion(e.target.value)}
-          >
-            <option value="all">{t('statistics.allRegions')}</option>
-            {regions.map(r => <option key={r} value={r}>{r}</option>)}
-          </select>
+
+          <div className="flex gap-2">
+            <select
+              className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
+              value={byRegion.toString()}
+              onChange={e => {
+                const value = e.target.value;
+                setByRegion(value === 'true');
+              }}
+            >
+              <option value="true">{t('statistics.byRegion')}</option>
+              <option value="false">{t('statistics.byTypeOfCamp')}</option>
+            </select>
+
+            <select
+              className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
+              value={selectedCampType}
+              onChange={e => setSelectedCampType(e.target.value)}
+            >
+              <option value="all">{t('statistics.allTypes')}</option>
+              {CAMP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+
+            <select
+              className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
+              value={selectedRegion}
+              onChange={e => setSelectedRegion(e.target.value)}
+            >
+              <option value="all">{t('statistics.allRegions')}</option>
+              {regions.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
         </div>
 
         {/* Card body */}
@@ -133,12 +215,12 @@ export function AsylumSeekersCampsDetails({
               <YAxis />
               <Tooltip content={<ChartTooltipContent />} />
               <Legend content={<ChartLegendContent />} />
-              {activeRegions.map((region, i) => (
+              {chartLines.map(meta => (
                 <Line
-                  key={region}
+                  key={meta.label}
                   type="monotone"
-                  dataKey={region}
-                  stroke={REGION_COLORS[i % REGION_COLORS.length]}
+                  dataKey={meta.label}
+                  stroke={meta.color}
                   dot={false}
                 />
               ))}

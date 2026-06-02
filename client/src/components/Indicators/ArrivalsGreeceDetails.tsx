@@ -341,7 +341,7 @@ export function ArrivalsGreeceDetails({
                     rel="noopener noreferrer"
                     className="underline transition-colors hover:text-gray-800"
                   >
-                    {customText.source}
+                    {customText.sourceText || customText.source}
                   </a>
                 </>
               )}

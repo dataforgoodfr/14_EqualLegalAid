@@ -141,7 +141,7 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
                   rel="noopener noreferrer"
                   className="underline hover:text-gray-800 transition-colors"
                 >
-                  {customText.source}
+                  {customText.sourceText || customText.source}
                 </a>
               </span>
             )}

@@ -78,7 +78,7 @@ export function AsylumSeekersCampsDetails({
     // Aggregate by date
     const map = new Map<string, Record<string, number>>()
     for (const r of filtered) {
-      const key = r.date.slice(0, 7) // YYYY-MM
+      const key = `${r.year}-${r.month}`
       const entry = map.get(key) ?? {}
 
       // Because some records are labeled as multiple camp types,

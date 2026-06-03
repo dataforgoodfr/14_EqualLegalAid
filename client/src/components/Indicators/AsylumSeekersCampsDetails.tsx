@@ -18,7 +18,7 @@ const CAMP_COLORS = [
 const CAMP_TYPES = [
   "CCAC",
   "RIC",
-  "Sites",
+  "Site",
   "ESTIA"
 ]
 
@@ -26,8 +26,7 @@ const CAMP_TYPES = [
 // but the camp type is always the first word in the string.
 // So we split on spaces and take the first word as the camp type.
 function isCampType(record: AsylumSeekersCampsRecord, campType: string): boolean {
-  let type = record.area.split(' ')[0];
-  return type.toLowerCase().includes(campType.toLowerCase())
+  return record.type.includes(campType)
 }
 
 export function AsylumSeekersCampsDetails({

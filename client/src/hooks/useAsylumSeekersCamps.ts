@@ -7,6 +7,7 @@ export interface AsylumSeekersCampsRecord {
   year: number
   month: number
   asylum_seekers: number
+  type: string
   area: string
   region: string
   location: string
@@ -49,6 +50,7 @@ export function useAsylumSeekersCamps() {
         // asylum_seekers is stored as a STRING in Airtable
         asylum_seekers: toNum(r.fields['asylum_seekers']),
         area: toStr(r.fields['area']),
+        type: toStr(r.fields['type']),
         region: toStr(r.fields['region']),
         location: toStr(r.fields['location']),
       }))

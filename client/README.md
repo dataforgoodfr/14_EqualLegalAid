@@ -41,10 +41,6 @@ Most of the following extensions are used to keep the unity of the formatting ru
 
 Then, to make use the VS code configuration of this project, you should open VS Code on the root folder (not on the client sub-folder).
 
-To do so, you can run the command `code .` from the root directory (on Linux).
-
-Or, you can create a link of the folder `.vscode` and put it in `client` and `client/src`, allowing you to keep the same configuration even if you open vs code in a sub folder ( for a cleaner view in the file explorer ).
-
 ## Running the App
 
 Start the development server :
@@ -80,6 +76,14 @@ git push origin name_of_the_new_branch
 # Finally, make a pull request to ask reviewers to fusion your code with the main branch
 gh pr create --base main --head my-feature-branch --title "Add new feature" --body "This PR adds the new feature." --reviewer reviewer-name
 ```
+
+## List of actions needed to add a new sub-page (ex : a new indicator)
+- add the tab name on a new line of the table Indicators_custom_texts in AirTable
+- add the tab name in el.json and en.json
+- create a new page and put it in page folder
+- add this page in page/index.ts
+- add the corresponding router in main.tsx
+- add the corresponding labels in StatisticLayoutPage
 
 # Run the code through the docker
 TODO

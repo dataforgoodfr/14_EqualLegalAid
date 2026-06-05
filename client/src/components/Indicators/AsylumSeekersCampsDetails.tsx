@@ -40,8 +40,6 @@ export function AsylumSeekersCampsDetails({
   error: string | null
   customText?: IndicatorCustomText | null
 }) {
-  console.log(records);
-
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
 
@@ -92,8 +90,25 @@ export function AsylumSeekersCampsDetails({
     }
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, values]) => ({ date, ...values }))
+      .map(([date, values]) => ({ date, ...values })) as ({ date: string } & Record<string, number>)[]
   }, [records, selectedRegion, selectedCampType, byRegion])
+
+  const keyFigure = useMemo(() => {
+    if (chartData.length == 0) {
+      return null;
+    } else {
+      const mostRecentData = chartData[chartData.length - 1];
+      console.log("most recent:");
+      console.log(mostRecentData);
+      const total = regions.reduce((sum, region) => {
+        return sum + (mostRecentData[region] ?? 0);
+      }, 0);
+      return {
+        total,
+        date: mostRecentData.date,
+      }
+    }
+  }, [chartData])
 
   // Line label/key and color information.
   const chartLines = useMemo(() => {
@@ -190,20 +205,19 @@ export function AsylumSeekersCampsDetails({
               </div>
             )}
 
-            {/* TODO */}
-            {/* {mostRecentData && ( */}
-            {/*   <div className="rounded-lg border border-gray-200 p-5"> */}
-            {/*     {subtitle && ( */}
-            {/*       <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p> */}
-            {/*     )} */}
-            {/*     <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums"> */}
-            {/*       {mostRecentData.first_time_applicants} */}
-            {/*     </p> */}
-            {/*     <p className="text-sm text-gray-600 mt-2"> */}
-            {/*       {t('statistics.firstTimeApplicantsLabel')} in {mostRecentData.year} */}
-            {/*     </p> */}
-            {/*   </div> */}
-            {/* )} */}
+            {keyFigure && (
+              <div className="rounded-lg border border-gray-200 p-5">
+                {subtitle && (
+                  <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p>
+                )}
+                <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
+                  {Number(keyFigure.total).toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  In {keyFigure.date}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Line chart */}

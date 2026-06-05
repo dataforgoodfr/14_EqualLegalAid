@@ -7,6 +7,7 @@ import { aggregateDecisionsByYear } from '@/hooks/useProtectionDecisions'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
+import { ProtectionRateLineChart } from '@/components/Indicators'
 import { useTranslation } from 'react-i18next'
 
 const GRANTED_COLOR = '#3F9FD8'
@@ -41,11 +42,11 @@ function TreeRow({
         <span className="flex items-center gap-1">
           {expandable && (
             expanded
-              ? <ChevronDown size={14} className="text-gray-400 flex-shrink-0" />
-              : <ChevronRight size={14} className="text-gray-400 flex-shrink-0" />
+              ? <ChevronDown size={14} className="flex-shrink-0 text-gray-400" />
+              : <ChevronRight size={14} className="flex-shrink-0 text-gray-400" />
           )}
           {!expandable && depth > 0 && <span className="w-[14px] flex-shrink-0" />}
-          <span className={depth === 0 ? 'font-semibold text-gray-800' : 'text-gray-600 text-sm'}>
+          <span className={depth === 0 ? 'font-semibold text-gray-800' : 'text-sm text-gray-600'}>
             {label}
           </span>
         </span>
@@ -106,12 +107,12 @@ function DecisionsContent({
         </select>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
 
         {/* Tree table */}
-        <div className="lg:col-span-3 overflow-x-auto rounded-lg border border-gray-200">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 lg:col-span-3">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
+            <thead className="bg-gray-50 text-xs tracking-wide text-gray-600 uppercase">
               <tr>
                 <th className="px-4 py-2 text-left">{t('statistics.decisionType')}</th>
                 <th className="px-4 py-2 text-right">{t('statistics.count')}</th>
@@ -205,7 +206,7 @@ function DecisionsContent({
         </div>
 
         {/* Donut panel */}
-        <div className="lg:col-span-2 flex flex-col items-center justify-start gap-4">
+        <div className="flex flex-col items-center justify-start gap-4 lg:col-span-2">
           <ChartContainer config={{}} className="h-52 w-full">
             <PieChart>
               <Pie
@@ -221,13 +222,13 @@ function DecisionsContent({
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => (value != null ? Number(value).toLocaleString() : '')} />
+              <Tooltip formatter={value => (value != null ? Number(value).toLocaleString() : '')} />
             </PieChart>
           </ChartContainer>
           <div className="w-full space-y-2 px-2">
             {donutData.map(d => (
               <div key={d.name} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
                 <span className="text-sm text-gray-700">{d.name}</span>
                 <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString()}</span>
               </div>
@@ -263,7 +264,7 @@ export function ProtectionDecisionsDetails({
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
   return (
-    <div className="mx-auto max-w-5xl my-6">
+    <div className="mx-auto my-6 max-w-5xl">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
@@ -285,7 +286,7 @@ export function ProtectionDecisionsDetails({
 
           {/* Explanatory text */}
           {(explanatoryTitle || explanatoryText) && (
-            <div className="rounded-lg bg-gray-50 px-4 py-4 space-y-1.5">
+            <div className="space-y-1.5 rounded-lg bg-gray-50 px-4 py-4">
               {explanatoryTitle && (
                 <h3 className="text-sm font-semibold" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
               )}
@@ -296,21 +297,31 @@ export function ProtectionDecisionsDetails({
           )}
         </div>
 
+        <div className="space-y-6 p-6">
+          <ProtectionRateLineChart />
+        </div>
+
         {/* Card footer */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
             {customText.source && (
               <span>
-                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                <span className="font-medium text-gray-600">
+                  {t('statistics.source')}
+                  :
+                </span>
                 {' '}
-                <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-800 transition-colors">
+                <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline transition-colors hover:text-gray-800">
                   {customText.source}
                 </a>
               </span>
             )}
             {customText.last_updated_on && (
               <span>
-                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                <span className="font-medium text-gray-600">
+                  {t('statistics.lastUpdated')}
+                  :
+                </span>
                 {' '}
                 {customText.last_updated_on}
               </span>

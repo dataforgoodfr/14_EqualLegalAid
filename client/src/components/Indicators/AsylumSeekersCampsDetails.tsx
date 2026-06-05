@@ -1,26 +1,34 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
-import type { AsylumSeekersCampsRecord } from '@/hooks/useAsylumSeekersCamps'
+import type { AsylumCampRecord, AsylumSeekersCampsRecord } from '@/hooks/useAsylumSeekersCamps'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
+import maplibregl, { type ExpressionSpecification } from 'maplibre-gl'
+import layersFn from 'protomaps-themes-base'
+import 'maplibre-gl/dist/maplibre-gl.css'
+
+const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
 const REGION_COLORS = [
   '#04356C', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
   '#7C3AED', '#A78BFA', '#B45309', '#D97706', '#065F46', '#059669',
-]
-const CAMP_COLORS = [
-  '#0000b8', '#0170b9', '#0090ff', '#d5d5d5'
 ]
 const CAMP_TYPES = [
   "CCAC",
   "RIC",
   "Site",
   "ESTIA"
-]
+] as const
+const CAMP_COLORS: Record<string, string> = {
+  'CCAC': '#0000b8',
+  'RIC': '#0170b9',
+  'Site': '#0090ff',
+  'ESTIA': '#d5d5d5',
+}
 
 // Camp types are specified in a string with additional data,
 // but the camp type is always the first word in the string.
@@ -29,19 +37,38 @@ function isCampType(record: AsylumSeekersCampsRecord, campType: string): boolean
   return record.type.includes(campType)
 }
 
+const convertToGeoJSON = (arr: AsylumCampRecord[]) => ({
+  type: 'FeatureCollection' as const,
+  features: arr.map((item) => ({
+    type: 'Feature' as const,
+    properties: { name: item.name, type: item.type },
+    geometry: {
+      type: 'Point' as const,
+
+      // Note: MapLibre uses [lng, lat]
+      coordinates: [item.longitude, item.latitude]
+    }
+  }))
+});
+
 export function AsylumSeekersCampsDetails({
   records,
+  locations,
   loading,
   error,
   customText,
 }: {
   records: AsylumSeekersCampsRecord[]
+  locations: AsylumCampRecord[]
   loading: boolean
   error: string | null
   customText?: IndicatorCustomText | null
 }) {
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<maplibregl.Map | null>(null)
 
   const [selectedRegion, setSelectedRegion] = useState<string>('all')
   const [selectedCampType, setSelectedCampType] = useState<string>('all')
@@ -98,8 +125,6 @@ export function AsylumSeekersCampsDetails({
       return null;
     } else {
       const mostRecentData = chartData[chartData.length - 1];
-      console.log("most recent:");
-      console.log(mostRecentData);
       const total = regions.reduce((sum, region) => {
         return sum + (mostRecentData[region] ?? 0);
       }, 0);
@@ -120,9 +145,9 @@ export function AsylumSeekersCampsDetails({
       }))
     } else {
       const groups = selectedCampType === 'all' ? CAMP_TYPES : [selectedCampType];
-      return groups.map((campType, i) => ({
+      return groups.map(campType => ({
         label: campType,
-        color: CAMP_COLORS[i % CAMP_COLORS.length],
+        color: CAMP_COLORS[campType]
       }))
     }
   }, [regions, selectedRegion, selectedCampType, byRegion])
@@ -132,6 +157,107 @@ export function AsylumSeekersCampsDetails({
       chartLines.map(meta => [meta.label, meta]),
     ) as ChartConfig
   }, [chartLines])
+
+  // Map init (once)
+  useEffect(() => {
+    // - Wait until container and locations are ready;
+    // - Don't re-run if the map is already setup;
+    if (!containerRef.current || locations.length == 0 || mapRef.current) return
+
+    const style: any = {
+      version: 8,
+      glyphs: 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf',
+      sprite: 'https://protomaps.github.io/basemaps-assets/sprites/v4/light',
+      sources: {
+        protomaps: {
+          type: 'vector',
+          tiles: [`https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=${PROTOMAP_KEY}`],
+          maxzoom: 15,
+          attribution: '© <a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
+        },
+      },
+      layers: layersFn('protomaps', 'light', 'en'),
+    }
+
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style,
+      center: [23.5, 38.5],
+      zoom: 4.8,
+      attributionControl: false,
+    })
+    mapRef.current = map
+
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right')
+    map.addControl(new maplibregl.NavigationControl(), 'top-left')
+    map.on('error', e => console.error(e.error))
+
+    const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 })
+
+    map.on('load', () => {
+      map.resize()
+      map.addSource('points-source', {
+        type: 'geojson',
+        data: convertToGeoJSON(locations),
+        generateId: true
+      });
+
+      const layers = map.getStyle().layers
+      // Find the index of the first symbol layer in the map style to put the new layers below it
+      // https://maplibre.org/maplibre-gl-js/docs/examples/add-a-new-layer-below-labels/
+      let firstSymbolId
+      for (let i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol') {
+          firstSymbolId = layers[i].id
+          break
+        }
+      }
+
+      const fallbackColor = "#aaaaaa";
+      const circleColorExpression = [
+        'match',
+        ['get', 'type'],
+        ...Object.entries(CAMP_COLORS).flat(),
+        fallbackColor
+      ] as unknown as ExpressionSpecification;
+
+      map.addLayer({
+        id: 'points-circle',
+        type: 'circle',
+        source: 'points-source',
+        paint: {
+          'circle-radius': 6,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff',
+          'circle-color': circleColorExpression,
+        }
+      }, firstSymbolId);
+
+      map.on('mousemove', 'points-circle', (e) => {
+        if (!e.features?.length) return
+        map.getCanvas().style.cursor = 'pointer'
+        const name = e.features[0].properties?.name as string | undefined
+        if (!name) return
+        popup
+          .setHTML(`
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">${name}</div>
+          `)
+          .setLngLat(e.lngLat)
+          .addTo(map)
+      });
+
+      map.on('mouseleave', 'points-circle', () => {
+        map.getCanvas().style.cursor = ''
+        popup.remove()
+      })
+    })
+
+    return () => {
+      popup.remove()
+      map.remove()
+      mapRef.current = null
+    }
+  }, [locations])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.asylumSeekersCamps')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
@@ -219,25 +345,57 @@ export function AsylumSeekersCampsDetails({
             )}
           </div>
 
-          {/* Line chart */}
-          <ChartContainer config={chartConfig} className="h-80 w-full">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tickFormatter={d => d.slice(0, 7)} />
-              <YAxis />
-              <Tooltip content={<ChartTooltipContent />} />
-              <Legend content={<ChartLegendContent />} />
-              {chartLines.map(meta => (
-                <Line
-                  key={meta.label}
-                  type="monotone"
-                  dataKey={meta.label}
-                  stroke={meta.color}
-                  dot={false}
-                />
-              ))}
-            </LineChart>
-          </ChartContainer>
+          {/* Map */}
+          <div className="flex gap-4" style={{ height: 360 }}>
+            <div className="relative basis-1/3 max-w-[33.333%] overflow-hidden rounded-lg border border-gray-200">
+              <div ref={containerRef} className="h-full w-full" />
+              {loading && (
+                <div className="text-muted-foreground absolute inset-0 flex items-center justify-center bg-white/70 text-sm">
+                  {t('loadingData')}
+                </div>
+              )}
+              {error && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/90 p-4">
+                  <ErrorMessage message={error} onRetry={() => window.location.reload()} />
+                </div>
+              )}
+
+              {/* Key */}
+              <div className="absolute bottom-5 left-5 bg-white p-2.5 rounded-[4px] text-xs z-10">
+                {Object.entries(CAMP_COLORS).map(([type, color]) => (
+                  <div key={type} className="flex items-center mb-1">
+                    <span
+                      className="inline-block w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: color }}
+                    />
+                    {type}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Line chart */}
+            <div className="w-64 flex-1 min-w-0 overflow-y-auto rounded-lg border border-gray-200 p-4">
+              <ChartContainer config={chartConfig} className="h-80 w-full">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tickFormatter={d => d.slice(0, 7)} />
+                  <YAxis />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Legend content={<ChartLegendContent />} />
+                  {chartLines.map(meta => (
+                    <Line
+                      key={meta.label}
+                      type="monotone"
+                      dataKey={meta.label}
+                      stroke={meta.color}
+                      dot={false}
+                    />
+                  ))}
+                </LineChart>
+              </ChartContainer>
+            </div>
+          </div>
 
         </div>
 

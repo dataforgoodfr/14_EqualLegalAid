@@ -154,7 +154,6 @@ export function AsylumSeekersCampsDetails({
               <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
               <IndicatorInfoButton text={information} />
             </div>
-            {subtitle && <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>}
           </div>
 
           <div className="flex gap-2">

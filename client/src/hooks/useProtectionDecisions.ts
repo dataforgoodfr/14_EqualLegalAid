@@ -19,6 +19,7 @@ export interface FirstInstanceRecord {
   exclusion_from_refugee_status: number
   subsequent_applications: number
   filling_cases_decisions: number
+  protection_rate: number
 }
 
 export interface SecondInstanceRecord {
@@ -52,6 +53,11 @@ export interface DecisionsYearly {
   total: number
 }
 
+export interface ProtectionRatePerMonthRecord {
+  protection_rate: number
+  display_date: string
+}
+
 const toNum = (v: unknown): number => {
   if (typeof v === 'number') return v
   if (typeof v === 'string') {
@@ -71,7 +77,7 @@ export function useProtectionDecisions() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchRecords = useCallback(async () => {
+  const fetchRecords = useCallback(async() => {
     try {
       setLoading(true)
       setError(null)
@@ -107,10 +113,10 @@ export function useProtectionDecisions() {
         negative_accelerated: toNum(r.fields['negative_after_examination_under_accelerated_procedure']),
         border_procedure: toNum(r.fields['border_procedure']),
         dublin_regulation: toNum(r.fields['dublin_regulation']),
-        // field name has a space: "exclusion_from_ refugee_status"
-        exclusion_from_refugee_status: toNum(r.fields['exclusion_from_ refugee_status']),
+        exclusion_from_refugee_status: toNum(r.fields['exclusion_from_refugee_status']),
         subsequent_applications: toNum(r.fields['subsequent_applications']),
         filling_cases_decisions: toNum(r.fields['filling_cases_decisions']),
+        protection_rate: toNum(r.fields['protection_rate']),
       }))
 
       const parsedSecond: SecondInstanceRecord[] = rawSecond.map(r => ({
@@ -130,7 +136,7 @@ export function useProtectionDecisions() {
       setFirstInstance(parsedFirst)
       setSecondInstance(parsedSecond)
     }
-    catch (err: unknown) {
+    catch(err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch protection decisions data')
     }
     finally {
@@ -194,4 +200,13 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
     }
   }
   return Array.from(map.values()).sort((a, b) => a.year - b.year)
+}
+
+export function protectionRatePerMonth(records: FirstInstanceRecord[]): ProtectionRatePerMonthRecord[] {
+  return records.map((r) => {
+    return {
+      protection_rate: r.protection_rate,
+      display_date: `${r.year} / ${r.month}`,
+    }
+  })
 }

@@ -2,8 +2,7 @@ import { useState, useMemo } from 'react'
 import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
-import type { FirstInstanceRecord, SecondInstanceRecord } from '@/hooks/useProtectionDecisions'
-import { aggregateDecisionsByYear } from '@/hooks/useProtectionDecisions'
+import { aggregateDecisionsByYear, protectionRatePerMonth, type FirstInstanceRecord, type SecondInstanceRecord } from '@/hooks'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
@@ -298,7 +297,7 @@ export function ProtectionDecisionsDetails({
         </div>
 
         <div className="space-y-6 p-6">
-          <ProtectionRateLineChart />
+          <ProtectionRateLineChart records={protectionRatePerMonth(firstInstance)} />
         </div>
 
         {/* Card footer */}

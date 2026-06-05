@@ -14,4 +14,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('maplibre-gl')) return 'maplibre'
+          if (id.includes('protomaps-themes-base')) return 'protomaps'
+          if (id.includes('node_modules')) return 'vendor'
+        },
+      },
+    },
+  },
 })

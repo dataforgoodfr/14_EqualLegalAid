@@ -8,6 +8,7 @@ import { FilterSearch } from '@/components/Filter'
 import type { BasicValuesInterface, AirtableBaseNameEnum } from '@/types'
 import { useAppDispatch } from '@/hooks/reduxHook'
 import { setFilterTag } from '@/redux/filtersSlice'
+import { useTranslation } from 'react-i18next'
 interface BasicFilterItemProps {
   enabledSearch?: boolean
   searchPlaceholder?: string
@@ -26,8 +27,13 @@ export const BasicFilterItem = ({
   onFilterChange,
 }: BasicFilterItemProps) => {
   const dispatch = useAppDispatch()
+  const { i18n } = useTranslation()
+  const isGreek = i18n.language === 'el'
+  const getItemName = (item: BasicValuesInterface) =>
+    isGreek ? (item.fields.Name_GR || item.fields.Name_EN) : item.fields.Name_EN
+
   const handleFilterChange = (id: string, name: string, checked: boolean) => {
-    onFilterChange(id, checked as boolean)
+    onFilterChange(id, checked)
     dispatch(setFilterTag({
       item: {
         filterStateName: airtableBaseName,
@@ -38,9 +44,9 @@ export const BasicFilterItem = ({
     }))
   }
   return (
-    <div className="filter-item p-2">
+    <div className="filter-item rounded-md border-gray-200 bg-white xl:p-2">
       {enabledSearch && (
-        <div className="filter-item__search my-4">
+        <div>
           <FilterSearch
             placeholderContent={searchPlaceholder}
             airtableBaseName={airtableBaseName}
@@ -48,7 +54,7 @@ export const BasicFilterItem = ({
         </div>
       )}
 
-      <div className="filter-item__content py-2">
+      <div className="filter-item__content borde rounded-md">
         <FieldGroup>
           {items.map(item => (
             <Field
@@ -60,16 +66,14 @@ export const BasicFilterItem = ({
                 <Checkbox
                   id={item.id}
                   name={item.id}
-                  className="mr-3"
+                  className="rounded-0 mr-3"
                   checked={selectedIds.includes(item.id)}
-                  onCheckedChange={checked => handleFilterChange(item.id, item.fields.Name_EN, checked as boolean)}
+                  onCheckedChange={checked => handleFilterChange(item.id, getItemName(item), checked as boolean)}
                 />
                 <Label htmlFor={item.id}>
-                  {item.fields.Name_EN}
+                  {getItemName(item)}
                 </Label>
               </div>
-
-              <p>{String(item.fields.Count_Caselaws)}</p>
             </Field>
           ))}
         </FieldGroup>

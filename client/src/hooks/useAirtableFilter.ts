@@ -5,8 +5,22 @@ import {
 } from '@/types'
 import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
-import { setApplicationTypesFilter, setAsylumProceduresFilter, setCountriesFilter, setLegalProcedureTypesFilter, setOutcomesFilter } from '@/redux/filtersSlice'
+import {
+  setApplicationTypesFilter,
+  setAsylumProceduresFilter,
+  setAuthoritiesFilter,
+  setVulnerabilityFilter,
+  setGroundOfPersecutionFilter,
+  setLegalAndProceduralIssuesFilter,
+  setHouseholdIndividualStatusFilter,
+  setCountriesFilter,
+  setKeywordsFilter,
+  setLegalProcedureTypesFilter,
+  setOutcomesFilter,
+  setSubCategoriesFilter,
+} from '@/redux/filtersSlice'
 import { useAppDispatch, useAppSelector } from './reduxHook'
+import { useTranslation } from 'react-i18next'
 
 export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[] =>
   records.map(record => ({
@@ -17,6 +31,8 @@ export const toBasicValues = (records: AirtableRecord[]): BasicValuesInterface[]
 export const useAirtableFilter = () => {
   const airtableService = useAirtableService()
   const dispatch = useAppDispatch()
+  const { i18n } = useTranslation()
+  const isGreek = i18n.language === 'el'
 
   const searchInGivenFilter = useAppSelector(
     state => state.filters.searchInGivenFilter,
@@ -25,6 +41,16 @@ export const useAirtableFilter = () => {
   const [loadingFilterRecords, setLoadingFilterRecords] = useState(true)
   const [errorFilterRecords, setErrorFilterRecords] = useState<string | null>(null)
   const [readyToUserSearchInFilter, setReadyToUserSearchInFilter] = useState(false)
+
+  const hasCountCaselaws = (tableName: AirtableBaseNameEnum): boolean =>
+    [
+      AirtableBaseNameEnum.Countries,
+      AirtableBaseNameEnum.Outcomes,
+      AirtableBaseNameEnum.LegalProcedureTypes,
+      AirtableBaseNameEnum.ApplicationTypes,
+      AirtableBaseNameEnum.AsylumProcedures,
+      AirtableBaseNameEnum.Authorities,
+    ].includes(tableName)
 
   const fetchFilterRecords = useCallback(async() => {
     if (filterFetched) return
@@ -37,17 +63,28 @@ export const useAirtableFilter = () => {
         AirtableBaseNameEnum.LegalProcedureTypes,
         AirtableBaseNameEnum.ApplicationTypes,
         AirtableBaseNameEnum.AsylumProcedures,
+        AirtableBaseNameEnum.Authorities,
+        AirtableBaseNameEnum.Categories,
+        AirtableBaseNameEnum.SubCategories,
+        AirtableBaseNameEnum.Keywords,
       ]
       const results = await Promise.all(
         entries.map(async(tableName) => {
           try {
+            const selectConfig: any = {
+              cellFormat: 'json',
+            }
+
+            if (hasCountCaselaws(tableName)) {
+              selectConfig.filterByFormula = 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
+              selectConfig.sort = tableName === AirtableBaseNameEnum.Countries
+                ? [{ field: 'Name_EN', direction: 'asc' }]
+                : [{ field: 'Count_Caselaws', direction: 'desc' }]
+            }
+
             const records = await airtableService.fetchRecordsFromTable({
               tableName,
-              selectConfig: {
-                cellFormat: 'json',
-                filterByFormula: 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)',
-                sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
-              },
+              selectConfig,
             })
             return { label: tableName, value: records, available: true }
           }
@@ -62,7 +99,10 @@ export const useAirtableFilter = () => {
       const legalProcedureTypesResult = results.find(r => r.label === AirtableBaseNameEnum.LegalProcedureTypes)
       const applicationTypesResult = results.find(r => r.label === AirtableBaseNameEnum.ApplicationTypes)
       const asylumProceduresResult = results.find(r => r.label === AirtableBaseNameEnum.AsylumProcedures)
-
+      const authoritiesResult = results.find(r => r.label === AirtableBaseNameEnum.Authorities)
+      const categoriesResult = results.find(r => r.label === AirtableBaseNameEnum.Categories)
+      const subCategoriesResult = results.find(r => r.label === AirtableBaseNameEnum.SubCategories)
+      const keywordsResult = results.find(r => r.label === AirtableBaseNameEnum.Keywords)
       if (countriesResult) dispatch(setCountriesFilter({
         ...countriesResult,
         value: toBasicValues(countriesResult.value),
@@ -83,6 +123,42 @@ export const useAirtableFilter = () => {
         ...asylumProceduresResult,
         value: toBasicValues(asylumProceduresResult.value),
       }))
+      if (authoritiesResult) dispatch(setAuthoritiesFilter({
+        ...authoritiesResult,
+        value: toBasicValues(authoritiesResult.value),
+      }))
+      if (categoriesResult) {
+        const categoriesArray = categoriesResult.value
+
+        const vulnerability: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Vulnerability')
+        const groundOfPersecution: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Ground of persecution')
+        const householdIndividualStatus: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Household/Individual status')
+        const legalProceduralIssues: AirtableRecord | undefined = categoriesArray.find(c => c.fields.Name_EN === 'Legal and procedural issues')
+
+        dispatch(setVulnerabilityFilter({
+          label: AirtableBaseNameEnum.Vulnerability,
+          value: vulnerability ? [vulnerability] : [],
+          available: vulnerability ? true : false,
+        }))
+        dispatch(setGroundOfPersecutionFilter({
+          label: AirtableBaseNameEnum.GroundOfPersecution,
+          value: groundOfPersecution ? [groundOfPersecution] : [],
+          available: groundOfPersecution ? true : false,
+        }))
+        dispatch(setLegalAndProceduralIssuesFilter({
+          label: AirtableBaseNameEnum.LegalAndProceduralIssues,
+          value: legalProceduralIssues ? [legalProceduralIssues] : [],
+          available: legalProceduralIssues ? true : false,
+        }))
+        dispatch(setHouseholdIndividualStatusFilter({
+          label: AirtableBaseNameEnum.HouseholdIndividualStatus,
+          value: householdIndividualStatus ? [householdIndividualStatus] : [],
+          available: householdIndividualStatus ? true : false,
+        }))
+      }
+      if (subCategoriesResult) dispatch(setSubCategoriesFilter(subCategoriesResult))
+
+      if (keywordsResult) dispatch(setKeywordsFilter(keywordsResult))
       setFilterFetched(true)
     }
     catch(err: unknown) {
@@ -96,7 +172,8 @@ export const useAirtableFilter = () => {
 
   const fetchFilterRecordsForSpecificUserSearch = useCallback(async() => {
     const { value, airtableBaseName } = searchInGivenFilter
-    const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({Name_EN})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
+    const searchField = isGreek ? 'Name_GR' : 'Name_EN'
+    const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({${searchField}})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
 
     try {
       setLoadingFilterRecords(true)
@@ -106,7 +183,9 @@ export const useAirtableFilter = () => {
         selectConfig: {
           cellFormat: 'json',
           filterByFormula,
-          sort: [{ field: 'Count_Caselaws', direction: 'desc' }],
+          sort: airtableBaseName === AirtableBaseNameEnum.Countries
+            ? [{ field: 'Name_EN', direction: 'asc' }]
+            : [{ field: 'Count_Caselaws', direction: 'desc' }],
         },
       })
 
@@ -132,6 +211,9 @@ export const useAirtableFilter = () => {
         case AirtableBaseNameEnum.AsylumProcedures:
           dispatch(setAsylumProceduresFilter(formattedFilter))
           break
+        case AirtableBaseNameEnum.Authorities:
+          dispatch(setAuthoritiesFilter(formattedFilter))
+          break
       }
     }
     catch(err: unknown) {
@@ -141,7 +223,7 @@ export const useAirtableFilter = () => {
     finally {
       setLoadingFilterRecords(false)
     }
-  }, [airtableService, dispatch, searchInGivenFilter])
+  }, [airtableService, dispatch, searchInGivenFilter, isGreek])
 
   useEffect(() => {
     fetchFilterRecords()

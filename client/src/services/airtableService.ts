@@ -2,26 +2,8 @@ import type { Base, Records, FieldSet } from 'airtable'
 import type {
   AirtableRecord,
   AirtableFieldValue,
-  AirtableBaseName,
+  FetchRecordsFromTableConfig,
 } from '@/types'
-
-interface FetchRecordsFromTableConfig {
-  tableName: AirtableBaseName
-  selectConfig?: {
-    maxRecords?: number
-    pageSize?: number
-    userLocale?: 'en-us' | 'el-GR'
-    cellFormat?: 'json' | 'string'
-    timeZone?: string
-    view?: string
-    fields?: string[]
-    filterByFormula?: string
-    sort?: Array<{
-      field: string
-      direction?: 'asc' | 'desc'
-    }>
-  }
-}
 
 export function createAirtableService(base: Base) {
   async function fetchRecordsFromTable({
@@ -29,16 +11,20 @@ export function createAirtableService(base: Base) {
     selectConfig,
   }: FetchRecordsFromTableConfig): Promise<AirtableRecord[]> {
     const fetchedRecords: AirtableRecord[] = []
+    const selectOptions = {
+      pageSize: selectConfig?.pageSize ?? 100,
+      cellFormat: selectConfig?.cellFormat ?? 'string',
+      timeZone: selectConfig?.timeZone ?? 'UTC',
+      userLocale: selectConfig?.userLocale ?? 'en-us',
+      filterByFormula: selectConfig?.filterByFormula ?? '',
+      sort: selectConfig?.sort ?? [],
+      ...(selectConfig?.fields ? { fields: selectConfig.fields } : {}),
+      ...(selectConfig?.view ? { view: selectConfig.view } : {}),
+      ...(selectConfig?.maxRecords !== undefined ? { maxRecords: selectConfig.maxRecords } : {}),
+    }
+
     await base(tableName)
-      .select({
-        maxRecords: selectConfig?.maxRecords ?? 100,
-        pageSize: selectConfig?.pageSize ?? 100,
-        cellFormat: selectConfig?.cellFormat ?? 'string',
-        timeZone: selectConfig?.timeZone ?? 'UTC',
-        userLocale: selectConfig?.userLocale ?? 'en-us',
-        filterByFormula: selectConfig?.filterByFormula ?? '',
-        sort: selectConfig?.sort ?? [],
-      })
+      .select(selectOptions)
       .eachPage((records: Records<FieldSet>, fetchNextPage: () => void) => {
         records.forEach((record) => {
           fetchedRecords.push({

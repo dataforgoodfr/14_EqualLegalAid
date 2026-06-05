@@ -4,7 +4,8 @@ import type {
   AirtableFieldValue,
   AirtableRecord,
   Caselaw,
-} from '../types'
+  PdfObjectInterface,
+} from '@/types'
 
 /**
  * Checks if a value is a PDF URL
@@ -108,17 +109,50 @@ export const toCaselaw = (record: AirtableRecord): Caselaw => {
     .map(k => k.trim())
     .filter(Boolean)
 
+  const getPdfObject = (pdflink: string): PdfObjectInterface => {
+    const parts = pdflink.split(' (')
+
+    if (parts.length !== 2) {
+      return {
+        pdfFileName: '',
+        pdfURL: '',
+      }
+    }
+
+    const pdfFileName = parts[0].trim()
+    const pdfURL = parts[1].replace(')', '').trim()
+
+    return {
+      pdfFileName,
+      pdfURL,
+    }
+  }
+  const grStr = (grKey: string, enFallback: string): string =>
+    str(grKey) || enFallback
+
+  const keywords_GR = (str('Keywords_GR') || str('Keywords'))
+    .split(',')
+    .map(k => k.trim())
+    .filter(Boolean)
+
   return {
     title: str('Title'),
     publishedAt: str('PublishedAt') ? new Date(str('PublishedAt')) : new Date(),
-    applicationTypes: str('ApplicationTypes'),
-    legalProcedureTypes: str('LegalProcedureTypes'),
+    applicationTypes: str('ApplicationType'),
+    applicationTypes_GR: grStr('ApplicationType_GR', str('ApplicationType')),
+    legalProcedureTypes: str('LegalProcedureType'),
+    legalProcedureTypes_GR: grStr('LegalProcedureType_GR', str('LegalProcedureType')),
     asylumProcedure: str('AsylumProcedure'),
+    asylumProcedure_GR: grStr('AsylumProcedure_GR', str('AsylumProcedure')),
     countryOfOrigin: str('CountryOfOrigin'),
+    countryOfOrigin_GR: grStr('CountryOfOrigin_GR', str('CountryOfOrigin')),
     competentCourtOrAuthority: str('CompetentCourtOrAuthority'),
+    competentCourtOrAuthority_GR: grStr('CompetentCourtOrAuthority_GR', str('CompetentCourtOrAuthority')),
     caselawOutcome: str('CaselawOutcome'),
+    caselawOutcome_GR: grStr('CaselawOutcome_GR', str('CaselawOutcome')),
     keywords,
-    englishPdfLink: str('EnglishPdfLink'),
-    greekPdfLink: str('GreekPdfLink'),
+    keywords_GR,
+    englishPdfLink: getPdfObject(str('English_Pdf')),
+    greekPdfLink: getPdfObject(str('Greek_Pdf')),
   }
 }

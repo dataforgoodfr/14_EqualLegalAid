@@ -178,6 +178,7 @@ export const useAirtableFilter = () => {
     try {
       setLoadingFilterRecords(true)
       setErrorFilterRecords(null)
+      const useAirtableOrder = [AirtableBaseNameEnum.Outcomes, AirtableBaseNameEnum.LegalProcedureTypes, AirtableBaseNameEnum.AsylumProcedures].includes(airtableBaseName)
       const records = await airtableService.fetchRecordsFromTable({
         tableName: airtableBaseName,
         selectConfig: {

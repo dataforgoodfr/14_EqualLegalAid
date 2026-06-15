@@ -5,6 +5,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { AirtableProvider } from '@/providers'
+import { store } from './redux/store.ts'
+import { Provider } from 'react-redux'
+import { HeaderComponent } from '@/components/Header'
+
 
 export function Layout({
   children,
@@ -24,7 +29,16 @@ export function Layout({
         <Links />
       </head>
       <body>
-        {children}
+        <Provider store={store}>
+          <AirtableProvider>
+            <div className="app mx-auto my-0 w-full xl:max-w-315">
+              <HeaderComponent />
+              <main className="main-content px-4 xl:px-0">
+                {children}
+              </main>
+            </div>
+          </AirtableProvider>
+        </Provider>
         <ScrollRestoration />
         <Scripts />
       </body>

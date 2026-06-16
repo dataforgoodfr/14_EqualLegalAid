@@ -1,10 +1,10 @@
-//import { DownloadCaselawProvider } from '@/context/'
+import { DownloadCaselawProvider } from '@/context/'
+import { CaselawPage } from '@/pages'
 
 export default function CaseLawWithProvider () {
   return (
-    <p>Coming from caselaw with provider</p>
-    //<DownloadCaselawProvider>
-    //  <CaselawPage/>
-    //</DownloadCaselawProvider>    
+    <DownloadCaselawProvider>
+      <CaselawPage/>
+    </DownloadCaselawProvider>    
   )
 }

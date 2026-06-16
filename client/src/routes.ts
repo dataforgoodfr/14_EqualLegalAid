@@ -4,7 +4,7 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
+  route("/caselaw", "./routeModules/CaseLawWithProvider.tsx"),
   // * matches all URLs, the ? makes it optional so it will match / as well
-  route("/caselaw", "./routeFiles/CaseLawWithProvider.tsx"),
-  route("*?", "./routeFiles/catchall.tsx"),
+  route("*?", "./routeModules/catchall.tsx"),
 ] satisfies RouteConfig;

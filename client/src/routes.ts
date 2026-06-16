@@ -1,11 +1,14 @@
 import {
   type RouteConfig,
   route,
-} from "@react-router/dev/routes";
+  } from "@react-router/dev/routes";
 
 export default [
   route("/caselaw", "./routeModules/CaseLawWithProvider.tsx"),
-  route("/statistic", "./routeModules/Statistic.tsx"),
+  route("/statistic", "./routeModules/Statistic.tsx",[
+    route("AsylumApplicationsInEurope", "./routeModules/AsylumApplicationsInEurope.tsx"),
+    route("AsylumApplicationsInEuropeanUnion", "./routeModules/AsylumApplicationsInEuropeanUnion.tsx")
+  ]),
   // * matches all URLs, the ? makes it optional so it will match / as well
   route("*?", "./routeModules/catchall.tsx"),
 ] satisfies RouteConfig;

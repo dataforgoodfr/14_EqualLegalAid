@@ -1,3 +1,9 @@
+import { KeyFiguresHeader } from '@/components/Indicators/KeyFiguresHeader'
+import { useKeyFigures } from '@/hooks/useKeyFigures'
+
 export default function(){
-    return <h1>Hello from Statistic</h1>
+    const keyFigures = useKeyFigures()
+    return (
+        <KeyFiguresHeader data={keyFigures} />
+    )
 }

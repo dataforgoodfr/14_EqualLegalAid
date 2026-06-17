@@ -9,7 +9,7 @@ export default function(){
     return (
         <>
             <KeyFiguresHeader data={keyFigures} />
-            <Outlet/>
+            <Outlet context={"hello sent through context"} />
         </>
     )
 }

@@ -1,7 +1,7 @@
 import {
   useState,
 } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router'
 import elaLogo from '@/assets/ela.png'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'

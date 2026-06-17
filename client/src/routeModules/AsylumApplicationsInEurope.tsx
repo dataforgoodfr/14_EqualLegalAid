@@ -1,13 +1,9 @@
 import { useOutletContext } from 'react-router'
+import { EuropeRegionMap } from '@/components/Indicators/EuropeRegionMap'
+import type { StatisticOutletContext } from '@/types'
 
 export default function()
 {
-    const textSentThroughContext = useOutletContext()
-    console.log(textSentThroughContext)
-    return (
-        <>
-            <h1>Hello from AsylumApplicationsInEurope</h1>
-            <p>Route Parameters: {textSentThroughContext}</p>
-        </>
-    )
+    const { getCustomText } = useOutletContext<StatisticOutletContext>()
+    return <EuropeRegionMap customText={getCustomText('AsylumApplicationsInEurope')} />
 }

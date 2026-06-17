@@ -1,9 +1,9 @@
-import { useOutletContext } from 'react-router-dom'
+import { useOutletContext } from 'react-router'
 import { AsylumApplicationsDetails } from '@/components/Indicators/AsylumApplicationsDetails'
 import { useAsylumApplications } from '@/hooks/useAsylumApplications'
 import type { StatisticOutletContext } from '@/types'
 
-export const AsylumApplicationsInEuropeanUnion = () => {
+export default function AsylumApplicationsInEuropeanUnion(){
   const { records, loading, error } = useAsylumApplications()
   const { getCustomText } = useOutletContext<StatisticOutletContext>()
   return (

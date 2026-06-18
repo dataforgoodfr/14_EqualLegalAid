@@ -34,13 +34,16 @@ export const CaselawPage = () => {
             />
           </div>
         </div>
-        <div className="w-full flex-auto xl:w-222">
-          <div className="sticky top-0 z-10 bg-white pb-2 xl:top-14">
-            <FilterAction
-              count={caselawRecords.length}
-              setSort={value => setSortDesc(value)}
-              setFindSpecificCaseLaw={findSpecificCaseLawBasedOnId}
-            />
+        <div className="w-full flex-auto bg-white xl:w-222">
+          <div className="sticky top-0 z-10 bg-white py-5 pb-2 xl:top-13.5">
+            <div className="relative z-2">
+              <FilterAction
+                count={caselawRecords.length}
+                setSort={value => setSortDesc(value)}
+                setFindSpecificCaseLaw={findSpecificCaseLawBasedOnId}
+              />
+            </div>
+            <div className="absolute top-0 -right-1.5 -left-1.5 h-full bg-white xl:-right-5 xl:-left-5" />
           </div>
           {loading && <Loading />}
           {error && <ErrorMessage message={error} onRetry={refetchCaselawRecords} />}

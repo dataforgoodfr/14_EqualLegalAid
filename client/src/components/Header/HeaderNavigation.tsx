@@ -20,10 +20,11 @@ export const HeaderNavigation = ({ className }: HeaderNavigationProps) => {
   return (
     <nav
       className={cn(
-        'xl:bg-background xl:sticky xl:top-0 z-10 flex xl:border-t xl:flex-row flex-col border-l xl:border-l-0 border-[#8080E7] xl:border-input',
+        'xl:bg-white xl:sticky xl:top-0 z-10 flex xl:border-t xl:flex-row flex-col border-l xl:border-l-0 border-[#8080E7] xl:border-input',
         className,
       )}
     >
+      <div className="absolute -right-2.5 h-full w-3 bg-white" />
       {headerNavigationItems.map(tab => (
         <div
           key={tab.id}

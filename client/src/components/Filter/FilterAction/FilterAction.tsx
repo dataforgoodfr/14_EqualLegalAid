@@ -122,13 +122,13 @@ export const FilterAction = ({
         <div className="mt-4 flex gap-4">
           <Button
             onClick={startDownloadPdf}
-            className="w-[50%]"
+            className="w-[calc(50%-8px)]"
             disabled={selectedCaselaw.length === 0}
           >
             {t('filter.downloadSelected', { count: selectedCaselaw.length })}
           </Button>
           <Button
-            className="w-[50%]"
+            className="w-[calc(50%-8px)]"
             variant="secondary"
             onClick={clearSelection}
             disabled={selectedCaselaw.length === 0}

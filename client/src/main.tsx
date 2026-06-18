@@ -9,6 +9,7 @@ import { DownloadCaselawProvider } from '@/context/'
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import {
   CaselawPage,
+  AsylumSeekersCampsPage,
   AsylumApplicationsInEuropePage,
   AsylumApplicationsInEuropeanUnion,
   ArrivalsInGreecePage,
@@ -37,6 +38,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="ArrivalsInGreece" element={<ArrivalsInGreecePage />} />
                 <Route path="AsylumApplicationsEvolutionInGreece" element={<AsylumApplicationsEvolutionInGreecePage />} />
                 <Route path="ProtectionGrantedVsRejected" element={<ProtectionGrantedVsRejectedPage />} />
+                <Route path="AsylumSeekersCamps" element={<AsylumSeekersCampsPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

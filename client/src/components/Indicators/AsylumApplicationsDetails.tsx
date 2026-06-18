@@ -142,7 +142,7 @@ export function AsylumApplicationsDetails({
                   rel="noopener noreferrer"
                   className="underline hover:text-gray-800 transition-colors"
                 >
-                  {customText.source}
+                  {customText.sourceText || customText.source}
                 </a>
                 {firstYear && lastYear ? ` — From ${firstYear} to ${lastYear}` : ''}
               </p>

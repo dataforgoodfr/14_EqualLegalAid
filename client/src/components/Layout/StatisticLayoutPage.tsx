@@ -18,6 +18,7 @@ export const StatisticLayoutPage = () => {
   const asylumApplicationsInEurope = customTexts.filter(ct => ct.name === 'AsylumApplicationsInEurope')[0] ?? null
   const asylumApplicationsInEuropeanUnion = customTexts.filter(ct => ct.name === 'AsylumApplicationsInEuropeanUnion')[0] ?? null
   const arrivalsInGreece = customTexts.filter(ct => ct.name === 'ArrivalsInGreece')[0] ?? null
+  const asylumSeekersCamps = customTexts.filter(ct => ct.name === 'AsylumSeekersLivingInCamps')[0] ?? null
   const asylumApplicationsEvolutionInGreece = customTexts.filter(ct => ct.name === 'AsylumApplicationsEvolutionInGreece')[0] ?? null
   const protectionGrantedVsRejected = customTexts.filter(ct => ct.name === 'ProtectionGrantedVsRejected')[0] ?? null
 
@@ -29,7 +30,7 @@ export const StatisticLayoutPage = () => {
     { label: (isGr ? arrivalsInGreece?.title_gr : arrivalsInGreece?.title_en) || t('statistics.arrivalsGreece'), to: 'ArrivalsInGreece' },
     { label: (isGr ? asylumApplicationsEvolutionInGreece?.title_gr : asylumApplicationsEvolutionInGreece?.title_en) || t('statistics.asylumEvolutionGreece'), to: 'AsylumApplicationsEvolutionInGreece' },
     { label: (isGr ? protectionGrantedVsRejected?.title_gr : protectionGrantedVsRejected?.title_en) || t('statistics.protectionDecisions'), to: 'ProtectionGrantedVsRejected' },
-    // {label: (isGr ? asylumSeekersCamps?.title_gr : asylumSeekersCamps?.title_en) || t('statistics.asylumSeekersCamps'), to: 'AsylumSeekersCamps'},
+    { label: (isGr ? asylumSeekersCamps?.title_gr : asylumSeekersCamps?.title_en) || t('statistics.asylumSeekersCamps'), to: 'AsylumSeekersCamps' },
     // {label: (isGr ? applicationsEvolutionGreece?.title_gr : applicationsEvolutionGreece?.title_en) || t('statistics.applicationsEvolutionGreece'), to: 'ApplicationsEvolutionGreece'},
     // {label: (isGr ? recognitionRates?.title_gr : recognitionRates?.title_en) || t('statistics.recognitionRates'), to: 'RecognitionRates'}
   ]

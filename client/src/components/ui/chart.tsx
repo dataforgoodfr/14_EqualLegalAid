@@ -201,7 +201,7 @@ function ChartLegendContent({
   return (
     <div
       className={cn(
-        'flex items-center justify-center gap-4 text-xs',
+        'flex flex-wrap items-center justify-center gap-4 text-xs',
         verticalAlign === 'top' ? 'pb-3' : 'pt-3',
         className,
       )}
@@ -215,11 +215,11 @@ function ChartLegendContent({
             {cfg?.icon && !hideIcon
               ? <cfg.icon />
               : (
-                  <div
-                    className="size-2.5 shrink-0 rounded-[2px]"
-                    style={{ backgroundColor: item.color }}
-                  />
-                )}
+                <div
+                  className="size-2.5 shrink-0 rounded-[2px]"
+                  style={{ backgroundColor: item.color }}
+                />
+              )}
             <span>{cfg?.label ?? item.value}</span>
           </div>
         )

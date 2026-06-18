@@ -15,6 +15,7 @@ export interface IndicatorCustomText {
   information_en: string
   information_gr: string
   source: string
+  sourceText: string
   last_updated_on: string
 }
 
@@ -49,6 +50,7 @@ export const useIndicatorCustomTexts = () => {
         information_en: toStr(r.fields['Information_EN']),
         information_gr: toStr(r.fields['Information_GR']),
         source: toStr(r.fields['Source']),
+        sourceText: toStr(r.fields['Source_text']),
         last_updated_on: toStr(r.fields['Last_updated_on']),
       }))
       setRecords(parsed)

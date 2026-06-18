@@ -109,7 +109,7 @@ export function RecognitionRatesDetails({
                 <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
                 {' '}
                 <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-800 transition-colors">
-                  {customText.source}
+                  {customText.sourceText || customText.source}
                 </a>
               </span>
             )}

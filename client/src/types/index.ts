@@ -4,7 +4,7 @@ export * from './filter'
  * Type definitions for the ELA application
  */
 
-export type AirtableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories' | 'Vulnerability' | 'GroundOfPersecution' | 'LegalAndProceduralIssues' | 'HouseholdIndividualStatus' | 'IND_1_EU_Asylumapplications' | 'Indicators_custom_texts' | 'v2_ind3_arrivals_greece' | 'ind5_total_applications_in_greece' | 'ind4_asylum_seekers_in_greece' | 'ind5_4_5_applications_per_first_and_subsequent' | 'ind6_first_instance_decisions' | 'ind9_second_instance_decisions' | 'ind10_recognition_rates'
+export type AirtableBaseName = 'Caselaws' | 'ApplicationTypes' | 'AsylumProcedures' | 'LegalProcedureTypes' | 'Countries' | 'Authorities' | 'Outcomes' | 'Keywords' | 'SubCategories' | 'Categories' | 'Vulnerability' | 'GroundOfPersecution' | 'LegalAndProceduralIssues' | 'HouseholdIndividualStatus' | 'IND_1_EU_Asylumapplications' | 'Indicators_custom_texts' | 'v2_ind3_arrivals_greece' | 'ind5_total_applications_in_greece' | 'ind4_asylum_seekers_in_greece' | 'ind4_asylum_camp_locations' | 'ind5_4_5_applications_per_first_and_subsequent' | 'ind6_first_instance_decisions' | 'ind9_second_instance_decisions' | 'ind10_recognition_rates'
 
 export enum AirtableBaseNameEnum {
   Caselaws = 'Caselaws',
@@ -28,15 +28,15 @@ export enum AirtableBaseNameEnum {
  */
 export type AirtableFieldValue
   = | string
-    | number
-    | boolean
-    | null
-    | undefined
-    | AirtableAttachment[]
-    | AirtableUser[]
-    | string[]
-    | number[]
-    | Record<string, unknown>
+  | number
+  | boolean
+  | null
+  | undefined
+  | AirtableAttachment[]
+  | AirtableUser[]
+  | string[]
+  | number[]
+  | Record<string, unknown>
 
 /**
  * Represents a record from Airtable

@@ -45,15 +45,14 @@ export const SubCategoryAccordion = ({
                   id={`subcategory-${subCategory.id}`}
                   name={`subcategory-${subCategory.id}`}
                   className="mr-2"
+                  aria-label={subCategory.name}
                   checked={subCategoryChecked}
+                  onClick={event => event.stopPropagation()}
                   onCheckedChange={checked =>
                     onGroupChange(subCategory.keywords, checked === true)
                   }
                 />
-                <Label 
-                  htmlFor={`subcategory-${subCategory.id}`}
-                  className="text-left"
-                >
+                <Label className="text-left">
                   {subCategory.name}
                 </Label>
               </div>

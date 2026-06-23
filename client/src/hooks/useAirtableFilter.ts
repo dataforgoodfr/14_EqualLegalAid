@@ -52,7 +52,7 @@ export const useAirtableFilter = () => {
       AirtableBaseNameEnum.Authorities,
     ].includes(tableName)
 
-  const fetchFilterRecords = useCallback(async() => {
+  const fetchFilterRecords = useCallback(async () => {
     if (filterFetched) return
     try {
       setLoadingFilterRecords(true)
@@ -69,7 +69,7 @@ export const useAirtableFilter = () => {
         AirtableBaseNameEnum.Keywords,
       ]
       const results = await Promise.all(
-        entries.map(async(tableName) => {
+        entries.map(async (tableName) => {
           try {
             const selectConfig: any = {
               cellFormat: 'json',
@@ -84,7 +84,9 @@ export const useAirtableFilter = () => {
                 selectConfig.sort = [{ field: 'Index', direction: 'asc' }]
               }
             }
-
+            else if (tableName === AirtableBaseNameEnum.Keywords) {
+              selectConfig.sort = [{ field: 'Index', direction: 'asc' }]
+            }
             const records = await airtableService.fetchRecordsFromTable({
               tableName,
               selectConfig,
@@ -164,7 +166,7 @@ export const useAirtableFilter = () => {
       if (keywordsResult) dispatch(setKeywordsFilter(keywordsResult))
       setFilterFetched(true)
     }
-    catch(err: unknown) {
+    catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch filters'
       setErrorFilterRecords(errorMessage)
     }
@@ -173,7 +175,7 @@ export const useAirtableFilter = () => {
     }
   }, [airtableService, filterFetched, dispatch])
 
-  const fetchFilterRecordsForSpecificUserSearch = useCallback(async() => {
+  const fetchFilterRecordsForSpecificUserSearch = useCallback(async () => {
     const { value, airtableBaseName } = searchInGivenFilter
     const searchField = isGreek ? 'Name_GR' : 'Name_EN'
     const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({${searchField}})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
@@ -220,7 +222,7 @@ export const useAirtableFilter = () => {
           break
       }
     }
-    catch(err: unknown) {
+    catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch specific filter'
       setErrorFilterRecords(errorMessage)
     }

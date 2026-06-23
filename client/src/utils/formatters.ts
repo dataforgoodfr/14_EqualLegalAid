@@ -136,6 +136,7 @@ export const toCaselaw = (record: AirtableRecord): Caselaw => {
     .filter(Boolean)
 
   return {
+    id: record.id,
     title: str('Title'),
     publishedAt: str('PublishedAt') ? new Date(str('PublishedAt')) : new Date(),
     applicationTypes: str('ApplicationType'),

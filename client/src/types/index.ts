@@ -104,6 +104,7 @@ export interface PdfObjectInterface {
  * Fields suffixed with _GR hold the Greek version; they fall back to the English value if empty.
  */
 export interface Caselaw {
+  id: string
   title: string
   publishedAt: Date
   applicationTypes: string

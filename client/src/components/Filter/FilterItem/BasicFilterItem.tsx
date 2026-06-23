@@ -30,7 +30,7 @@ export const BasicFilterItem = ({
   const { i18n } = useTranslation()
   const isGreek = i18n.language === 'el'
   const getItemName = (item: BasicValuesInterface) =>
-    isGreek ? (item.fields.Name_GR || item.fields.Name_EN) : item.fields.Name_EN
+    isGreek ? (item.fields.Name_GR || item.fields.Name_EN) : (item.fields.Name_EN || item.fields.Name_GR)
 
   const handleFilterChange = (id: string, name: string, checked: boolean) => {
     onFilterChange(id, checked)

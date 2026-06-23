@@ -175,8 +175,20 @@ export const useAirtableFilter = () => {
     }
   }, [airtableService, filterFetched, dispatch])
 
+  const fetchableFilterTables = new Set<AirtableBaseNameEnum>([
+    AirtableBaseNameEnum.Countries,
+    AirtableBaseNameEnum.Outcomes,
+    AirtableBaseNameEnum.LegalProcedureTypes,
+    AirtableBaseNameEnum.ApplicationTypes,
+    AirtableBaseNameEnum.AsylumProcedures,
+    AirtableBaseNameEnum.Authorities,
+  ])
+
   const fetchFilterRecordsForSpecificUserSearch = useCallback(async () => {
     const { value, airtableBaseName } = searchInGivenFilter
+
+    if (!fetchableFilterTables.has(airtableBaseName)) return
+
     const searchField = isGreek ? 'Name_GR' : 'Name_EN'
     const filterByFormula = value.length ? `AND(FIND(LOWER("${value.toLowerCase()}"), LOWER({${searchField}})) > 0, {Count_Caselaws} != BLANK(), {Count_Caselaws} > 0 )` : 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
 

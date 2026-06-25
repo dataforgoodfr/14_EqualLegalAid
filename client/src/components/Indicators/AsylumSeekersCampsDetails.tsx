@@ -381,7 +381,9 @@ export function AsylumSeekersCampsDetails({
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tickFormatter={d => d.slice(0, 7)} />
                   <YAxis />
-                  <Tooltip content={<ChartTooltipContent />} />
+                  <Tooltip
+                    wrapperStyle={{ zIndex: 1000 }}
+                    content={<ChartTooltipContent />} />
                   <Legend content={<ChartLegendContent />} />
                   {chartLines.map(meta => (
                     <Line

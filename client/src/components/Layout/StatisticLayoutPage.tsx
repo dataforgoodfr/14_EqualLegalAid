@@ -2,6 +2,7 @@ import { Outlet, NavLink } from 'react-router-dom'
 
 import { HeaderComponent } from '@/components/Header'
 import { KeyFiguresHeader } from '@/components/Indicators/KeyFiguresHeader'
+import { MethodologySection } from '@/components/Indicators/MethodologySection'
 import { cn } from '@/lib/utils'
 import { useKeyFigures } from '@/hooks/useKeyFigures'
 import { useIndicatorCustomTexts } from '@/hooks/useIndicatorCustomTexts'
@@ -54,6 +55,7 @@ export const StatisticLayoutPage = () => {
           ))}
         </div>
         <Outlet context={{ customTexts, getCustomText }} />
+        <MethodologySection customText={getCustomText('Methodology')} />
       </main>
     </div>
   )

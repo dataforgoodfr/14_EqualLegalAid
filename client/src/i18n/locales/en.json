@@ -151,6 +151,8 @@
     "negativeAccelerated": "Negative after accelerated procedure",
     "clickForDetails": "Click on the chart to see details",
     "granted": "Granted",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "moreInformation": "More information",
+    "lessInformation": "Less information"
   }
 }

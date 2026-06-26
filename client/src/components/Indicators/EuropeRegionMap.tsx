@@ -212,6 +212,16 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
         paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
       }, firstSymbolId)
 
+      for (const layer of layers) {
+        if (layer.type === 'symbol') {
+          try {
+            map.setPaintProperty(layer.id, 'text-halo-color', '#ffffff')
+            map.setPaintProperty(layer.id, 'text-halo-width', 2)
+            map.setPaintProperty(layer.id, 'text-color', '#1a1a2e')
+          } catch { /* skip layers without text */ }
+        }
+      }
+
       map.on('mousemove', 'country-hover', (e) => {
         if (!e.features?.length) return
         map.getCanvas().style.cursor = 'pointer'

@@ -2,6 +2,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAirtableService } from '@/providers'
 import { toNum, toStr } from '@/lib/utils'
 
+const COUNTRY_CODE_FIXES: Record<string, string> = {
+  SW: 'SE', // Sweden
+  UK: 'GB', // United Kingdom
+}
+
 export interface MapIndicatorRecord {
   id: string
   country_code: string
@@ -35,7 +40,7 @@ export function useMapIndicators() {
       })
       const parsed: MapIndicatorRecord[] = raw.map(r => ({
         id: r.id,
-        country_code: toStr(r.fields['code_country']),
+        country_code: COUNTRY_CODE_FIXES[toStr(r.fields['code_country'])] ?? toStr(r.fields['code_country']),
         name_country: toStr(r.fields['name_country']),
         year: toNum(r.fields['year']),
         total_applicants: toNum(r.fields['total_applicants']),

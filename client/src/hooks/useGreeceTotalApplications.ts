@@ -3,19 +3,45 @@ import { useAirtableService } from '@/providers'
 import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
 import { toNum, toStr } from '@/lib/utils'
 
+export interface AsylumApplicationRecords {
+  byPeriod: AsylumApplicationRecord[],
+  byNationality: AsylumApplicationByNationalityRecord[],
+  byGenderAge: AsylumApplicationByGenderAgeRecord[],
+}
+
+export interface AsylumApplicationByNationalityRecord {
+  id: string
+  year: number
+  country: string
+  total_applications: number
+  islands_applications: number
+  mainland_applications: number
+}
+
+export interface AsylumApplicationByGenderAgeRecord {
+  id: string
+  year: number
+  age: string
+  gender: string
+  applications: number
+}
+
 export function useGreeceTotalApplications() {
   const airtableService = useAirtableService()
 
-  const [records, setRecords] = useState<AsylumApplicationRecord[]>([])
+  const [recordsByPeriod, setRecordsByPeriod] = useState<AsylumApplicationRecord[]>([])
+  const [recordsByNationality, setRecordsByNationality] = useState<AsylumApplicationByNationalityRecord[]>([])
+  const [recordsByGenderAge, setRecordsByGenderAge] = useState<AsylumApplicationByGenderAgeRecord[]>([])
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchRecords = useCallback(async() => {
+  const fetchRecords = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const raw = await airtableService.fetchRecordsFromTable({
+      const rawPeriod = await airtableService.fetchRecordsFromTable({
         tableName: 'IND_1_EU_Asylumapplications',
         selectConfig: {
           maxRecords: 5000,
@@ -26,7 +52,7 @@ export function useGreeceTotalApplications() {
         },
       })
 
-      const parsed: AsylumApplicationRecord[] = raw.map(r => ({
+      const parsedPeriod: AsylumApplicationRecord[] = rawPeriod.map(r => ({
         id: r.id,
         year: toNum(r.fields['year']),
         name_country: toStr(r.fields['name_country']),
@@ -37,9 +63,55 @@ export function useGreeceTotalApplications() {
         percentage: toNum(r.fields['percentage']),
       }))
 
-      setRecords(parsed)
+      setRecordsByPeriod(parsedPeriod)
+
+
+      const rawNationality = await airtableService.fetchRecordsFromTable({
+        tableName: 'ind5_1_6_applications_per_country_and_location',
+        selectConfig: {
+          maxRecords: 5000,
+          cellFormat: 'json',
+          sort: [{ field: 'year', direction: 'asc' }],
+        },
+      })
+
+      const parsedNationality: AsylumApplicationByNationalityRecord[] = rawNationality.map(r => ({
+        id: r.id,
+        year: (
+          // In the format `1/1/2025`
+          toNum(toStr(r.fields['year']).split('/').pop())
+        ),
+        country: toStr(r.fields['country']),
+        islands_applications: toNum(r.fields['islands_applications']),
+        mainland_applications: toNum(r.fields['mainland_applications']),
+        total_applications: toNum(r.fields['islands_applications']) + toNum(r.fields['mainland_applications']),
+      }))
+
+      setRecordsByNationality(parsedNationality);
+
+      const rawGenderAge = await airtableService.fetchRecordsFromTable({
+        tableName: 'ind5_2_3_applications_per_gender_and_age',
+        selectConfig: {
+          maxRecords: 5000,
+          cellFormat: 'json',
+          sort: [{ field: 'year', direction: 'asc' }],
+        },
+      })
+
+      const parsedGenderAge: AsylumApplicationByGenderAgeRecord[] = rawGenderAge.map(r => ({
+        id: r.id,
+        year: (
+          // In the format `1/1/2025`
+          toNum(toStr(r.fields['year']).split('/').pop())
+        ),
+        age: toStr(r.fields['age']),
+        gender: toStr(r.fields['gender']),
+        applications: toNum(r.fields['applications']),
+      }))
+
+      setRecordsByGenderAge(parsedGenderAge);
     }
-    catch(err: unknown) {
+    catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch greece total application')
     }
     finally {
@@ -51,5 +123,11 @@ export function useGreeceTotalApplications() {
     fetchRecords()
   }, [fetchRecords])
 
-  return { records, loading, error }
+  return {
+    records: {
+      byPeriod: recordsByPeriod,
+      byNationality: recordsByNationality,
+      byGenderAge: recordsByGenderAge,
+    }, loading, error
+  }
 }

@@ -87,7 +87,7 @@ export function useProtectionDecisions() {
           tableName: 'ind9_second_instance_decisions',
           selectConfig: {
             maxRecords: 5000,
-            sort: [{ field: 'Calculation', direction: 'asc' }],
+            sort: [{ field: 'date', direction: 'asc' }],
           },
         }),
       ])
@@ -115,8 +115,7 @@ export function useProtectionDecisions() {
 
       const parsedSecond: SecondInstanceRecord[] = rawSecond.map(r => ({
         id: r.id,
-        // ind9 uses "Calculation" as the date field name
-        date: toStr(r.fields['Calculation']),
+        date: toStr(r.fields['date']),
         year: toNum(r.fields['year']),
         month: toNum(r.fields['month']),
         refugee_status: toNum(r.fields['refugee_status']),

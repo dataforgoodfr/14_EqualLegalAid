@@ -1,3 +1,4 @@
+import { Tabs } from "radix-ui";
 import { useState, useMemo } from 'react'
 import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { ChevronRight, ChevronDown } from 'lucide-react'
@@ -66,6 +67,8 @@ function DecisionsContent({
   isFirstInstance: boolean
 }) {
   const { t } = useTranslation()
+  const chartTitle = isFirstInstance ? t('statistics.protectionDecisions') : t('statistics.appealsDecisions');
+
   const yearly = useMemo(() => aggregateDecisionsByYear(records), [records])
   const years = useMemo(() => yearly.map(r => r.year).filter(y => y > 0), [yearly])
   const latestYear = years[years.length - 1]
@@ -206,6 +209,7 @@ function DecisionsContent({
 
         {/* Donut panel */}
         <div className="lg:col-span-2 flex flex-col items-center justify-start gap-4">
+          <p className="text-sm font-bold text-gray-900 mb-4">{chartTitle}</p>
           <ChartContainer config={{}} className="h-52 w-full">
             <PieChart>
               <Pie
@@ -239,13 +243,16 @@ function DecisionsContent({
   )
 }
 
+
 export function ProtectionDecisionsDetails({
   firstInstance,
+  secondInstance,
   loading,
   error,
   customText,
 }: {
   firstInstance: FirstInstanceRecord[]
+  secondInstance: SecondInstanceRecord[]
   loading: boolean
   error: string | null
   customText?: IndicatorCustomText | null
@@ -262,7 +269,17 @@ export function ProtectionDecisionsDetails({
   if (loading) return <Loading />
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
-  return (
+  return (<Tabs.Root className="TabsRoot" defaultValue="tab1">
+    <Tabs.List className="rounded-md bg-gray-100 p-1 mt-6 w-max">
+      <Tabs.Trigger className="rounded-sm px-2 pt-1 data-[state=active]:shadow data-[state=active]:bg-white" value="tab1">
+        {t('statistics.firstInstanceDecisions')}
+      </Tabs.Trigger>
+      {" > "}
+      <Tabs.Trigger className="rounded-sm px-2 pt-1 data-[state=active]:shadow data-[state=active]:bg-white" value="tab2">
+        {t('statistics.appealsDecisions')}
+      </Tabs.Trigger>
+    </Tabs.List>
+
     <div className="mx-auto max-w-5xl my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
@@ -277,11 +294,20 @@ export function ProtectionDecisionsDetails({
 
         {/* Card body */}
         <div className="space-y-6 p-6">
-          <DecisionsContent
-            records={firstInstance}
-            instanceLabel={t('statistics.firstInstanceDecisions')}
-            isFirstInstance={true}
-          />
+          <Tabs.Content className="TabsContent" value="tab1">
+            <DecisionsContent
+              records={firstInstance}
+              instanceLabel={t('statistics.firstInstanceDecisions')}
+              isFirstInstance={true}
+            />
+          </Tabs.Content>
+          <Tabs.Content className="TabsContent" value="tab2">
+            <DecisionsContent
+              records={secondInstance}
+              instanceLabel={t('statistics.appealsDecisions')}
+              isFirstInstance={false}
+            />
+          </Tabs.Content>
 
           {/* Explanatory text */}
           {(explanatoryTitle || explanatoryText) && (
@@ -319,5 +345,5 @@ export function ProtectionDecisionsDetails({
         )}
       </div>
     </div>
-  )
+  </Tabs.Root>)
 }

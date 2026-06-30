@@ -9,6 +9,9 @@ import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
+import { ProtectionRateLineChart} from './ProtectionRateLineChart'
+import { protectionRatePerMonth } from '@/hooks'
+
 
 const GRANTED_COLOR = '#3F9FD8'
 const REJECTED_COLOR = '#04356C'
@@ -238,7 +241,7 @@ function DecisionsContent({
             ))}
           </div>
         </div>
-      </div>
+      </div>      
     </div>
   )
 }
@@ -320,6 +323,10 @@ export function ProtectionDecisionsDetails({
               )}
             </div>
           )}
+        </div>
+
+        <div className="space-y-6 p-6">
+          <ProtectionRateLineChart records={protectionRatePerMonth(firstInstance)} />
         </div>
 
         {/* Card footer */}

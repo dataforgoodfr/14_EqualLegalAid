@@ -68,12 +68,48 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
       )}
       onClick={handleSelecteItem}
     >
-      <Badge
-        label={lang(caselaw.caselawOutcome, caselaw.caselawOutcome_GR) || t('caselaw.unknownStatus')}
-        color={outcomeColor}
-        className="mb-4"
-        displayPicto
-      />
+      {/* Outcome badge + boutons PDF sur la même ligne en haut */}
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+        <Badge
+          label={lang(caselaw.caselawOutcome, caselaw.caselawOutcome_GR) || t('caselaw.unknownStatus')}
+          color={outcomeColor}
+          displayPicto
+        />
+        <div className="flex flex-wrap gap-2">
+          {caselaw.englishPdfLink.pdfURL.length && (
+            <Button
+              size="sm"
+              variant="outline"
+              asChild
+              className="w-full xl:w-auto"
+            >
+              <a
+                href={caselaw.englishPdfLink.pdfURL}
+                target="_blank"
+              >
+                <Download size={16} />
+                {t('caselaw.downloadEnglishPdf')}
+              </a>
+            </Button>
+          )}
+          {caselaw.greekPdfLink.pdfURL.length && (
+            <Button
+              size="sm"
+              variant="outline"
+              asChild
+              className="w-full xl:w-auto"
+            >
+              <a
+                href={caselaw.greekPdfLink.pdfURL}
+                target="_blank"
+              >
+                <Download size={16} />
+                {t('caselaw.downloadGreekPdf')}
+              </a>
+            </Button>
+          )}
+        </div>
+      </div>
       {/* Partie haute de la carte titre + tag */}
       <div className="flex flex-wrap items-start">
         {/* Accepted / Rejected + Titre + Date + proceeding */}
@@ -138,41 +174,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
         </div>
       </div>
 
-      {/* Partie basse de la carte bouton téléchargement */}
-      <div className="mt-4 flex flex-wrap justify-end">
-        {caselaw.englishPdfLink.pdfURL.length && (
-          <Button
-            size="sm"
-            variant="outline"
-            asChild
-            className="mb-4 w-full xl:mb-0 xl:w-auto"
-          >
-            <a
-              href={caselaw.englishPdfLink.pdfURL}
-              target="_blank"
-            >
-              <Download size={16} />
-              {t('caselaw.downloadEnglishPdf')}
-            </a>
-          </Button>
-        )}
-        {caselaw.greekPdfLink.pdfURL.length && (
-          <Button
-            size="sm"
-            variant="outline"
-            asChild
-            className="w-full xl:ml-4 xl:w-auto"
-          >
-            <a
-              href={caselaw.greekPdfLink.pdfURL}
-              target="_blank"
-            >
-              <Download size={16} />
-              {t('caselaw.downloadGreekPdf')}
-            </a>
-          </Button>
-        )}
-      </div>
+
     </article>
   )
 }

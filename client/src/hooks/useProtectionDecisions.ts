@@ -33,10 +33,12 @@ export interface SecondInstanceRecord {
   formal_grounds_rejections: number
   explicit_withdrawals: number
   implicit_withdrawals: number
+  protection_rate: number
 }
 
 export interface ProtectionRatePerMonthRecord {
-  protection_rate: number
+  first_instance_protection_rate: number
+  second_instance_protection_rate: number
   display_date: string
 }
 
@@ -130,6 +132,7 @@ export function useProtectionDecisions() {
         formal_grounds_rejections: toNum(r.fields['formal_grounds_rejections']),
         explicit_withdrawals: toNum(r.fields['explicit_withdrawals']),
         implicit_withdrawals: toNum(r.fields['implicit_withdrawals']),
+        protection_rate: toNum(r.fields['protection_rate']),
       }))
 
       setFirstInstance(parsedFirst)
@@ -201,11 +204,63 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
   return Array.from(map.values()).sort((a, b) => a.year - b.year)
 }
 
-export function protectionRatePerMonth(records: FirstInstanceRecord[]): ProtectionRatePerMonthRecord[] {
-  return records.map((r) => {
-    return {
-      protection_rate: r.protection_rate,
-      display_date: `${r.year} / ${r.month}`,
+export function protectionRatePerMonth(firstInstanceRecords: FirstInstanceRecord[], secondInstanceRecord:SecondInstanceRecord[]) {
+
+// we wish to create an array of objects
+  // example :
+  // const chartData = [
+  //   {
+  //     first_instance_protection_rate: 5,
+  //     second_instance_protection_rate: 10,
+  //     display_date: firstInstance[0].display_date
+  //   },
+  //   {
+  //     first_instance_protection_rate: 5,
+  //     second_instance_protection_rate: 10,
+  //     display_date: firstInstance[1].display_date
+  //   },
+  //   {
+  //     first_instance_protection_rate: 5,
+  //     second_instance_protection_rate: 10,
+  //     display_date: firstInstance[2].display_date
+  //   }
+  // ]
+  
+  // to do so, we create a map, we take the values of the two arguments one by one
+  const map = new Map<string, ProtectionRatePerMonthRecord>()
+  
+  // example : map = {
+  //   {
+  //     '2020 / 10',
+  //     {first_instance_protection_rate: 5,second_instance_protection_rate: 10,display_date: 2020 / 5}
+  //   }
+  // }
+
+  firstInstanceRecords.forEach(record => {
+    const key = record.date
+    const chartData = {
+      first_instance_protection_rate: record.protection_rate,
+      second_instance_protection_rate: 0,
+      display_date: `${record.year} / ${record.month}`
     }
-  })
+    map.set(key, chartData)
+  });
+
+  secondInstanceRecord.forEach(record => {
+    const key = record.date
+    const second_instance_protection_rate = record.protection_rate
+    const existing_record = map.get(key)
+    if(existing_record){
+      existing_record.second_instance_protection_rate = second_instance_protection_rate
+    }else{
+      const chartData = {
+        "first_instance_protection_rate": 0,
+        "second_instance_protection_rate": second_instance_protection_rate,
+        display_date: `${record.year} / ${record.month}`
+      }
+      map.set(key, chartData)
+    }
+  });
+
+  return Array.from(map.values())
 }

@@ -326,7 +326,7 @@ export function ProtectionDecisionsDetails({
         </div>
 
         <div className="space-y-6 p-6">
-          <ProtectionRateLineChart records={protectionRatePerMonth(firstInstance)} />
+          <ProtectionRateLineChart protectionRatePerMonthRecord={protectionRatePerMonth(firstInstance, secondInstance)} />
         </div>
 
         {/* Card footer */}

@@ -9,6 +9,9 @@ import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
+import { ProtectionRateLineChart} from './ProtectionRateLineChart'
+import { protectionRatePerMonth } from '@/hooks'
+
 
 const GRANTED_COLOR = '#3F9FD8'
 const REJECTED_COLOR = '#04356C'
@@ -238,7 +241,7 @@ function DecisionsContent({
             ))}
           </div>
         </div>
-      </div>
+      </div>      
     </div>
   )
 }
@@ -270,16 +273,6 @@ export function ProtectionDecisionsDetails({
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
   return (<Tabs.Root className="TabsRoot" defaultValue="tab1">
-    <Tabs.List className="rounded-md bg-gray-100 p-1 mt-6 w-max">
-      <Tabs.Trigger className="rounded-sm px-2 pt-1 data-[state=active]:shadow data-[state=active]:bg-white" value="tab1">
-        {t('statistics.firstInstanceDecisions')}
-      </Tabs.Trigger>
-      {" > "}
-      <Tabs.Trigger className="rounded-sm px-2 pt-1 data-[state=active]:shadow data-[state=active]:bg-white" value="tab2">
-        {t('statistics.appealsDecisions')}
-      </Tabs.Trigger>
-    </Tabs.List>
-
     <div className="mx-auto max-w-5xl my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
@@ -294,6 +287,19 @@ export function ProtectionDecisionsDetails({
 
         {/* Card body */}
         <div className="space-y-6 p-6">
+
+          {/* Tab Trigger */}
+          <Tabs.List className="rounded-md bg-gray-100 p-1 mt-6 w-max">
+            <Tabs.Trigger className="rounded-sm px-2 pt-1 data-[state=active]:shadow data-[state=active]:bg-white" value="tab1">
+              {t('statistics.firstInstanceDecisions')}
+            </Tabs.Trigger>
+            {" > "}
+            <Tabs.Trigger className="rounded-sm px-2 pt-1 data-[state=active]:shadow data-[state=active]:bg-white" value="tab2">
+              {t('statistics.appealsDecisions')}
+            </Tabs.Trigger>
+          </Tabs.List>
+
+          {/* Main Content */}
           <Tabs.Content className="TabsContent" value="tab1">
             <DecisionsContent
               records={firstInstance}
@@ -320,6 +326,10 @@ export function ProtectionDecisionsDetails({
               )}
             </div>
           )}
+        </div>
+
+        <div className="space-y-6 p-6">
+          <ProtectionRateLineChart protectionRatePerMonthRecord={protectionRatePerMonth(firstInstance, secondInstance)} />
         </div>
 
         {/* Card footer */}

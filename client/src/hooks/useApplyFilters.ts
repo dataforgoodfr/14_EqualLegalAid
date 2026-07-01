@@ -27,20 +27,21 @@ const getStringField = (fields: Record<string, unknown>, key: string) => {
   return typeof value === 'string' ? value : ''
 }
 
+// La valeur envoyée dans la formule Airtable doit correspondre à ce qui est
+// réellement stocké dans la table Caselaws, qui est toujours en anglais
+// (valeur canonique). On ignore donc volontairement la langue d'affichage ici :
+// sinon, en grec, on chercherait la traduction grecque absente de la colonne
+// Caselaws → 0 correspondance. (Le nom grec sert uniquement à l'affichage du tag.)
 const getFilterValue = (
   filterName: AirtableBaseNameEnum,
   value: { fields: Record<string, unknown> },
-  isGreek: boolean,
+  _isGreek: boolean,
 ): string => {
   switch (filterName) {
     case AirtableBaseNameEnum.Authorities: {
       const nameLongEn = getStringField(value.fields, 'Name_Long_EN')
-      const nameLongGr = getStringField(value.fields, 'Name_Long_GR')
       const nameEn = getStringField(value.fields, 'Name_EN')
-      const nameGr = getStringField(value.fields, 'Name_GR')
-      return isGreek
-        ? nameLongGr || nameGr || nameLongEn || nameEn
-        : nameLongEn || nameEn
+      return nameLongEn || nameEn
     }
     case AirtableBaseNameEnum.Keywords: {
       const keywordEn = getStringField(value.fields, 'Keyword_EN')
@@ -48,8 +49,7 @@ const getFilterValue = (
     }
     default: {
       const nameEn = getStringField(value.fields, 'Name_EN')
-      const nameGr = getStringField(value.fields, 'Name_GR')
-      return isGreek ? nameGr || nameEn : nameEn
+      return nameEn
     }
   }
 }

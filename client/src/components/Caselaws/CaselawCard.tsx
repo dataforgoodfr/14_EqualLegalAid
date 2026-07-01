@@ -37,6 +37,13 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   const { setCaselawSelection, isSelected, isDownloadMode } = useDownloadCaselaw()
   const [isCardSelected, setIsCardSelected] = useState(isSelected(caselaw.title))
 
+  // Limite le nombre de keywords affichés pour garder des cartes de hauteur
+  // homogène ; les keywords restants sont dépliables via le badge « +N ».
+  const MAX_VISIBLE_KEYWORDS = 4
+  const [showAllKeywords, setShowAllKeywords] = useState(false)
+  const keywordList = lang(caselaw.keywords, caselaw.keywords_GR)
+  const visibleKeywords = showAllKeywords ? keywordList : keywordList.slice(0, MAX_VISIBLE_KEYWORDS)
+  const hiddenKeywordsCount = keywordList.length - MAX_VISIBLE_KEYWORDS
   const handleSelecteItem = () => {
     const selected = !isCardSelected
     if (!isDownloadMode) {
@@ -55,7 +62,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
   return (
     <article
       className={cn(
-        'w-auto overflow-hidden rounded-xl  bg-white shadow-[0_2px_12px_rgba(0,46,93,0.08)] transition-all p-5',
+        'w-auto overflow-hidden rounded-xl  bg-white shadow-[0_2px_12px_rgba(0,46,93,0.08)] transition-all p-4',
         isDownloadMode && 'cursor-pointer border-2 border-input',
         isDownloadMode && isSelected(caselaw.title) && 'border-black bg-input',
       )}
@@ -64,7 +71,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
       <Badge
         label={lang(caselaw.caselawOutcome, caselaw.caselawOutcome_GR) || t('caselaw.unknownStatus')}
         color={outcomeColor}
-        className="mb-6"
+        className="mb-4"
         displayPicto
       />
       {/* Partie haute de la carte titre + tag */}
@@ -74,7 +81,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
           <CardTitle
             title={`${lang(caselaw.competentCourtOrAuthority, caselaw.competentCourtOrAuthority_GR)}`}
             subtitle={`${caselaw.title}`}
-            className="mb-4"
+            className="mb-3"
           />
           <CardInfo
             label={`${t('caselaw.date')} :`}
@@ -99,14 +106,14 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
           )}
         </div>
         {/* Tag */}
-        <div className="w-full pt-6 xl:w-1/3 xl:pt-0 xl:pl-6">
-          <div className="flex w-full flex-wrap overflow-hidden xl:items-end xl:justify-end">
+        <div className="w-full pt-4 xl:w-1/3 xl:pt-0 xl:pl-6">
+          <div className="flex w-full flex-wrap overflow-hidden xl:items-start xl:justify-start">
             <CountryBadge
               label={lang(caselaw.countryOfOrigin, caselaw.countryOfOrigin_GR)}
               countryOfOrigin={caselaw.countryOfOrigin}
               className="mb-2 not-last:mr-2"
             />
-            {lang(caselaw.keywords, caselaw.keywords_GR).map(keyword => (
+            {visibleKeywords.map(keyword => (
               <Badge
                 color="#F5F5F5"
                 fontColor="#111113"
@@ -115,12 +122,24 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
                 className="mb-2 not-last:mr-2"
               />
             ))}
+            {hiddenKeywordsCount > 0 && (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setShowAllKeywords(prev => !prev)
+                }}
+                className="mb-2 not-last:mr-2 flex w-fit cursor-pointer items-center rounded-3xl bg-[#E5E5E5] px-2.5 py-1 text-[0.72rem] font-medium tracking-[0.4px] text-[#111113] hover:bg-[#d8d8d8]"
+              >
+                {showAllKeywords ? '−' : `+${hiddenKeywordsCount}`}
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Partie basse de la carte bouton téléchargement */}
-      <div className="mt-6 flex flex-wrap justify-end">
+      <div className="mt-4 flex flex-wrap justify-end">
         {caselaw.englishPdfLink.pdfURL.length && (
           <Button
             size="sm"

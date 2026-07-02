@@ -78,32 +78,30 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
         <div className="flex flex-wrap gap-2">
           {caselaw.englishPdfLink.pdfURL.length && (
             <Button
-              size="sm"
               variant="outline"
               asChild
-              className="w-full xl:w-auto"
+              className="!h-auto !py-1 !px-2.5 !text-[0.72rem] !rounded-3xl !gap-1 !font-medium !tracking-[0.4px] w-full xl:w-auto"
             >
               <a
                 href={caselaw.englishPdfLink.pdfURL}
                 target="_blank"
               >
-                <Download size={16} />
+                <Download size={12} />
                 {t('caselaw.downloadEnglishPdf')}
               </a>
             </Button>
           )}
           {caselaw.greekPdfLink.pdfURL.length && (
             <Button
-              size="sm"
               variant="outline"
               asChild
-              className="w-full xl:w-auto"
+              className="!h-auto !py-1 !px-2.5 !text-[0.72rem] !rounded-3xl !gap-1 !font-medium !tracking-[0.4px] w-full xl:w-auto"
             >
               <a
                 href={caselaw.greekPdfLink.pdfURL}
                 target="_blank"
               >
-                <Download size={16} />
+                <Download size={12} />
                 {t('caselaw.downloadGreekPdf')}
               </a>
             </Button>

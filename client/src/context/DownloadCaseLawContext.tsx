@@ -11,7 +11,7 @@ type DownloadCaselawContextType = {
   selectedCaselaw: SelectedCaselawItem[]
   setCaselawSelection: (item: SelectedCaselawItem, selected: boolean) => void
   isSelected: (id: string) => boolean
-  startDownloadPdf: () => void
+  startDownloadPdf: (lang: 'en' | 'gr') => void
   clearSelection: () => void
   handleDownloadMode: () => void
   isDownloadMode: boolean
@@ -56,8 +56,8 @@ export function DownloadCaselawProvider({
     setSelectedCaselaw([])
   }
 
-  const startDownloadPdf = () => {
-    downloadSelectedCaselawAsZip(selectedCaselaw)
+  const startDownloadPdf = (lang: 'en' | 'gr') => {
+    downloadSelectedCaselawAsZip(selectedCaselaw, lang)
     clearSelection()
   }
   const handleDownloadMode = () => {

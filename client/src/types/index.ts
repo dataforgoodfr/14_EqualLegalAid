@@ -145,7 +145,8 @@ export interface FetchRecordsFromTableConfig {
 
 export interface SelectedCaselawItem {
   id: string
-  pdf: PdfObjectInterface
+  pdfEN: PdfObjectInterface
+  pdfGR: PdfObjectInterface
 }
 
 export type HeaderNavigationItemType = 'caselaw' | 'statistics'

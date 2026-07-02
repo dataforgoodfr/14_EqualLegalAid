@@ -45,9 +45,13 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
     setIsCardSelected(selected)
     const selectedObject: SelectedCaselawItem = {
       id: caselaw.title,
-      pdf: {
+      pdfEN: {
         pdfFileName: caselaw.englishPdfLink.pdfFileName,
         pdfURL: caselaw.englishPdfLink.pdfURL,
+      },
+      pdfGR: {
+        pdfFileName: caselaw.greekPdfLink.pdfFileName,
+        pdfURL: caselaw.greekPdfLink.pdfURL,
       },
     }
     setCaselawSelection(selectedObject, selected)

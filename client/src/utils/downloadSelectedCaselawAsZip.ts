@@ -18,6 +18,7 @@ function getFormattedDate() {
 
 export async function downloadSelectedCaselawAsZip(
   selectedCaselaw: SelectedCaselawItem[],
+  lang: 'en' | 'gr',
 ) {
   if (!selectedCaselaw.length) {
     throw new Error('Aucun fichier sélectionné.')
@@ -27,7 +28,10 @@ export async function downloadSelectedCaselawAsZip(
 
   await Promise.all(
     selectedCaselaw.map(async(item, index) => {
-      const response = await fetch(item.pdf.pdfURL)
+      const pdf = lang === 'en' ? item.pdfEN : item.pdfGR
+      if (!pdf.pdfURL) return
+
+      const response = await fetch(pdf.pdfURL)
 
       if (!response.ok) {
         throw new Error(`Erreur lors du téléchargement du fichier ${item.id}`)
@@ -35,7 +39,7 @@ export async function downloadSelectedCaselawAsZip(
 
       const blob = await response.blob()
 
-      const originalName = item.pdf.pdfFileName || `document-${index + 1}.pdf`
+      const originalName = pdf.pdfFileName || `document-${index + 1}.pdf`
 
       // Pour éviter que deux fichiers aient exactement le même nom dans le zip
       const fileName = sanitizeFileName(`${item.id}-${originalName}`)

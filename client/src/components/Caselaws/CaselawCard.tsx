@@ -111,7 +111,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
       {/* Partie haute de la carte titre + tag */}
       <div className="flex flex-wrap items-start">
         {/* Accepted / Rejected + Titre + Date + proceeding */}
-        <div className="w-full border-b pb-4 xl:w-2/3 xl:border-r xl:border-b-0">
+        <div className="w-full border-b pb-4 xl:w-3/5 xl:border-r xl:border-b-0">
           <CardTitle
             title={`${lang(caselaw.competentCourtOrAuthority, caselaw.competentCourtOrAuthority_GR)}`}
             subtitle={`${caselaw.title}`}
@@ -140,7 +140,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
           )}
         </div>
         {/* Tag */}
-        <div className="w-full pt-4 xl:w-1/3 xl:pt-0 xl:pl-6">
+        <div className="w-full pt-4 xl:w-2/5 xl:pt-0 xl:pl-6">
           <div className="flex w-full flex-wrap overflow-hidden xl:items-start xl:justify-start">
             <CountryBadge
               label={lang(caselaw.countryOfOrigin, caselaw.countryOfOrigin_GR)}

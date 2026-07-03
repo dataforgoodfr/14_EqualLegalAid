@@ -12,7 +12,8 @@ import {
   toIdArray,
   getFieldValue,
   getName,
-  getKeywordName
+  getKeywordName,
+  getStringField,
 } from './utils'
 import { FilterSearch } from '../FilterSearch/FilterSearch'
 
@@ -59,12 +60,16 @@ export const CategoriesFilterItem = ({
           .map(subCategory => ({
             id: subCategory.id,
             name: getName(subCategory, isGreek),
+            // Nom anglais (canonique) servant à détecter la sous-catégorie
+            // homonyme de la catégorie, indépendamment de la langue affichée.
+            nameEn: getStringField(subCategory, 'Name_EN'),
             keywords: getKeywordsBySubCategoryId(subCategory.id),
           }))
 
         return {
           id: category.id,
           name: getName(category, isGreek),
+          nameEn: getStringField(category, 'Name_EN'),
           keywords: [] as AirtableRecord[],
           subCategories: subCategoryItems,
         }
@@ -161,10 +166,10 @@ export const CategoriesFilterItem = ({
     <Accordion type="multiple">
       {filteredCategoriesWithChildren.map(category => {
         const sameNameSubcategories = category.subCategories.filter(
-          sub => sub.name === category.name,
+          sub => sub.nameEn === category.nameEn,
         )
         const otherSubcategories = category.subCategories.filter(
-          sub => sub.name !== category.name,
+          sub => sub.nameEn !== category.nameEn,
         )
         const categorySameNameKeywords = sameNameSubcategories.flatMap(sub => sub.keywords)
         const categoryChildKeywords = [...category.keywords, ...categorySameNameKeywords]

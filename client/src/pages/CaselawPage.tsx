@@ -25,8 +25,8 @@ export const CaselawPage = () => {
       />
       <div className="flex flex-wrap xl:gap-10">
         <div className="flex-auto xl:w-72 xl:flex-none xl:shrink-0">
-          <div className="xl:sticky xl:top-13.5 relative">
-            <div className="xl:max-h-[calc(100vh-54px)] xl:overflow-y-auto scrollbar-hidden">
+          <div className="xl:sticky xl:top-[126px] relative">
+            <div className="xl:max-h-[calc(100vh-126px)] xl:overflow-y-auto scrollbar-hidden">
               <FilterPanel
                 onApplyFilters={fetchFilteredCaselaws}
                 minDate={dateBounds.minDate}

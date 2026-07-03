@@ -119,22 +119,34 @@ export const FilterAction = ({
         </div>
       </div>
       {isDownloadMode && (
-        <div className="mt-4 flex gap-4">
-          <Button
-            onClick={startDownloadPdf}
-            className="w-[calc(50%-8px)]"
-            disabled={selectedCaselaw.length === 0}
-          >
-            {t('filter.downloadSelected', { count: selectedCaselaw.length })}
-          </Button>
-          <Button
-            className="w-[calc(50%-8px)]"
-            variant="secondary"
-            onClick={clearSelection}
-            disabled={selectedCaselaw.length === 0}
-          >
-            {t('filter.clearSelected')}
-          </Button>
+        <div className="mt-4">
+          <p className="mb-3 text-sm font-medium">
+            {t('filter.selectedCount', { count: selectedCaselaw.length })}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={() => startDownloadPdf('en')}
+              className="w-full xl:w-auto"
+              disabled={selectedCaselaw.length === 0}
+            >
+              {t('filter.downloadEnglish')}
+            </Button>
+            <Button
+              onClick={() => startDownloadPdf('gr')}
+              className="w-full xl:w-auto"
+              disabled={selectedCaselaw.length === 0}
+            >
+              {t('filter.downloadGreek')}
+            </Button>
+            <Button
+              className="w-full xl:w-auto"
+              variant="secondary"
+              onClick={clearSelection}
+              disabled={selectedCaselaw.length === 0}
+            >
+              {t('filter.clearSelected')}
+            </Button>
+          </div>
         </div>
       )}
       <div className="mt-4 flex w-full flex-wrap">

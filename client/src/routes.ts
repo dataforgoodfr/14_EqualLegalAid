@@ -5,7 +5,8 @@ import {
 
 export default [
   // index("./routeModules/CaseLawWithProvider.tsx"),
-  // route("/advocacy", "./routeModules/Statistic.tsx",[
+  route("/advocacy", "./pages/StatisticPage.tsx"),
+  // [
   //   index("./pages/StatisticsPage/AsylumApplicationsInEuropePage.tsx"),
   //   route("AsylumApplicationsInEuropeanUnion", "./pages/StatisticsPage/AsylumApplicationsInEuropeanUnionPage.tsx"),
   //   route("ArrivalsInGreece", "./pages/StatisticsPage/ArrivalsInGreecePage.tsx"),

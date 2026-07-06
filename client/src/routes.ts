@@ -4,7 +4,7 @@ import {
   } from "@react-router/dev/routes";
 
 export default [
-  // index("./routeModules/CaseLawWithProvider.tsx"),
+  index("./pages/CaselawPage.tsx"),
   route("/advocacy", "./pages/StatisticPage.tsx", 
     [
       route("AsylumApplicationsInEurope","./pages/StatisticsPage/AsylumApplicationsInEuropePage.tsx",),

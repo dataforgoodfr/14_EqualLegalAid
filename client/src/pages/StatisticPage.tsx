@@ -1,6 +1,7 @@
 import { KeyFiguresHeader } from '@/components/Indicators/KeyFiguresHeader'
 import { useKeyFigures } from '@/hooks/useKeyFigures'
 import { useIndicatorCustomTexts } from '@/hooks/useIndicatorCustomTexts'
+import { MethodologySection } from '@/components/Indicators/MethodologySection'
 import {
   Outlet,
 } from "react-router";
@@ -15,6 +16,7 @@ export default function(){
             <StatisticMenu customTexts={customTexts} />
             <KeyFiguresHeader data={keyFigures} />
             <Outlet context={{getCustomText}} />
+            <MethodologySection customText={getCustomText('Methodology')} />
         </>
     )
 }

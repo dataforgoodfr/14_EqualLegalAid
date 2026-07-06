@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import type { HeaderNavigationItemType } from '@/types'
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router'
 interface HeaderNavigationProps {
   className?: string
 }

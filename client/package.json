@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "react-router dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -13,6 +13,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
+    "@react-router/node": "^7.18.1",
     "@reduxjs/toolkit": "^2.11.2",
     "@tanstack/react-table": "^8.21.3",
     "airtable": "^0.12.2",
@@ -32,12 +33,13 @@
     "react-i18next": "^17.0.2",
     "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.15.0",
     "recharts": "^3.8.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "isbot": "^5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@react-router/dev": "^7.18.1",
     "@stylistic/eslint-plugin": "^5.9.0",
     "@tailwindcss/vite": "^4.2.0",
     "@types/file-saver": "^2.0.7",

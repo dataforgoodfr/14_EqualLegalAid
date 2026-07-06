@@ -6,7 +6,7 @@ import { AirtableProvider } from '@/providers'
 import { store } from './redux/store.ts'
 import { Provider } from 'react-redux'
 import { DownloadCaselawProvider } from '@/context/'
-import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router'
 import {
   CaselawPage,
   AsylumSeekersCampsPage,

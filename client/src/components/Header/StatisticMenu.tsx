@@ -19,7 +19,7 @@ export default function ({customTexts}:{customTexts:IndicatorCustomText[]}) {
     const isGr = i18n.language === 'el'
 
     const tabItems: NavLinkItem[] = [
-        { label: remoteLabel(customTexts, isGr, "AsylumApplicationsInEurope") || t('statistics.euAsylumApplications'), to: '' },
+        { label: remoteLabel(customTexts, isGr, "AsylumApplicationsInEurope") || t('statistics.euAsylumApplications'), to: 'AsylumApplicationsInEurope' },
         { label: remoteLabel(customTexts, isGr, "AsylumApplicationsInEuropeanUnion") || t('statistics.euAsylumApplications'), to: 'AsylumApplicationsInEuropeanUnion' },
         { label: remoteLabel(customTexts, isGr, "ArrivalsInGreece") || t('statistics.arrivalsGreece'), to: 'ArrivalsInGreece' },
         { label: remoteLabel(customTexts, isGr, "AsylumApplicationsEvolutionInGreece") || t('statistics.asylumEvolutionGreece'), to: 'AsylumApplicationsEvolutionInGreece' },

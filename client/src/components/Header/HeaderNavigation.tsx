@@ -15,7 +15,7 @@ export const HeaderNavigation = ({ className }: HeaderNavigationProps) => {
 
   const headerNavigationItems: HeaderNavigationItemInterface[] = [
     { id: 'caselaw', label: t('nav.caselaw'), path: '/' },
-    { id: 'statistics', label: t('nav.statistics'), path: '/advocacy' },
+    { id: 'statistics', label: t('nav.statistics'), path: '/advocacy/AsylumApplicationsInEurope' },
   ]
   return (
     <nav

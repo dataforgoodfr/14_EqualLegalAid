@@ -1,4 +1,4 @@
-import { useOutletContext } from 'react-router-dom'
+import { useOutletContext } from 'react-router'
 import { ApplicationsEvolutionGreece } from '@/components/Indicators/ApplicationsEvolutionGreece'
 import type { StatisticOutletContext } from '@/types'
 

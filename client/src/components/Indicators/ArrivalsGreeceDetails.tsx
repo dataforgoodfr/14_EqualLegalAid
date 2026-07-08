@@ -9,6 +9,8 @@ import { aggregateByYear } from '@/hooks/useArrivalsGreece'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { IndicatorInfoButton } from '@/components/ui/IndicatorInfoButton'
 import { useTranslation } from 'react-i18next'
+import { Map as MapIcon, BarChart2 } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 const NAME_PROP = 'name'
@@ -73,6 +75,8 @@ export function ArrivalsGreeceDetails({
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
 
+  const [view, setView] = useState<'map' | 'chart'>('map')
+
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const regionValuesRef = useRef<Record<string, number>>({})
@@ -108,6 +112,11 @@ export function ArrivalsGreeceDetails({
 
   const evrosValue = yearData?.evros ?? 0
   const maxRankValue = Math.max(...seaRanking.map(d => d.value), evrosValue, 1)
+
+  const barData = useMemo(() => [
+    ...seaRanking,
+    ...(evrosValue > 0 ? [{ label: 'Evros', value: evrosValue, color: '#1e3a8a' }] : []),
+  ], [seaRanking, evrosValue])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.arrivalsGreece')
   const explanatoryTitle = isGr ? customText?.explanatory_text_title_gr : customText?.explanatory_text_title_en
@@ -226,6 +235,14 @@ export function ArrivalsGreeceDetails({
     }
   }, [regionValues])
 
+  // When switching back to map view, the container was hidden (display:none) so
+  // MapLibre doesn't know its real size — resize to fix blank canvas.
+  useEffect(() => {
+    if (view === 'map') {
+      requestAnimationFrame(() => { mapRef.current?.resize() })
+    }
+  }, [view])
+
   return (
     <div className="mx-auto my-6 max-w-5xl">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -236,13 +253,33 @@ export function ArrivalsGreeceDetails({
             <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
-          <select
-            className="flex-shrink-0 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
-            value={effectiveYear ?? ''}
-            onChange={e => setSelectedYear(Number(e.target.value))}
-          >
-            {years.map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              className="flex-shrink-0 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
+              value={effectiveYear ?? ''}
+              onChange={e => setSelectedYear(Number(e.target.value))}
+            >
+              {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <div className="border-border flex items-center overflow-hidden rounded-md border">
+              <button
+                type="button"
+                className={`flex items-center justify-center px-2.5 py-1.5 ${view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                title={t('statistics.mapView')}
+                onClick={() => setView('map')}
+              >
+                <MapIcon size={14} />
+              </button>
+              <button
+                type="button"
+                className={`border-border flex items-center justify-center border-l px-2.5 py-1.5 ${view === 'chart' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                title={t('statistics.chartView')}
+                onClick={() => setView('chart')}
+              >
+                <BarChart2 size={14} />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Card body */}
@@ -260,8 +297,8 @@ export function ArrivalsGreeceDetails({
             </div>
           )}
 
-          {/* Map + ranking */}
-          <div className="flex gap-4" style={{ height: 460 }}>
+          {/* Map + ranking — kept in DOM always so MapLibre isn't destroyed on view switch */}
+          <div className={`flex gap-4 ${view === 'map' ? '' : 'hidden'}`} style={{ height: 460 }}>
             <div className="relative flex-1 overflow-hidden rounded-lg border border-gray-200">
               <div ref={containerRef} className="h-full w-full" />
               {loading && (
@@ -321,6 +358,31 @@ export function ArrivalsGreeceDetails({
               </div>
             </div>
           </div>
+
+          {/* Bar chart view */}
+          {view === 'chart' && (
+            <div className="rounded-lg border border-gray-200 p-4" style={{ height: 460 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={barData}
+                  margin={{ top: 16, right: 16, left: 16, bottom: 48 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
+                  <YAxis tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(value: number) => [value.toLocaleString(), t('statistics.arrivals')]}
+                    cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  />
+                  <Bar dataKey="value" radius={[3, 3, 0, 0]}>
+                    {barData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
 
         {/* Card footer */}

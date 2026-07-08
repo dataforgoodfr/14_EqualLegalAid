@@ -4,7 +4,7 @@ import { flushSync } from 'react-dom'
 import maplibregl from 'maplibre-gl'
 import layersFn from 'protomaps-themes-base'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { Map as MapIcon, LayoutList } from 'lucide-react'
+import { Map as MapIcon, LayoutList, Layers } from 'lucide-react'
 import countriesUrl from '@/assets/countries.geojson?url'
 import { useMapIndicators } from '@/hooks/useMapIndicators'
 import type { MapIndicatorRecord } from '@/hooks/useMapIndicators'
@@ -95,6 +95,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   const { records, loading, error } = useMapIndicators()
   const [perCapita, setPerCapita] = useState(false)
   const [view, setView] = useState<'map' | 'table'>('map')
+  const [showLegend, setShowLegend] = useState(false)
 
   const years = useMemo(
     () => [...new Set(records.filter(r => r.total_applicants > 0).map(r => r.year))].sort((a, b) => b - a),
@@ -359,7 +360,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
           </div>
 
           <div className={`border-border flex overflow-hidden rounded-lg border ${view === 'map' ? '' : 'hidden'}`} style={{ height: '480px' }}>
-            <div className="bg-muted/30 border-border flex flex-col justify-between border-r p-5" style={{ width: 240, flexShrink: 0 }}>
+            <div className="bg-muted/30 border-border flex flex-col border-r px-5 pb-5 pt-3" style={{ width: 240, flexShrink: 0 }}>
               <div className="space-y-4">
                 {(explanatoryTitle || explanatoryText) && (
                   <div>
@@ -392,31 +393,6 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
                     <p className="text-muted-foreground text-sm">—</p>
                   )}
               </div>
-
-              {bucketLabels.length > 0 && (
-                <div>
-                  {euRecord && (
-                    <p className="text-muted-foreground mb-2 text-[11px]">
-                      {t('statistics.euEquals')}
-                      {' '}
-                      <span className="font-semibold tabular-nums">
-                        {formatValue(euRecord[valueKey], perCapita)}
-                      </span>
-                    </p>
-                  )}
-                  <p className="text-muted-foreground mb-1.5 text-[10px] font-medium tracking-wide uppercase">
-                    {perCapita ? t('statistics.perCapita') : t('statistics.totalApplicantsLegend')}
-                  </p>
-                  <div className="space-y-1">
-                    {[...bucketLabels].reverse().map(({ color, label }) => (
-                      <div key={label} className="flex items-center gap-2">
-                        <div className="h-3 w-5 flex-shrink-0 rounded-sm" style={{ backgroundColor: color }} />
-                        <span className="text-muted-foreground text-[10px] tabular-nums">{label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="relative flex-1 overflow-hidden">
@@ -424,6 +400,45 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
               {loading && (
                 <div className="text-muted-foreground absolute inset-0 flex items-center justify-center bg-white/60 text-sm">
                   {t('loadingData')}
+                </div>
+              )}
+
+              {/* Floating legend */}
+              {bucketLabels.length > 0 && (
+                <div className="absolute bottom-8 left-3 z-10">
+                  <button
+                    type="button"
+                    onClick={() => setShowLegend(prev => !prev)}
+                    className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white/90 px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+                  >
+                    <Layers size={12} />
+                    {t('statistics.legend')}
+                  </button>
+
+                  {showLegend && (
+                    <div className="absolute bottom-full mb-2 left-0 min-w-[150px] rounded-lg border border-gray-200 bg-white/95 p-3 shadow-lg backdrop-blur-sm text-xs">
+                      {euRecord && (
+                        <p className="text-muted-foreground mb-2 text-[11px]">
+                          {t('statistics.euEquals')}
+                          {' '}
+                          <span className="font-semibold tabular-nums">
+                            {formatValue(euRecord[valueKey], perCapita)}
+                          </span>
+                        </p>
+                      )}
+                      <p className="text-muted-foreground mb-1.5 text-[10px] font-medium tracking-wide uppercase">
+                        {perCapita ? t('statistics.perCapita') : t('statistics.totalApplicantsLegend')}
+                      </p>
+                      <div className="space-y-1">
+                        {[...bucketLabels].reverse().map(({ color, label }) => (
+                          <div key={label} className="flex items-center gap-2">
+                            <div className="h-3 w-5 flex-shrink-0 rounded-sm" style={{ backgroundColor: color }} />
+                            <span className="text-muted-foreground text-[10px] tabular-nums">{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

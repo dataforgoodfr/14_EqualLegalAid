@@ -158,6 +158,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
                 key={keyword}
                 label={keyword}
                 className="mb-2 not-last:mr-2"
+                truncate
               />
             ))}
             {hiddenKeywordsCount > 0 && (

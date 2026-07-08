@@ -7,6 +7,7 @@ import { store } from './redux/store.ts'
 import { Provider } from 'react-redux'
 import { DownloadCaselawProvider } from '@/context/'
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
+import { Tooltip as TooltipPrimitive } from 'radix-ui'
 import {
   CaselawPage,
   AsylumSeekersCampsPage,
@@ -21,6 +22,7 @@ import './i18n/i18n'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
+      <TooltipPrimitive.Provider delayDuration={0}>
       <AirtableProvider>
         <DownloadCaselawProvider>
           <BrowserRouter>
@@ -44,6 +46,7 @@ createRoot(document.getElementById('root')!).render(
           </BrowserRouter>
         </DownloadCaselawProvider>
       </AirtableProvider>
+      </TooltipPrimitive.Provider>
     </Provider>
   </StrictMode>,
 )

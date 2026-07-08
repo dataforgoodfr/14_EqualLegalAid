@@ -1,8 +1,8 @@
-import { useOutletContext } from 'react-router-dom'
+import { useOutletContext } from 'react-router'
 import { ProtectionDecisions } from '@/components/Indicators/ProtectionDecisions'
 import type { StatisticOutletContext } from '@/types'
 
-export const ProtectionGrantedVsRejectedPage = () => {
+export default () => {
   const { getCustomText } = useOutletContext<StatisticOutletContext>()
   return (
     <ProtectionDecisions customText={getCustomText('ProtectionGrantedVsRejected')} />

@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import type { HeaderNavigationItemType } from '@/types'
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router'
 interface HeaderNavigationProps {
   className?: string
 }
@@ -15,7 +15,7 @@ export const HeaderNavigation = ({ className }: HeaderNavigationProps) => {
 
   const headerNavigationItems: HeaderNavigationItemInterface[] = [
     { id: 'caselaw', label: t('nav.caselaw'), path: '/' },
-    { id: 'statistics', label: t('nav.statistics'), path: '/advocacy' },
+    { id: 'statistics', label: t('nav.statistics'), path: '/advocacy/AsylumApplicationsInEurope' },
   ]
   return (
     <nav

@@ -5,7 +5,17 @@ import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 import { useTranslation } from 'react-i18next'
 import { useAirtableFilter } from '@/hooks'
-export const CaselawPage = () => {
+import { DownloadCaselawProvider } from '@/context/'
+
+export default () => {
+  return(
+    <DownloadCaselawProvider>
+    <CaseLaw />
+    </DownloadCaselawProvider>
+  )
+}
+
+function CaseLaw(){
   const {
     caselawRecords,
     dateBounds,
@@ -20,7 +30,7 @@ export const CaselawPage = () => {
   useAirtableFilter()
   return (
     <>
-      <HighlightTitle
+    <HighlightTitle
         title={t('caselaw.highlightTitle')}
       />
       <div className="flex flex-wrap xl:gap-10">
@@ -57,7 +67,7 @@ export const CaselawPage = () => {
             />
           )}
         </div>
-      </div>
+      </div>  
     </>
   )
 }

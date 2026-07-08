@@ -371,7 +371,7 @@ export function ArrivalsGreeceDetails({
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                   <YAxis tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
                   <Tooltip
-                    formatter={(value: number) => [value.toLocaleString(), t('statistics.arrivals')]}
+                    formatter={(value) => [Number(value).toLocaleString(), t('statistics.arrivals')]}
                     cursor={{ fill: 'rgba(0,0,0,0.04)' }}
                   />
                   <Bar dataKey="value" radius={[3, 3, 0, 0]}>

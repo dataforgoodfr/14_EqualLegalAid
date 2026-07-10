@@ -85,6 +85,9 @@ export const useAirtableFilter = () => {
               }
             }
             else if (tableName === AirtableBaseNameEnum.Keywords) {
+              // On n'affiche que les keywords rattachés à au moins une décision
+              // (Count_Caselaws > 0), comme les autres filtres.
+              selectConfig.filterByFormula = 'AND({Count_Caselaws} != BLANK(), {Count_Caselaws} > 0)'
               selectConfig.sort = [{ field: 'Index', direction: 'asc' }]
             }
             const records = await airtableService.fetchRecordsFromTable({

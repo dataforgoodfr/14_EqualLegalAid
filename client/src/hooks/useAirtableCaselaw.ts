@@ -94,10 +94,13 @@ const buildFilterFormula = (selectedFilters: SelectedFilters): string => {
       const orClauses = values.map((value) => {
         const escapedValue = escapeFormulaValue(value)
         if (column === 'Keywords') {
+          // Keywords = champ multi-valeurs → recherche par sous-chaîne (existant).
           return `SEARCH(LOWER("${escapedValue}"), LOWER({Keywords}))`
         }
 
-        return `SEARCH(LOWER("${escapedValue}"), LOWER({${column}}))`
+        // Champs à valeur unique → égalité EXACTE. SEARCH matchait la sous-chaîne
+        // ("Mali" matchait "Somalia"). TRIM absorbe les espaces parasites.
+        return `LOWER(TRIM({${column}})) = LOWER(TRIM("${escapedValue}"))`
       }).join(',')
 
       return values.length > 1 ? `OR(${orClauses})` : orClauses

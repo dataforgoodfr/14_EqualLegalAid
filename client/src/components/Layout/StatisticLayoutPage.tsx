@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 
 import { HeaderComponent } from '@/components/Header'
 import { KeyFiguresHeader } from '@/components/Indicators/KeyFiguresHeader'
@@ -6,6 +6,7 @@ import { MethodologySection } from '@/components/Indicators/MethodologySection'
 import { cn } from '@/lib/utils'
 import { useKeyFigures } from '@/hooks/useKeyFigures'
 import { useIndicatorCustomTexts } from '@/hooks/useIndicatorCustomTexts'
+import { useEmbedMode } from '@/hooks/useEmbedMode'
 import { useTranslation } from 'react-i18next'
 interface NavLinkItem {
   label: string
@@ -14,6 +15,8 @@ interface NavLinkItem {
 export const StatisticLayoutPage = () => {
   const { records: customTexts } = useIndicatorCustomTexts()
   const keyFigures = useKeyFigures()
+  const isEmbed = useEmbedMode()
+  const location = useLocation()
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
   const asylumApplicationsInEurope = customTexts.filter(ct => ct.name === 'AsylumApplicationsInEurope')[0] ?? null
@@ -37,13 +40,13 @@ export const StatisticLayoutPage = () => {
   ]
   return (
     <div className="app mx-auto my-0 w-full xl:max-w-315">
-      <HeaderComponent />
+      {!isEmbed && <HeaderComponent />}
       <main className="main-content px-4 xl:px-0">
         <KeyFiguresHeader data={keyFigures} />
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-1 py-3">
           {tabItems.map(tabItem => (
             <NavLink
-              to={tabItem.to}
+              to={{ pathname: tabItem.to, search: location.search }}
               key={tabItem.to}
               className={({ isActive }: { isActive: boolean }) => cn(
                 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { CircleFlag } from 'react-circle-flags'
+import { useSearchParams } from 'react-router-dom'
 import { LANGUAGES } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
 
@@ -13,13 +14,23 @@ interface LanguageSwitcherProps {
 }
 export const LanguageSwitcher = ({ className }: LanguageSwitcherProps) => {
   const { i18n } = useTranslation()
+  const [, setSearchParams] = useSearchParams()
   const currentLang = i18n.language
+
+  const handleChangeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang)
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      next.set('lang', lang)
+      return next
+    })
+  }
 
   return (
     <div className={cn('flex items-center gap-3', className)}>
       {Object.values(LANGUAGES).map((lang) => (
         <button
-          onClick={() => i18n.changeLanguage(lang)}
+          onClick={() => handleChangeLanguage(lang)}
           key={lang}
           className={cn(
             'transition-opacity cursor-pointer',

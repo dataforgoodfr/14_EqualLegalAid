@@ -38,7 +38,7 @@ export function KeyFiguresHeader({ data }: { data: KeyFiguresData }) {
       )}
 
       {/* Key figures */}
-      <div className="space-y-3">
+      <div className="space-y-3 rounded-xl border border-gray-300 p-4">
         <p className="text-xs text-gray-500">
           {last_update_title}
           {data.last_updated_on ? ` : ${data.last_updated_on}` : ''}

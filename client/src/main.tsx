@@ -17,6 +17,7 @@ import {
   ArrivalsInGreecePage,
   AsylumApplicationsEvolutionInGreecePage,
   ProtectionGrantedVsRejectedPage,
+  CourtAsylumProceduresPage,
 } from '@/pages'
 import './i18n/i18n'
 
@@ -47,6 +48,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="ArrivalsInGreece" element={<ArrivalsInGreecePage />} />
                 <Route path="AsylumApplicationsEvolutionInGreece" element={<AsylumApplicationsEvolutionInGreecePage />} />
                 <Route path="ProtectionGrantedVsRejected" element={<ProtectionGrantedVsRejectedPage />} />
+                <Route path="CourtAsylumProcedures" element={<CourtAsylumProceduresPage />} />
                 <Route path="AsylumSeekersCamps" element={<AsylumSeekersCampsPage />} />
               </Route>
             </Routes>

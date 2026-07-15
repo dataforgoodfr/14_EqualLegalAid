@@ -163,6 +163,20 @@
     "negativeAccelerated": "Negative after accelerated procedure",
     "clickForDetails": "Click on the chart to see details",
     "granted": "Granted",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "courtAsylumProcedures": "Court asylum procedures",
+    "applicationsForAnnulment": "Applications for annulment",
+    "total": "Total",
+    "onTheMerit": "On the merit",
+    "annulmentApplications": "Annulment applications",
+    "annulmentApplication": "Annulment application",
+    "interimMeasuresRequests": "Interim measures requests",
+    "interimMeasuresSubmitted": "Interim measures request submitted",
+    "decisionsInterimMeasures": "Decision on interim measures request",
+    "fluctuationTitle": "Fluctuation of submission of application for annulments and requests for interim measures",
+    "decisionsEvolution": "Decisions evolution",
+    "legalAidAnnulmentRequests": "Requests for legal aid on annulment",
+    "legalAidPositive": "positive",
+    "legalAidNegative": "Negative"
   }
 }

@@ -163,7 +163,21 @@
     "negativeAccelerated": "Αρνητική μετά από ταχεία διαδικασία",
     "clickForDetails": "Κάντε κλικ στο γράφημα για λεπτομέρειες",
     "granted": "Χορηγήθηκε",
-    "rejected": "Απορρίφθηκε"
+    "rejected": "Απορρίφθηκε",
+    "courtAsylumProcedures": "Δικαστικές διαδικασίες ασύλου",
+    "applicationsForAnnulment": "Αιτήσεις ακύρωσης",
+    "total": "Σύνολο",
+    "onTheMerit": "Επί της ουσίας",
+    "annulmentApplications": "Αιτήσεις ακύρωσης",
+    "annulmentApplication": "Αίτηση ακύρωσης",
+    "interimMeasuresRequests": "Αιτήσεις προσωρινών μέτρων",
+    "interimMeasuresSubmitted": "Υποβληθείσα αίτηση προσωρινών μέτρων",
+    "decisionsInterimMeasures": "Απόφαση επί αίτησης προσωρινών μέτρων",
+    "fluctuationTitle": "Διακύμανση υποβολής αιτήσεων ακύρωσης και αιτήσεων προσωρινών μέτρων",
+    "decisionsEvolution": "Εξέλιξη αποφάσεων",
+    "legalAidAnnulmentRequests": "Αιτήσεις νομικής βοήθειας για ακύρωση",
+    "legalAidPositive": "θετική",
+    "legalAidNegative": "Αρνητική"
   }
 }
 

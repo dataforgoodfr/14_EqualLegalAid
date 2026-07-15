@@ -115,7 +115,7 @@ function DecisionsContent({
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
         {/* Tree table */}
-        <div className="lg:col-span-3 overflow-x-auto rounded-lg border border-gray-200">
+        <div className="lg:col-span-3 min-w-0 overflow-x-auto rounded-lg border border-gray-200">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
               <tr>

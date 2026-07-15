@@ -21,19 +21,24 @@ const CAMP_TYPES = [
   "CCAC",
   "RIC",
   "Site",
-  "ESTIA"
 ] as const
 const CAMP_COLORS: Record<string, string> = {
-  'CCAC': '#0000b8',
-  'RIC': '#0170b9',
+  'CCAC': '#04356C',
+  'RIC': '#d97706',
   'Site': '#0090ff',
-  'ESTIA': '#d5d5d5',
 }
+// Display-only label override — keeps the underlying "Site" data key intact
+// (it's what Airtable and the filter logic use) while showing nicer copy.
+const CAMP_TYPE_LABELS: Record<string, string> = {
+  'Site': 'Facilities',
+}
+// ESTIA data stops very early in the series and was flagged as too confusing to show.
+const EXCLUDED_CAMP_TYPE = 'ESTIA'
 
 // Camp types are specified in a string with additional data,
 // but the camp type is always the first word in the string.
 // So we split on spaces and take the first word as the camp type.
-function isCampType(record: AsylumSeekersCampsRecord, campType: string): boolean {
+function isCampType(record: { type: string }, campType: string): boolean {
   return record.type.includes(campType)
 }
 
@@ -74,26 +79,32 @@ export function AsylumSeekersCampsDetails({
   const [selectedCampType, setSelectedCampType] = useState<string>('all')
   const [byRegion, setByRegion] = useState(true)
 
+  // ESTIA data stops very early in the series, so it's excluded everywhere (chart, map, key figure).
+  const visibleRecords = useMemo(
+    () => records.filter(r => !r.type.includes(EXCLUDED_CAMP_TYPE)),
+    [records],
+  )
+
   // Collect all region names based on the data records.
   const regions = useMemo(() => {
     const set = new Set<string>()
-    for (const r of records) if (r.region) set.add(r.region)
+    for (const r of visibleRecords) if (r.region) set.add(r.region)
     return Array.from(set).sort()
-  }, [records])
+  }, [visibleRecords])
 
   // Cache a lookup of record ids to their camp types.
   // Some camps are labeled as multiple types, in particular "CCAC/RIC".
   const campTypes = useMemo(() => {
     const types = new Map<string, string[]>()
-    for (const r of records) {
+    for (const r of visibleRecords) {
       types.set(r.id, CAMP_TYPES.filter(t => isCampType(r, t)));
     }
     return types
-  }, [records])
+  }, [visibleRecords])
 
   // Group by year-month, then by region/camp type — one series per region/camp type
   const chartData = useMemo(() => {
-    const filtered = records.filter(r => {
+    const filtered = visibleRecords.filter(r => {
       return (selectedRegion == 'all' || r.region === selectedRegion)
         &&
         (selectedCampType == 'all' || isCampType(r, selectedCampType))
@@ -118,7 +129,7 @@ export function AsylumSeekersCampsDetails({
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, values]) => ({ date, ...values })) as ({ date: string } & Record<string, number>)[]
-  }, [records, selectedRegion, selectedCampType, byRegion])
+  }, [visibleRecords, selectedRegion, selectedCampType, byRegion])
 
   const keyFigure = useMemo(() => {
     if (chartData.length == 0) {
@@ -135,18 +146,20 @@ export function AsylumSeekersCampsDetails({
     }
   }, [chartData])
 
-  // Line label/key and color information.
+  // Line key (matches the data field name in chartData) + display label + color.
   const chartLines = useMemo(() => {
     if (byRegion) {
       const groups = selectedRegion === 'all' ? regions : [selectedRegion];
       return groups.map((region, i) => ({
+        key: region,
         label: region,
         color: REGION_COLORS[i % REGION_COLORS.length],
       }))
     } else {
       const groups = selectedCampType === 'all' ? CAMP_TYPES : [selectedCampType];
       return groups.map(campType => ({
-        label: campType,
+        key: campType,
+        label: CAMP_TYPE_LABELS[campType] ?? campType,
         color: CAMP_COLORS[campType]
       }))
     }
@@ -154,9 +167,33 @@ export function AsylumSeekersCampsDetails({
 
   const chartConfig = useMemo(() => {
     return Object.fromEntries(
-      chartLines.map(meta => [meta.label, meta]),
+      chartLines.map(meta => [meta.key, { label: meta.label, color: meta.color }]),
     ) as ChartConfig
   }, [chartLines])
+
+  // Looks up which region a named location belongs to, so the map (which only has
+  // name/type/coordinates, no region) can be filtered by the region select too.
+  const nameToRegion = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const r of visibleRecords) {
+      if (r.location && r.region && !map.has(r.location)) map.set(r.location, r.region)
+    }
+    return map
+  }, [visibleRecords])
+
+  // The map points, filtered to match the currently selected camp type / region —
+  // previously the map always showed every location regardless of the filters.
+  const visibleLocations = useMemo(() => {
+    return locations.filter(loc => {
+      if (loc.type.includes(EXCLUDED_CAMP_TYPE)) return false
+      if (selectedCampType !== 'all' && !isCampType(loc, selectedCampType)) return false
+      if (selectedRegion !== 'all' && nameToRegion.get(loc.name) !== selectedRegion) return false
+      return true
+    })
+  }, [locations, selectedCampType, selectedRegion, nameToRegion])
+
+  const visibleLocationsRef = useRef<AsylumCampRecord[]>([])
+  visibleLocationsRef.current = visibleLocations
 
   // Map init (once)
   useEffect(() => {
@@ -198,7 +235,7 @@ export function AsylumSeekersCampsDetails({
       map.resize()
       map.addSource('points-source', {
         type: 'geojson',
-        data: convertToGeoJSON(locations),
+        data: convertToGeoJSON(visibleLocationsRef.current),
         generateId: true
       });
 
@@ -259,6 +296,21 @@ export function AsylumSeekersCampsDetails({
     }
   }, [locations])
 
+  // Re-apply the point source whenever the camp-type/region filters change.
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const apply = () => {
+      const source = map.getSource('points-source') as maplibregl.GeoJSONSource | undefined
+      source?.setData(convertToGeoJSON(visibleLocations))
+    }
+    if (map.isStyleLoaded()) apply()
+    else {
+      map.once('load', apply)
+      return () => { map.off('load', apply) }
+    }
+  }, [visibleLocations])
+
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.asylumSeekersCamps')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
   const explanatoryTitle = isGr ? customText?.explanatory_text_title_gr : customText?.explanatory_text_title_en
@@ -301,7 +353,7 @@ export function AsylumSeekersCampsDetails({
               onChange={e => setSelectedCampType(e.target.value)}
             >
               <option value="all">{t('statistics.allTypes')}</option>
-              {CAMP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              {CAMP_TYPES.map(type => <option key={type} value={type}>{CAMP_TYPE_LABELS[type] ?? type}</option>)}
             </select>
 
             <select
@@ -368,7 +420,7 @@ export function AsylumSeekersCampsDetails({
                       className="inline-block w-3 h-3 rounded-full mr-2"
                       style={{ backgroundColor: color }}
                     />
-                    {type}
+                    {CAMP_TYPE_LABELS[type] ?? type}
                   </div>
                 ))}
               </div>
@@ -387,9 +439,9 @@ export function AsylumSeekersCampsDetails({
                   <Legend content={<ChartLegendContent />} />
                   {chartLines.map(meta => (
                     <Line
-                      key={meta.label}
+                      key={meta.key}
                       type="monotone"
-                      dataKey={meta.label}
+                      dataKey={meta.key}
                       stroke={meta.color}
                       dot={false}
                     />

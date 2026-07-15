@@ -119,6 +119,7 @@ export function ArrivalsGreeceDetails({
   ], [seaRanking, evrosValue])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.arrivalsGreece')
+  const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
   const explanatoryTitle = isGr ? customText?.explanatory_text_title_gr : customText?.explanatory_text_title_en
   const explanatoryText = isGr ? customText?.explanatory_text_gr : customText?.explanatory_text_en
   const information = isGr ? customText?.information_gr : customText?.information_en
@@ -248,10 +249,15 @@ export function ArrivalsGreeceDetails({
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
-        <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
-            <IndicatorInfoButton text={information} />
+        <div className="flex items-start justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+              <IndicatorInfoButton text={information} />
+            </div>
+            {subtitle && (
+              <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <select

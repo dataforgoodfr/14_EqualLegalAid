@@ -133,19 +133,8 @@ export function AsylumApplicationsDetails({
               <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
               <IndicatorInfoButton text={information} />
             </div>
-            {customText?.source && (
-              <p className="text-xs text-gray-500 mt-1">
-                {t('statistics.source')} :{' '}
-                <a
-                  href={customText.source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-gray-800 transition-colors"
-                >
-                  {customText.sourceText || customText.source}
-                </a>
-                {firstYear && lastYear ? ` — From ${firstYear} to ${lastYear}` : ''}
-              </p>
+            {subtitle && (
+              <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
             )}
           </div>
 
@@ -179,9 +168,6 @@ export function AsylumApplicationsDetails({
 
             {mostRecentData && (
               <div className="rounded-lg border border-gray-200 p-5">
-                {subtitle && (
-                  <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p>
-                )}
                 <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
                   {fmtK(mostRecentData.first_time_applicants)}
                 </p>
@@ -238,13 +224,30 @@ export function AsylumApplicationsDetails({
             )}
         </div>
 
-        {/* Card footer — last updated */}
-        {customText?.last_updated_on && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex justify-end text-xs text-gray-500">
-            <span>
-              <span className="font-medium text-gray-600">{t('statistics.lastUpdated')} :</span>
-              {' '}{customText.last_updated_on}
-            </span>
+        {/* Card footer — source & last updated */}
+        {(customText?.source || customText?.last_updated_on) && (
+          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-xs text-gray-500">
+            {customText?.source && (
+              <span>
+                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                {' '}
+                <a
+                  href={customText.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-gray-800 transition-colors"
+                >
+                  {customText.sourceText || customText.source}
+                </a>
+                {firstYear && lastYear ? ` — From ${firstYear} to ${lastYear}` : ''}
+              </span>
+            )}
+            {customText?.last_updated_on && (
+              <span>
+                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                {' '}{customText.last_updated_on}
+              </span>
+            )}
           </div>
         )}
       </div>

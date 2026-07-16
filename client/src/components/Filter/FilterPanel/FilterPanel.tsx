@@ -204,6 +204,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
           type="multiple"
           value={openAccordionItems}
           onValueChange={setOpenAccordionItems}
+          className="pb-16"
         >
           {accordionItems.map((accordionItem, accordionItemIndex) => {
             const itemValue = `item-${accordionItemIndex}`
@@ -214,7 +215,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                   value={`item-${accordionItemIndex}`}
                   key={accordionItemIndex}
                 >
-                  <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+                  <AccordionTrigger className="font-gotham">{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
                   <AccordionContent>
                     <FilterItemWrapper
                       FilterItemWrapperBackButtonLabel={t(accordionItem.accordionTriggerLabel)}
@@ -278,7 +279,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
               }) : []
               return (
                 <AccordionItem value={`item-${accordionItemIndex}`} key={accordionItemIndex}>
-                  <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+                  <AccordionTrigger className="font-gotham">{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
                   <AccordionContent>
                     <FilterItemWrapper
                       count={count}
@@ -308,7 +309,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
                   value={`item-${accordionItemIndex}`}
                   key={accordionItemIndex}
                 >
-                  <AccordionTrigger>{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
+                  <AccordionTrigger className="font-gotham">{t(accordionItem.accordionTriggerLabel)}</AccordionTrigger>
                   <AccordionContent>
                     <FilterItemWrapper
                       FilterItemWrapperBackButtonLabel={t(accordionItem.accordionTriggerLabel)}
@@ -332,7 +333,7 @@ export const FilterPanel = ({ onApplyFilters, minDate, maxDate, count }: FilterP
             }
           })}
           <AccordionItem value="item-date">
-            <AccordionTrigger>{t('filter.decisionDate')}</AccordionTrigger>
+            <AccordionTrigger className="font-gotham">{t('filter.decisionDate')}</AccordionTrigger>
             <AccordionContent>
               <FilterItemWrapper
                 FilterItemWrapperBackButtonLabel={t('filter.decisionDate')}

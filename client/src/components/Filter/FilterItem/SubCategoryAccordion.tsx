@@ -36,9 +36,9 @@ export const SubCategoryAccordion = ({
         <AccordionItem
           value={subCategory.id}
           key={subCategory.id}
-          className="border-none bg-transparent not-last:mb-0"
+          className="border-none bg-transparent not-last:mb-0 !px-0 !py-0"
         >
-          <AccordionTrigger className="border-0 bg-transparent p-0 pl-4 !justify-start">
+          <AccordionTrigger className="border-0 bg-transparent !px-0 py-2 !justify-start">
             <div className="flex w-full gap-2">
               <div className="flex items-center gap-2">
                 <Checkbox

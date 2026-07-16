@@ -163,7 +163,7 @@ export const CategoriesFilterItem = ({
 
 
   return (
-    <Accordion type="multiple">
+    <Accordion type="multiple" className="px-2">
       {filteredCategoriesWithChildren.map(category => {
         const sameNameSubcategories = category.subCategories.filter(
           sub => sub.nameEn === category.nameEn,
@@ -182,7 +182,7 @@ export const CategoriesFilterItem = ({
         if (isSingleSameNameSubcategory) {
           return (
             <div key={category.id} className="border-none bg-transparent not-last:mb-0">
-              <div className="pl-6">
+              <div>
                 {categoryChildKeywords.length > 0 && (
                   <FieldGroup>
                     {categoryChildKeywords.map(keyword => (

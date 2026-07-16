@@ -44,7 +44,7 @@ export const BasicFilterItem = ({
     }))
   }
   return (
-    <div className="filter-item rounded-md border-gray-200 bg-white xl:p-2">
+    <div className="filter-item px-2">
       {enabledSearch && (
         <div>
           <FilterSearch
@@ -54,12 +54,12 @@ export const BasicFilterItem = ({
         </div>
       )}
 
-      <div className="filter-item__content borde rounded-md">
+      <div className="filter-item__content">
         <FieldGroup>
           {items.map(item => (
             <Field
               key={item.id}
-              className="flex items-center justify-between py-3.5"
+              className="flex items-center justify-between py-2"
               orientation="horizontal"
             >
               <div className="flex items-center">

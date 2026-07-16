@@ -94,7 +94,7 @@ export const GroupedFilterItem = ({
   }
 
   return (
-    <div className="filter-item xl:p-2">
+    <div className="filter-item px-2">
       <div className="filter-item__content">
         <FieldGroup>
           {groupedItems.map((group) => {
@@ -109,7 +109,7 @@ export const GroupedFilterItem = ({
               return (
                 <Field
                   key={item.id}
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between py-2"
                   orientation="horizontal"
                 >
                   <div className="flex items-center">
@@ -131,7 +131,7 @@ export const GroupedFilterItem = ({
             return (
               <div key={group.category} className="not-last:mb-3">
                 <Field
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between py-2"
                   orientation="horizontal"
                 >
                   <div className="flex items-center">
@@ -155,7 +155,7 @@ export const GroupedFilterItem = ({
                     return (
                       <Field
                         key={item.id}
-                        className="flex items-center justify-between not-last:mb-2"
+                        className="flex items-center justify-between py-2"
                         orientation="horizontal"
                       >
                         <div className="flex items-center">

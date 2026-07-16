@@ -23,7 +23,7 @@ export const HeaderComponent = () => {
               className="mr-6 block h-auto w-17.5 xl:mr-10"
             />
           </NavLink>
-          <h1 className="text-logo text-[16px] font-bold xl:text-[20px]">{t('header.title')}</h1>
+          <h1 className="font-gotham text-logo text-[16px] font-bold xl:text-[20px]">{t('header.title')}</h1>
         </div>
         <div
           className="flex items-center"

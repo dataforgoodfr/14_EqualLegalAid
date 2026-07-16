@@ -227,8 +227,8 @@ export const DateFilterItem = ({
   }
 
   return (
-    <div className="filter-item p-2">
-      <div className="filter-item__content borde rounded-md px-4 py-4">
+    <div className="filter-item px-2">
+      <div className="filter-item__content py-2">
         {hasSelection && (
           <div className="flex justify-end mb-2">
             <button

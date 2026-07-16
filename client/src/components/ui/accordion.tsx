@@ -17,7 +17,7 @@ function AccordionItem({
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn('bg-gray-100 rounded-lg overflow-hidden not-last:mb-4 p-2 xl:border xl:border-input', className)}
+      className={cn('bg-gray-100 rounded-lg overflow-hidden not-last:mb-2 px-2 py-1 xl:border xl:border-input', className)}
       {...props}
     />
   )
@@ -33,7 +33,7 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          'flex items-start grow justify-between p-2 font-medium text-left',
+          'flex items-start grow justify-between px-2 py-1.5 font-medium text-left',
           className,
         )}
         {...props}

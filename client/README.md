@@ -59,6 +59,48 @@ The app will be available at `http://localhost:5173`
 - **Run linter**: `npm run lint`
 - **Format code**: `npm run format`
 
+## Typography / Polices
+
+### Police de marque : Gotham
+
+L'application utilise **Gotham** comme police principale (titres, boutons, noms de filtres). Elle est appliquée via la classe utilitaire Tailwind `font-gotham`.
+
+**Comment c'est câblé :**
+
+Les fichiers `.woff2` sont hébergés dans `client/public/fonts/` et déclarés via `@font-face` dans `client/src/index.css` :
+
+```css
+@font-face {
+  font-family: 'Gotham';
+  font-weight: 400;   /* Gotham-Regular.woff2  */
+  font-weight: 800;   /* Gotham-ExtraBold.woff2 */
+  font-weight: 900;   /* Gotham-Black.woff2     */
+}
+```
+
+La variable Tailwind `--font-gotham` pointe sur `'Gotham'` avec `'Montserrat'` en fallback :
+
+```css
+@theme {
+  --font-gotham: 'Gotham', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+}
+```
+
+**Origine des fichiers :** téléchargés depuis le CDN de l'agence intégratrice (whattheweb.org) qui héberge la licence Gotham du projet. Si les fichiers doivent être mis à jour, les récupérer depuis `https://media.whattheweb.org/global/fonts/Gotham/`.
+
+**Weights disponibles :**
+| Fichier | Weight CSS | Classe Tailwind |
+|---|---|---|
+| `Gotham-Regular.woff2` | 400 | `font-normal` |
+| `Gotham-ExtraBold.woff2` | 800 | `font-extrabold` |
+| `Gotham-Black.woff2` | 900 | `font-black` |
+
+Pour les weights intermédiaires (500, 600, 700), le navigateur utilise automatiquement le fichier le plus proche.
+
+**Fallback :** si Gotham ne charge pas (hors-ligne, fichiers manquants), Montserrat est chargé depuis Google Fonts et prend le relais automatiquement. Le design reste cohérent car Montserrat est un sosie libre de Gotham.
+
+---
+
 ## Git commands
 ```sh
 # get the code for the first time using the github cli

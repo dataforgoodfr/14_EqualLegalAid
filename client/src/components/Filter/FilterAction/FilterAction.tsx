@@ -96,7 +96,7 @@ export const FilterAction = ({
         <Button
           onClick={handleSort}
           variant="outline"
-          className="w-1/2 font-bold xl:w-auto"
+          className="w-1/2 font-normal xl:w-auto"
         >
           {recentFirst ? (<ArrowDownWideNarrow />) : (<ArrowUpNarrowWide />)}
           {t('filter.sortBy')}

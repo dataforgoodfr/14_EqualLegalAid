@@ -20,13 +20,6 @@ export const CaselawPage = () => {
   useAirtableFilter()
   return (
     <>
-      <div className="mb-2 mt-6 xl:mt-10">
-        <h1 className="font-gotham text-[48px] font-extrabold uppercase leading-tight tracking-[0.3px] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
-          <span className="bg-[#093266] px-5 text-white">
-            {t('nav.caselaw')}
-          </span>
-        </h1>
-      </div>
       <HighlightTitle title={t('caselaw.highlightTitle')} />
       <div className="flex flex-wrap xl:gap-10">
         <div className="flex-auto xl:w-72 xl:flex-none xl:shrink-0">

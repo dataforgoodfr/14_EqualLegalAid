@@ -163,6 +163,12 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Le bandeau de CaselawPage sort de son conteneur en 100vw, or 100vw inclut
+       la scrollbar verticale (~15px hors macOS) : sans ça, débord horizontal.
+       `clip` et non `hidden` — `hidden` créerait un conteneur de scroll et
+       casserait les sticky de la page. À poser ici, sur un élément pleine
+       largeur : sur .app (max-w-315) ça rognerait le bandeau lui-même. */
+    overflow-x: clip;
   }
 }
 

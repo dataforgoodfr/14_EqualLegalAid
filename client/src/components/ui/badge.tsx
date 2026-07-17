@@ -26,8 +26,7 @@ export const Badge = ({
   const badge = (
     <span
       className={cn(
-        `overflow-hidden flex w-fit items-center rounded-3xl px-2.5 py-1 text-[0.72rem] whitespace-nowrap font-medium tracking-[0.4px] ${uppercase ? ' uppercase' : ''}`,
-        truncate ? 'max-w-[16rem]' : 'max-w-full',
+        `overflow-hidden flex w-fit max-w-full items-center rounded-3xl px-2.5 py-1 text-[0.72rem] whitespace-nowrap font-medium tracking-[0.4px] ${uppercase ? ' uppercase' : ''}`,
         className,
       )}
       style={{ backgroundColor: color, color: fontColor }}

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useAirtableFilter } from '@/hooks'
 import { useEmbedMode } from '@/hooks/useEmbedMode'
 import { cn } from '@/lib/utils'
+import decisionsHero from '@/assets/decisions-hero.jpg'
 export const CaselawPage = () => {
   const {
     caselawRecords,
@@ -29,6 +30,26 @@ export const CaselawPage = () => {
   useAirtableFilter()
   return (
     <>
+      {/* Bandeau : sort du conteneur max-w-315 de GlobalLayout pour aller bord
+          à bord. Dans l'iframe, 100vw vaut la largeur de l'iframe (mesurée
+          pleine largeur), donc le rendu est identique intégré ou non.
+          Valeurs relevées sur le DOM des autres pages du site (About Ela) :
+          bandeau 500px, titre à 5% du bord, bloc plafonné à 800px, et 72px
+          entre le bas du titre et le bas de l'image. */}
+      <div className="relative left-1/2 -ml-[50vw] w-screen">
+        <img
+          src={decisionsHero}
+          alt=""
+          className="h-[240px] w-full object-cover object-[50%_70%] xl:h-[500px]"
+        />
+        <div className="absolute bottom-10 left-0 w-full pl-[5%] xl:bottom-[72px]">
+          <h1 className="max-w-[800px]">
+            <span className="font-gotham bg-[#093266] px-5 text-[32px] font-extrabold uppercase leading-tight tracking-[0.3px] text-white xl:text-[48px] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+              {t('nav.caselaw')}
+            </span>
+          </h1>
+        </div>
+      </div>
       <HighlightTitle title={t('caselaw.highlightTitle')} />
       <div className="flex flex-wrap xl:gap-10">
         {/* pt = hauteur du bloc « N Decisions » de la barre (py-5 + texte + mb-6),

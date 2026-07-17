@@ -5,6 +5,8 @@ import { FilterAction, FilterPanel } from '@/components/Filter'
 import { useAirtableCaselaw } from '@/hooks/useAirtableCaselaw'
 import { useTranslation } from 'react-i18next'
 import { useAirtableFilter } from '@/hooks'
+import { useEmbedMode } from '@/hooks/useEmbedMode'
+import { cn } from '@/lib/utils'
 export const CaselawPage = () => {
   const {
     caselawRecords,
@@ -17,21 +19,30 @@ export const CaselawPage = () => {
   } = useAirtableCaselaw()
   const [sortDesc, setSortDesc] = useState(true)
   const { t } = useTranslation()
+  // En embed, HeaderNavigation (sticky, top-0, 54px) est masquée. Les offsets
+  // sticky ci-dessous en dépendent :
+  //   - barre de filtres : se colle sous la nav → 54px, ou 0 sans elle.
+  //     Sans ce 0, la bande de 54px reste à nu et les cartes y défilent.
+  //   - panneau de filtres : s'aligne sur le bouton « Sort by », qui tombe
+  //     72px sous le haut de la barre. D'où 54+72=126, ou 0+72=72 en embed.
+  const isEmbed = useEmbedMode()
   useAirtableFilter()
   return (
     <>
-      <div className="mb-2 mt-6 xl:mt-10">
-        <h1 className="font-gotham text-[48px] font-extrabold uppercase leading-tight tracking-[0.3px] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
-          <span className="bg-[#093266] px-5 text-white">
-            {t('nav.caselaw')}
-          </span>
-        </h1>
-      </div>
       <HighlightTitle title={t('caselaw.highlightTitle')} />
       <div className="flex flex-wrap xl:gap-10">
-        <div className="flex-auto xl:w-72 xl:flex-none xl:shrink-0">
-          <div className="xl:sticky xl:top-[126px] relative">
-            <div className="xl:max-h-[calc(100vh-126px)] xl:overflow-y-auto scrollbar-hidden">
+        {/* pt = hauteur du bloc « N Decisions » de la barre (py-5 + texte + mb-6),
+            pour que le 1er filtre s'aligne sur « Sort by » avant que le sticky
+            ne prenne le relais. Même valeur que le 72 de xl:top-[126px]. */}
+        <div className="flex-auto xl:w-72 xl:flex-none xl:shrink-0 xl:pt-[72px]">
+          <div className={cn(
+            'relative xl:sticky',
+            isEmbed ? 'xl:top-[72px]' : 'xl:top-[126px]',
+          )}>
+            <div className={cn(
+              'scrollbar-hidden xl:overflow-y-auto',
+              isEmbed ? 'xl:max-h-[calc(100vh-72px)]' : 'xl:max-h-[calc(100vh-126px)]',
+            )}>
               <FilterPanel
                 onApplyFilters={fetchFilteredCaselaws}
                 minDate={dateBounds.minDate}
@@ -43,7 +54,10 @@ export const CaselawPage = () => {
           </div>
         </div>
         <div className="w-full flex-auto bg-white xl:w-222">
-          <div className="sticky top-0 z-10 bg-white py-5 pb-2 xl:top-13.5">
+          <div className={cn(
+            'sticky top-0 z-10 bg-white py-5 pb-2',
+            !isEmbed && 'xl:top-13.5',
+          )}>
             <div className="relative z-2">
               <FilterAction
                 count={caselawRecords.length}

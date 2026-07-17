@@ -42,7 +42,7 @@ export const FilterSearch = ({
     )
   }, [searchDebouceValue, airtableBaseName, dispatch, prevValue, searchValue, needToSearch])
   return (
-    <div className="filter-search relative">
+    <div className="filter-search relative pt-1">
       <Input
         value={searchValue}
         placeholder={placeholderContent.length > 0 ? placeholderContent : ''}

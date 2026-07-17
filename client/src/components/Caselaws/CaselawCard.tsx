@@ -84,7 +84,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
             <Button
               variant="outline"
               asChild
-              className="!h-auto !py-1 !px-2.5 !text-[0.72rem] !rounded-3xl !gap-1 !font-medium !tracking-[0.4px] w-full xl:w-auto"
+              className="!h-auto !py-1 !px-2.5 !text-[0.72rem] !rounded-3xl !gap-1 !font-sans !font-medium !tracking-[0.4px] w-full xl:w-auto"
             >
               <a
                 href={caselaw.englishPdfLink.pdfURL}
@@ -99,7 +99,7 @@ export const CaselawCard = ({ caselaw }: CaselawCardProps) => {
             <Button
               variant="outline"
               asChild
-              className="!h-auto !py-1 !px-2.5 !text-[0.72rem] !rounded-3xl !gap-1 !font-medium !tracking-[0.4px] w-full xl:w-auto"
+              className="!h-auto !py-1 !px-2.5 !text-[0.72rem] !rounded-3xl !gap-1 !font-sans !font-medium !tracking-[0.4px] w-full xl:w-auto"
             >
               <a
                 href={caselaw.greekPdfLink.pdfURL}

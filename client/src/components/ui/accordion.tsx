@@ -33,7 +33,7 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          'flex items-start grow justify-between px-2 py-1.5 font-medium text-left',
+          'flex items-start grow justify-between px-2 py-1.5 font-normal text-left',
           className,
         )}
         {...props}

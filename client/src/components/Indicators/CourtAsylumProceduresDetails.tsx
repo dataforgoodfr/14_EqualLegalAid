@@ -54,7 +54,7 @@ function TreeRow({
           </span>
         </span>
       </td>
-      <td className="px-4 py-2 text-right text-sm">{value.toLocaleString()}</td>
+      <td className="px-4 py-2 text-right text-sm">{value.toLocaleString('fr-FR')}</td>
       <td className="px-4 py-2 text-right text-sm text-gray-400">{pct}</td>
     </tr>
   )
@@ -175,7 +175,7 @@ function AnnulmentsCard({ records }: { records: AnnulmentRecord[] }) {
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
-              <PieTooltip formatter={value => (value != null ? Number(value).toLocaleString() : '')} />
+              <PieTooltip formatter={value => (value != null ? Number(value).toLocaleString('fr-FR') : '')} />
             </PieChart>
           </ChartContainer>
           <div className="w-full space-y-2 px-2">
@@ -183,7 +183,7 @@ function AnnulmentsCard({ records }: { records: AnnulmentRecord[] }) {
               <div key={d.name} className="flex items-center gap-2">
                 <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
                 <span className="text-sm text-gray-700">{d.name}</span>
-                <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString()}</span>
+                <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
               </div>
             ))}
           </div>
@@ -319,7 +319,7 @@ function LegalAidDonut({ records }: { records: LegalAidApplicationRecord[] }) {
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
-                <PieTooltip formatter={value => (value != null ? Number(value).toLocaleString() : '')} />
+                <PieTooltip formatter={value => (value != null ? Number(value).toLocaleString('fr-FR') : '')} />
               </PieChart>
             </ChartContainer>
             <div className="w-full space-y-2 px-2">
@@ -328,7 +328,7 @@ function LegalAidDonut({ records }: { records: LegalAidApplicationRecord[] }) {
                   <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
                   <span className="text-sm text-gray-700">{d.name}</span>
                   <span className="ml-auto text-xs text-gray-400">{total > 0 ? `${Math.round((d.value / total) * 100)}%` : ''}</span>
-                  <span className="text-sm font-semibold text-gray-800">{d.value.toLocaleString()}</span>
+                  <span className="text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
                 </div>
               ))}
             </div>

@@ -26,11 +26,6 @@ import type { AsylumApplicationRecord } from '@/hooks/useAsylumApplications'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import { useTranslation } from 'react-i18next'
 
-function fmtK(n: number): string {
-  if (n >= 1_000) return `${Math.round(n / 1_000)}k`
-  return n.toLocaleString('en-US')
-}
-
 export function AsylumApplicationsDetails({
   records,
   loading,
@@ -169,7 +164,7 @@ export function AsylumApplicationsDetails({
             {mostRecentData && (
               <div className="rounded-lg border border-gray-200 p-5">
                 <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
-                  {fmtK(mostRecentData.first_time_applicants)}
+                  {mostRecentData.first_time_applicants.toLocaleString('fr-FR')}
                 </p>
                 <p className="text-sm text-gray-600 mt-2">
                   {t('statistics.firstTimeApplicantsLabel')} in {mostRecentData.year}

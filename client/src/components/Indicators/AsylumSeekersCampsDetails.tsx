@@ -388,7 +388,7 @@ export function AsylumSeekersCampsDetails({
                   <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p>
                 )}
                 <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
-                  {Number(keyFigure.total).toLocaleString()}
+                  {Number(keyFigure.total).toLocaleString('fr-FR')}
                 </p>
                 <p className="text-sm text-gray-600 mt-2">
                   In {keyFigure.date}

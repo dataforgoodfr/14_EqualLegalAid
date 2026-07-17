@@ -3,7 +3,7 @@ import { StatCard } from '@/components/ui'
 import type { KeyFigureCard, KeyFiguresData } from '@/hooks/useKeyFigures'
 
 const fmt = (n: number | null) =>
-  n != null ? n.toLocaleString('en-US') : '—'
+  n != null ? n.toLocaleString('fr-FR') : '—'
 
 function KeyFigureStatCard({ card, isGr }: { card: KeyFigureCard; isGr: boolean }) {
   const label = isGr ? card.label_gr : card.label_en

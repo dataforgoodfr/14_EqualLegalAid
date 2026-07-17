@@ -147,11 +147,11 @@ function ByPeriod({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard
           label={t('statistics.totalFirstTime', { start: firstYear, end: lastYear })}
-          value={totalFirstTime.toLocaleString()}
+          value={totalFirstTime.toLocaleString('fr-FR')}
         />
         <StatCard
           label={t('statistics.totalSubsequent', { start: firstYear, end: lastYear })}
-          value={totalSubSequent.toLocaleString()}
+          value={totalSubSequent.toLocaleString('fr-FR')}
         />
       </div>
 
@@ -380,7 +380,7 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
                 <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p>
               )}
               <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
-                {Number(keyFigure.value).toLocaleString()}
+                {Number(keyFigure.value).toLocaleString('fr-FR')}
               </p>
               <p className="text-sm text-gray-600 mt-2">
                 {keyFigure.firstYear} - {keyFigure.lastYear}

@@ -35,7 +35,8 @@
     "procedureType": "Type of proceeding",
     "asylumProcedure": "Asylum Procedure",
     "downloadEnglishPdf": "English PDF",
-    "downloadGreekPdf": "Greek PDF"
+    "downloadGreekPdf": "Greek PDF",
+    "photoCredit": "Diavata refugee camp, 2021 © Régis Defurnaux"
   },
   "filter": {
     "decisions_one": "Decision",

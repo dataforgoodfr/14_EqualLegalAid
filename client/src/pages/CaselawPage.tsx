@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useAirtableFilter } from '@/hooks'
 import { useEmbedMode } from '@/hooks/useEmbedMode'
 import { cn } from '@/lib/utils'
-import decisionsHero from '@/assets/decisions-hero.jpg'
+import decisionsHero from '@/assets/decisions-hero-diavata.jpg'
 export const CaselawPage = () => {
   const {
     caselawRecords,
@@ -49,6 +49,9 @@ export const CaselawPage = () => {
             </span>
           </h1>
         </div>
+        <p className="absolute bottom-1 right-2 text-[10px] text-white/80 xl:bottom-2 xl:right-4 xl:text-xs">
+          {t('caselaw.photoCredit')}
+        </p>
       </div>
       <HighlightTitle title={t('caselaw.highlightTitle')} />
       <div className="flex flex-wrap xl:gap-10">

@@ -13,31 +13,55 @@ import { Map as MapIcon, BarChart2 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
-const NAME_PROP = 'name'
 
-type RegionDef = {
+const SEA_COLOR = '#3b82f6'
+const LAND_COLOR = '#1e3a8a'
+
+// Un cercle par point d'entrée, posé sur l'île (ou sur le poste-frontière pour
+// Evros). Les données Airtable ne portent pas de coordonnées — contrairement aux
+// camps, où elles viennent de la base — donc on les fixe ici.
+// NB : MapLibre attend [lng, lat].
+// `other_islands` n'a volontairement pas de point : c'est un agrégat sans
+// localisation, il resterait arbitraire de le poser quelque part. Il n'apparaît
+// donc que dans le classement à droite.
+const ENTRY_POINTS: {
   label: string
+  coords: [number, number]
   getValue: (y: ArrivalsGreeceYearly) => number
   color: string
-}
+}[] = [
+  { label: 'Crete', coords: [24.81, 35.24], getValue: y => y.crete, color: SEA_COLOR },
+  { label: 'Lesvos', coords: [26.27, 39.22], getValue: y => y.lesvos, color: SEA_COLOR },
+  { label: 'Chios', coords: [26.00, 38.40], getValue: y => y.chios, color: SEA_COLOR },
+  { label: 'Samos', coords: [26.83, 37.75], getValue: y => y.samos, color: SEA_COLOR },
+  { label: 'Leros', coords: [26.85, 37.15], getValue: y => y.leros, color: SEA_COLOR },
+  { label: 'Kos', coords: [27.20, 36.85], getValue: y => y.kos, color: SEA_COLOR },
+  { label: 'Evros', coords: [26.50, 41.35], getValue: y => y.evros, color: LAND_COLOR },
+]
 
-const REGION_DEFS: Record<string, RegionDef> = {
-  'Anatoliki Makedonia kai Thraki': {
-    label: 'Evros',
-    getValue: y => y.evros,
-    color: '#1e3a8a',
-  },
-  'Voreio Aigaio': {
-    label: 'Voreio Aigaio',
-    getValue: y => y.lesvos + y.samos + y.chios,
-    color: '#3b82f6',
-  },
-  'Notio Aigaio': {
-    label: 'Notio Aigaio',
-    getValue: y => y.kos + y.leros + y.other_islands,
-    color: '#6366f1',
-  },
-}
+const buildPointsGeoJSON = (y: ArrivalsGreeceYearly | null) => ({
+  type: 'FeatureCollection' as const,
+  features: (y ? ENTRY_POINTS : [])
+    .map(p => ({ p, value: p.getValue(y!) }))
+    .filter(({ value }) => value > 0)
+    .map(({ p, value }) => ({
+      type: 'Feature' as const,
+      properties: { label: p.label, value, color: p.color },
+      geometry: { type: 'Point' as const, coordinates: p.coords },
+    })),
+})
+
+// Rayon en racine carrée de la valeur : c'est l'AIRE du cercle qui doit être
+// proportionnelle au volume, sinon l'écart est visuellement surinterprété.
+const radiusExpression = (maxValue: number): any => [
+  'interpolate',
+  ['linear'],
+  ['sqrt', ['get', 'value']],
+  0,
+  3,
+  Math.sqrt(Math.max(maxValue, 1)),
+  32,
+]
 
 const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly, label: string, color: string }[] = [
   { key: 'crete', label: 'Crete', color: '#4f46e5' },
@@ -49,17 +73,13 @@ const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly, label: string, color: stri
   { key: 'leros', label: 'Leros', color: '#c7d2fe' },
 ]
 
-function applyMapData(map: maplibregl.Map, regionValues: Record<string, number>) {
-  const colorExpr: any = [
-    'match',
-    ['get', NAME_PROP],
-    ...Object.entries(regionValues).flatMap(([name]) => [
-      name,
-      REGION_DEFS[name]?.color ?? '#e5e7eb',
-    ]),
-    '#e5e7eb',
-  ]
-  map.setPaintProperty('region-fill', 'fill-color', colorExpr)
+function applyMapData(map: maplibregl.Map, yearData: ArrivalsGreeceYearly | null) {
+  const source = map.getSource('points') as maplibregl.GeoJSONSource | undefined
+  if (!source) return
+  const data = buildPointsGeoJSON(yearData)
+  source.setData(data as any)
+  const max = Math.max(...data.features.map(f => f.properties.value), 1)
+  map.setPaintProperty('points-circle', 'circle-radius', radiusExpression(max))
 }
 
 export function ArrivalsGreeceDetails({
@@ -80,7 +100,7 @@ export function ArrivalsGreeceDetails({
 
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
-  const regionValuesRef = useRef<Record<string, number>>({})
+  const yearDataRef = useRef<ArrivalsGreeceYearly | null>(null)
 
   const yearly = useMemo(() => aggregateByYear(records), [records])
   const years = useMemo(() => yearly.map(r => r.year).sort((a, b) => b - a), [yearly])
@@ -92,16 +112,7 @@ export function ArrivalsGreeceDetails({
     [yearly, effectiveYear],
   )
 
-  const regionValues = useMemo(() => {
-    if (!yearData) return {}
-    return Object.fromEntries(
-      Object.entries(REGION_DEFS)
-        .map(([name, def]) => [name, def.getValue(yearData)])
-        .filter(([, v]) => (v as number) > 0),
-    ) as Record<string, number>
-  }, [yearData])
-
-  regionValuesRef.current = regionValues
+  yearDataRef.current = yearData
 
   const seaRanking = useMemo(() => {
     if (!yearData) return []
@@ -174,6 +185,9 @@ export function ArrivalsGreeceDetails({
         }
       }
 
+      // Les régions ne portent plus la donnée : elles servent de fond
+      // géographique. Peindre une périphérie entière (le Dodécanèse, ~50 îles)
+      // pour quelques points de débarquement surinterprétait la géographie.
       map.addLayer({
         id: 'region-fill',
         type: 'fill',
@@ -186,33 +200,37 @@ export function ArrivalsGreeceDetails({
         source: 'greece',
         paint: { 'line-color': '#ffffff', 'line-width': 0.8, 'line-opacity': 0.9 },
       }, firstSymbolId)
+
+      map.addSource('points', { type: 'geojson', data: buildPointsGeoJSON(yearDataRef.current) as any })
       map.addLayer({
-        id: 'region-hover',
-        type: 'fill',
-        source: 'greece',
-        paint: { 'fill-color': '#ffffff', 'fill-opacity': 0 },
-      }, firstSymbolId)
+        id: 'points-circle',
+        type: 'circle',
+        source: 'points',
+        paint: {
+          'circle-radius': radiusExpression(1),
+          'circle-color': ['get', 'color'],
+          'circle-opacity': 0.75,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#ffffff',
+        },
+      })
 
-      applyMapData(map, regionValuesRef.current)
+      applyMapData(map, yearDataRef.current)
 
-      map.on('mousemove', 'region-hover', (e) => {
+      map.on('mousemove', 'points-circle', (e) => {
         if (!e.features?.length) return
         map.getCanvas().style.cursor = 'pointer'
-        const name = e.features[0].properties?.[NAME_PROP] as string | undefined
-        if (!name) return
-        const def = REGION_DEFS[name]
-        const value = regionValuesRef.current[name]
-        if (!def || value == null) return
+        const { label, value } = e.features[0].properties as { label: string, value: number }
         popup
           .setHTML(`
-            <div style="font-size:12px;font-weight:600;margin-bottom:4px">${def.label}</div>
-            <div style="font-size:12px">&#8226; ${value.toLocaleString()}</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">${label}</div>
+            <div style="font-size:12px">&#8226; ${Number(value).toLocaleString('fr-FR')}</div>
           `)
           .setLngLat(e.lngLat)
           .addTo(map)
       })
 
-      map.on('mouseleave', 'region-hover', () => {
+      map.on('mouseleave', 'points-circle', () => {
         map.getCanvas().style.cursor = ''
         popup.remove()
       })
@@ -229,13 +247,13 @@ export function ArrivalsGreeceDetails({
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    const apply = () => applyMapData(map, regionValues)
+    const apply = () => applyMapData(map, yearData)
     if (map.isStyleLoaded()) apply()
     else {
       map.once('load', apply)
       return () => { map.off('load', apply) }
     }
-  }, [regionValues])
+  }, [yearData])
 
   // When switching back to map view, the container was hidden (display:none) so
   // MapLibre doesn't know its real size — resize to fix blank canvas.
@@ -339,7 +357,7 @@ export function ArrivalsGreeceDetails({
                         />
                       </div>
                       <span className="w-12 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
-                        {value.toLocaleString()}
+                        {value.toLocaleString('fr-FR')}
                       </span>
                     </div>
                   </div>
@@ -359,7 +377,7 @@ export function ArrivalsGreeceDetails({
                     />
                   </div>
                   <span className="w-12 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
-                    {evrosValue.toLocaleString()}
+                    {evrosValue.toLocaleString('fr-FR')}
                   </span>
                 </div>
               </div>
@@ -378,7 +396,7 @@ export function ArrivalsGreeceDetails({
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                   <YAxis tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
                   <Tooltip
-                    formatter={(value) => [Number(value).toLocaleString(), t('statistics.arrivals')]}
+                    formatter={(value) => [Number(value).toLocaleString('fr-FR'), t('statistics.arrivals')]}
                     cursor={{ fill: 'rgba(0,0,0,0.04)' }}
                   />
                   <Bar dataKey="value" radius={[3, 3, 0, 0]}>

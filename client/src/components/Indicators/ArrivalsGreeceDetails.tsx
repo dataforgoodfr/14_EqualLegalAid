@@ -40,6 +40,7 @@ const REGION_DEFS: Record<string, RegionDef> = {
 }
 
 const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly, label: string, color: string }[] = [
+  { key: 'crete', label: 'Crete', color: '#4f46e5' },
   { key: 'lesvos', label: 'Lesvos', color: '#3b82f6' },
   { key: 'chios', label: 'Chios', color: '#4f8ff7' },
   { key: 'samos', label: 'Samos', color: '#6366f1' },

@@ -15,6 +15,7 @@ export interface ArrivalsGreeceRecord {
   leros: number
   kos: number
   chios: number
+  crete: number
   other_islands: number
 }
 
@@ -29,6 +30,7 @@ export interface ArrivalsGreeceYearly {
   leros: number
   kos: number
   chios: number
+  crete: number
   other_islands: number
 }
 
@@ -75,6 +77,8 @@ export function useArrivalsGreece() {
         leros: toNum(r.fields['Leros']),
         kos: toNum(r.fields['Kos']),
         chios: toNum(r.fields['Chios']),
+        crete: toNum(r.fields['Crete']),
+        // NB : le nom de colonne contient bien une espace — 'Other _islands'
         other_islands: toNum(r.fields['Other _islands']),
       }))
       setRecords(parsed)
@@ -108,6 +112,7 @@ export function aggregateByYear(records: ArrivalsGreeceRecord[]): ArrivalsGreece
       existing.leros += r.leros
       existing.kos += r.kos
       existing.chios += r.chios
+      existing.crete += r.crete
       existing.other_islands += r.other_islands
     }
     else {

@@ -11,8 +11,8 @@ export function CountryMapPopup({ record, perCapita }: Props) {
   const { t } = useTranslation()
   const fmt = (n: number) =>
     perCapita
-      ? n.toLocaleString('en-US', { maximumFractionDigits: 2 })
-      : n.toLocaleString('en-US')
+      ? n.toLocaleString('fr-FR', { maximumFractionDigits: 2 })
+      : n.toLocaleString('fr-FR')
 
   const rows = [
     {

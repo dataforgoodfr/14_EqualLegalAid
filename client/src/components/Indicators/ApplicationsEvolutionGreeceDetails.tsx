@@ -70,15 +70,15 @@ export function ApplicationsEvolutionGreeceDetails({
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <StatCard
               label={t('statistics.totalFirstTime', { start: firstYear, end: lastYear })}
-              value={totals.first.toLocaleString()}
+              value={totals.first.toLocaleString('fr-FR')}
             />
             <StatCard
               label={t('statistics.totalSubsequent', { start: firstYear, end: lastYear })}
-              value={totals.subsequent.toLocaleString()}
+              value={totals.subsequent.toLocaleString('fr-FR')}
             />
             <StatCard
               label={t('statistics.total', { start: firstYear, end: lastYear })}
-              value={totals.total.toLocaleString()}
+              value={totals.total.toLocaleString('fr-FR')}
             />
           </div>
 

@@ -54,7 +54,7 @@ function TreeRow({
           </span>
         </span>
       </td>
-      <td className="px-4 py-2 text-right text-sm">{value.toLocaleString()}</td>
+      <td className="px-4 py-2 text-right text-sm">{value.toLocaleString('fr-FR')}</td>
       <td className="px-4 py-2 text-right text-sm text-gray-400">{pct}</td>
     </tr>
   )
@@ -228,7 +228,7 @@ function DecisionsContent({
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => (value != null ? Number(value).toLocaleString() : '')} />
+              <Tooltip formatter={(value) => (value != null ? Number(value).toLocaleString('fr-FR') : '')} />
             </PieChart>
           </ChartContainer>
           <div className="w-full space-y-2 px-2">
@@ -236,7 +236,7 @@ function DecisionsContent({
               <div key={d.name} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
                 <span className="text-sm text-gray-700">{d.name}</span>
-                <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString()}</span>
+                <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
               </div>
             ))}
           </div>

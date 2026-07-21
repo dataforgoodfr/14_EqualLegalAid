@@ -14,8 +14,18 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveCo
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
-const SEA_COLOR = '#3b82f6'
-const LAND_COLOR = '#1e3a8a'
+// Source unique des couleurs : les bulles de la carte et les barres du
+// classement lisent ici, sinon les deux représentations divergent.
+const COLORS: Record<string, string> = {
+  crete: '#4f46e5',
+  lesvos: '#3b82f6',
+  chios: '#4f8ff7',
+  samos: '#6366f1',
+  other_islands: '#818cf8',
+  kos: '#a5b4fc',
+  leros: '#c7d2fe',
+  evros: '#1e3a8a',
+}
 
 // Un cercle par point d'entrée, posé sur l'île (ou sur le poste-frontière pour
 // Evros). Les données Airtable ne portent pas de coordonnées — contrairement aux
@@ -25,28 +35,27 @@ const LAND_COLOR = '#1e3a8a'
 // localisation, il resterait arbitraire de le poser quelque part. Il n'apparaît
 // donc que dans le classement à droite.
 const ENTRY_POINTS: {
+  key: keyof ArrivalsGreeceYearly
   label: string
   coords: [number, number]
-  getValue: (y: ArrivalsGreeceYearly) => number
-  color: string
 }[] = [
-  { label: 'Crete', coords: [24.81, 35.24], getValue: y => y.crete, color: SEA_COLOR },
-  { label: 'Lesvos', coords: [26.27, 39.22], getValue: y => y.lesvos, color: SEA_COLOR },
-  { label: 'Chios', coords: [26.00, 38.40], getValue: y => y.chios, color: SEA_COLOR },
-  { label: 'Samos', coords: [26.83, 37.75], getValue: y => y.samos, color: SEA_COLOR },
-  { label: 'Leros', coords: [26.85, 37.15], getValue: y => y.leros, color: SEA_COLOR },
-  { label: 'Kos', coords: [27.20, 36.85], getValue: y => y.kos, color: SEA_COLOR },
-  { label: 'Evros', coords: [26.50, 41.35], getValue: y => y.evros, color: LAND_COLOR },
+  { key: 'crete', label: 'Crete', coords: [24.81, 35.24] },
+  { key: 'lesvos', label: 'Lesvos', coords: [26.27, 39.22] },
+  { key: 'chios', label: 'Chios', coords: [26.00, 38.40] },
+  { key: 'samos', label: 'Samos', coords: [26.83, 37.75] },
+  { key: 'leros', label: 'Leros', coords: [26.85, 37.15] },
+  { key: 'kos', label: 'Kos', coords: [27.20, 36.85] },
+  { key: 'evros', label: 'Evros', coords: [26.50, 41.35] },
 ]
 
 const buildPointsGeoJSON = (y: ArrivalsGreeceYearly | null) => ({
   type: 'FeatureCollection' as const,
   features: (y ? ENTRY_POINTS : [])
-    .map(p => ({ p, value: p.getValue(y!) }))
+    .map(p => ({ p, value: y![p.key] as number }))
     .filter(({ value }) => value > 0)
     .map(({ p, value }) => ({
       type: 'Feature' as const,
-      properties: { label: p.label, value, color: p.color },
+      properties: { label: p.label, value, color: COLORS[p.key] },
       geometry: { type: 'Point' as const, coordinates: p.coords },
     })),
 })
@@ -63,14 +72,14 @@ const radiusExpression = (maxValue: number): any => [
   32,
 ]
 
-const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly, label: string, color: string }[] = [
-  { key: 'crete', label: 'Crete', color: '#4f46e5' },
-  { key: 'lesvos', label: 'Lesvos', color: '#3b82f6' },
-  { key: 'chios', label: 'Chios', color: '#4f8ff7' },
-  { key: 'samos', label: 'Samos', color: '#6366f1' },
-  { key: 'other_islands', label: 'Other islands', color: '#818cf8' },
-  { key: 'kos', label: 'Kos', color: '#a5b4fc' },
-  { key: 'leros', label: 'Leros', color: '#c7d2fe' },
+const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly, label: string }[] = [
+  { key: 'crete', label: 'Crete' },
+  { key: 'lesvos', label: 'Lesvos' },
+  { key: 'chios', label: 'Chios' },
+  { key: 'samos', label: 'Samos' },
+  { key: 'other_islands', label: 'Other islands' },
+  { key: 'kos', label: 'Kos' },
+  { key: 'leros', label: 'Leros' },
 ]
 
 function applyMapData(map: maplibregl.Map, yearData: ArrivalsGreeceYearly | null) {
@@ -117,7 +126,7 @@ export function ArrivalsGreeceDetails({
   const seaRanking = useMemo(() => {
     if (!yearData) return []
     return SEA_ISLANDS
-      .map(({ key, label, color }) => ({ label, color, value: yearData[key] as number }))
+      .map(({ key, label }) => ({ label, color: COLORS[key], value: yearData[key] as number }))
       .filter(d => d.value > 0)
       .sort((a, b) => b.value - a.value)
   }, [yearData])
@@ -127,7 +136,7 @@ export function ArrivalsGreeceDetails({
 
   const barData = useMemo(() => [
     ...seaRanking,
-    ...(evrosValue > 0 ? [{ label: 'Evros', value: evrosValue, color: '#1e3a8a' }] : []),
+    ...(evrosValue > 0 ? [{ label: 'Evros', value: evrosValue, color: COLORS.evros }] : []),
   ], [seaRanking, evrosValue])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.arrivalsGreece')
@@ -340,17 +349,17 @@ export function ArrivalsGreeceDetails({
 
             {/* Ranking panel */}
             <div className="w-64 flex-shrink-0 overflow-y-auto rounded-lg border border-gray-200 p-4">
-              <h3 className="mb-4 text-sm font-bold text-gray-900">{t('statistics.rankingLocations')}</h3>
+              <h3 className="mb-3 text-sm font-bold text-gray-900">{t('statistics.rankingLocations')}</h3>
 
-              <h4 className="mb-3 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+              <h4 className="mb-1.5 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                 {t('statistics.seaArrivals')}
               </h4>
-              <div className="mb-5 space-y-2.5">
+              <div className="mb-3 space-y-1.5">
                 {seaRanking.map(({ label, color, value }) => (
                   <div key={label}>
                     <span className="text-xs text-gray-700">{label}</span>
                     <div className="mt-0.5 flex items-center gap-2">
-                      <div className="h-5 flex-1 overflow-hidden rounded-sm bg-gray-100">
+                      <div className="h-4 flex-1 overflow-hidden rounded-sm bg-gray-100">
                         <div
                           className="h-full rounded-sm"
                           style={{ width: `${(value / maxRankValue) * 100}%`, backgroundColor: color }}
@@ -364,16 +373,16 @@ export function ArrivalsGreeceDetails({
                 ))}
               </div>
 
-              <h4 className="mb-3 text-xs font-semibold tracking-wide text-gray-500 uppercase">
+              <h4 className="mb-1.5 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                 {t('statistics.landArrivals')}
               </h4>
+              {/* pas de libellé « Evros » ici : le titre de section le porte déjà */}
               <div>
-                <span className="text-xs text-gray-700">Evros</span>
-                <div className="mt-0.5 flex items-center gap-2">
-                  <div className="h-5 flex-1 overflow-hidden rounded-sm bg-gray-100">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 flex-1 overflow-hidden rounded-sm bg-gray-100">
                     <div
-                      className="h-full rounded-sm bg-blue-900"
-                      style={{ width: `${(evrosValue / maxRankValue) * 100}%` }}
+                      className="h-full rounded-sm"
+                      style={{ width: `${(evrosValue / maxRankValue) * 100}%`, backgroundColor: COLORS.evros }}
                     />
                   </div>
                   <span className="w-12 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">

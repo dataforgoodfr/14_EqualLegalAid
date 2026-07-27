@@ -23,7 +23,7 @@ import './i18n/i18n'
 
 const AdvocacyIndexRedirect = () => {
   const location = useLocation()
-  return <Navigate to={{ pathname: 'AsylumApplicationsInEurope', search: location.search }} replace />
+  return <Navigate to={{ pathname: 'AsylumApplicationsInEuropeanUnion', search: location.search }} replace />
 }
 
 createRoot(document.getElementById('root')!).render(
@@ -43,13 +43,13 @@ createRoot(document.getElementById('root')!).render(
                   index
                   element={<AdvocacyIndexRedirect />}
                 />
-                <Route path="AsylumApplicationsInEurope" element={<AsylumApplicationsInEuropePage />} />
                 <Route path="AsylumApplicationsInEuropeanUnion" element={<AsylumApplicationsInEuropeanUnion />} />
+                <Route path="AsylumApplicationsInEurope" element={<AsylumApplicationsInEuropePage />} />
                 <Route path="ArrivalsInGreece" element={<ArrivalsInGreecePage />} />
+                <Route path="AsylumSeekersCamps" element={<AsylumSeekersCampsPage />} />
                 <Route path="AsylumApplicationsEvolutionInGreece" element={<AsylumApplicationsEvolutionInGreecePage />} />
                 <Route path="ProtectionGrantedVsRejected" element={<ProtectionGrantedVsRejectedPage />} />
                 <Route path="CourtAsylumProcedures" element={<CourtAsylumProceduresPage />} />
-                <Route path="AsylumSeekersCamps" element={<AsylumSeekersCampsPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

@@ -421,28 +421,33 @@ export function CourtAsylumProceduresDetails({
 
       {/* Footer — source & last updated */}
       {(customText?.source || customText?.last_updated_on) && (
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-gray-100 px-1 py-3 text-xs text-gray-500">
-          {customText.source && (
-            <span>
-              <span className="font-medium text-gray-600">
-                {t('statistics.source')}
-                :
+        <div className="space-y-1 border-t border-gray-100 px-1 py-3 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+            {customText.source && (
+              <span>
+                <span className="font-medium text-gray-600">
+                  {t('statistics.source')}
+                  :
+                </span>
+                {' '}
+                <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline transition-colors hover:text-gray-800">
+                  {customText.source}
+                </a>
               </span>
-              {' '}
-              <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline transition-colors hover:text-gray-800">
-                {customText.sourceText || customText.source}
-              </a>
-            </span>
-          )}
-          {customText.last_updated_on && (
-            <span>
-              <span className="font-medium text-gray-600">
-                {t('statistics.lastUpdated')}
-                :
+            )}
+            {customText.last_updated_on && (
+              <span>
+                <span className="font-medium text-gray-600">
+                  {t('statistics.lastUpdated')}
+                  :
+                </span>
+                {' '}
+                {customText.last_updated_on}
               </span>
-              {' '}
-              {customText.last_updated_on}
-            </span>
+            )}
+          </div>
+          {customText.sourceText && (
+            <p className="italic text-gray-400">{customText.sourceText}</p>
           )}
         </div>
       )}

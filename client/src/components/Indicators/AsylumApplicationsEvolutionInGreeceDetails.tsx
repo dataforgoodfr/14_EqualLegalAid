@@ -7,15 +7,12 @@ import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import {
   ChartContainer,
   ChartLegendContent,
-  StatCard,
   ChartTooltipContent,
   IndicatorInfoButton,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
-import { useMemo, useState } from 'react'
-
-type ByOption = 'byPeriod' | 'byGenderAge' | 'byNationality'
+import { useMemo } from 'react'
 
 const COLORS = [
   '#04356C', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
@@ -111,8 +108,6 @@ function generateChartConfig(
   return configMap;
 }
 
-
-
 function ByPeriod({
   records,
 }: {
@@ -132,48 +127,24 @@ function ByPeriod({
 
   if (records.length === 0) return <p className="text-muted-foreground text-sm p-6">{t('statistics.noData')}</p>
 
-  let totalFirstTime = 0
-  let totalSubSequent = 0
-  for (const record of records) {
-    totalFirstTime += record.first_time_applicants
-    totalSubSequent += record.subsequent_applicants
-  }
-  const firstYear = records[0].year
-  const lastYear = records[records.length - 1].year
-
   return (
-    <div className="space-y-6 p-6">
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatCard
-          label={t('statistics.totalFirstTime', { start: firstYear, end: lastYear })}
-          value={totalFirstTime.toLocaleString('fr-FR')}
+    <ChartContainer config={chartConfig} className="h-80 w-full">
+      <LineChart width={500} height={300} data={records}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="year" />
+        <YAxis />
+        <Tooltip
+          content={(
+            <ChartTooltipContent
+              labelFormatter={label => t('statistics.yearLabel', { year: label })}
+            />
+          )}
         />
-        <StatCard
-          label={t('statistics.totalSubsequent', { start: firstYear, end: lastYear })}
-          value={totalSubSequent.toLocaleString('fr-FR')}
-        />
-      </div>
-
-      {/* Line chart */}
-      <ChartContainer config={chartConfig} className="h-80 w-full">
-        <LineChart width={500} height={300} data={records}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
-          <YAxis />
-          <Tooltip
-            content={(
-              <ChartTooltipContent
-                labelFormatter={label => t('statistics.yearLabel', { year: label })}
-              />
-            )}
-          />
-          <Legend content={<ChartLegendContent />} />
-          <Line type="monotone" dataKey="first_time_applicants" stroke={chartConfig.first_time_applicants.color} />
-          <Line type="monotone" dataKey="subsequent_applicants" stroke={chartConfig.subsequent_applicants.color} />
-        </LineChart>
-      </ChartContainer>
-    </div>
+        <Legend content={<ChartLegendContent />} />
+        <Line type="monotone" dataKey="first_time_applicants" stroke={chartConfig.first_time_applicants.color} />
+        <Line type="monotone" dataKey="subsequent_applicants" stroke={chartConfig.subsequent_applicants.color} />
+      </LineChart>
+    </ChartContainer>
   )
 }
 
@@ -194,71 +165,71 @@ function ByNationality({
   if (records.length === 0) return <p className="text-muted-foreground text-sm p-6">{t('statistics.noData')}</p>
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Line chart */}
-      <ChartContainer config={chartData.config} className="h-80 w-full">
-        <LineChart width={500} height={300} data={chartData.records}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
-          <YAxis />
-          <Tooltip
-            wrapperStyle={{ zIndex: 1000 }}
-            content={(
-              <ChartTooltipContent
-                labelFormatter={label => t('statistics.yearLabel', { year: label })}
-                multiColumn
-              />
-            )}
-          />
-          <Legend content={<ChartLegendContent />} />
-          {Object.entries(chartData.config).map(([key, config]) => (
-            <Line key={key} type="monotone" dataKey={key} stroke={config.color} />
-          ))}
-        </LineChart>
-      </ChartContainer>
-    </div>
+    // Taller than the other charts on purpose: with a dozen+ overlapping
+    // country lines, more vertical room is what actually reduces visual
+    // overlap (see the "Country of origin" readability request).
+    <ChartContainer config={chartData.config} className="h-[560px] w-full">
+      <LineChart width={500} height={300} data={chartData.records}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="year" />
+        <YAxis width={70} />
+        <Tooltip
+          wrapperStyle={{ zIndex: 1000 }}
+          content={(
+            <ChartTooltipContent
+              labelFormatter={label => t('statistics.yearLabel', { year: label })}
+              multiColumn
+              sortByValueDesc
+            />
+          )}
+        />
+        <Legend content={<ChartLegendContent />} />
+        {Object.entries(chartData.config).map(([key, config]) => (
+          <Line key={key} type="monotone" dataKey={key} stroke={config.color} />
+        ))}
+      </LineChart>
+    </ChartContainer>
   )
 }
 
-function ByGenderAge({
+function ByPivot({
   records,
+  pivotKey,
 }: {
   records: AsylumApplicationByGenderAgeRecord[]
+  pivotKey: 'gender' | 'age'
 }) {
   const { t } = useTranslation()
 
   const chartData = useMemo(() => {
     return {
-      config: generateChartConfig(records, ["gender", "age"]),
-      records: aggregateRecords(records, "applications", ["gender", "age"]),
+      config: generateChartConfig(records, [pivotKey]),
+      records: aggregateRecords(records, "applications", [pivotKey]),
     }
-  }, [records])
+  }, [records, pivotKey])
 
   if (records.length === 0) return <p className="text-muted-foreground text-sm p-6">{t('statistics.noData')}</p>
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Line chart */}
-      <ChartContainer config={chartData.config} className="h-80 w-full">
-        <LineChart width={500} height={300} data={chartData.records}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
-          <YAxis />
-          <Tooltip
-            wrapperStyle={{ zIndex: 1000 }}
-            content={(
-              <ChartTooltipContent
-                labelFormatter={label => t('statistics.yearLabel', { year: label })}
-              />
-            )}
-          />
-          <Legend content={<ChartLegendContent />} />
-          {Object.entries(chartData.config).map(([key, config]) => (
-            <Line key={key} type="monotone" dataKey={key} stroke={config.color} />
-          ))}
-        </LineChart>
-      </ChartContainer>
-    </div>
+    <ChartContainer config={chartData.config} className="h-80 w-full">
+      <LineChart width={500} height={300} data={chartData.records}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="year" />
+        <YAxis />
+        <Tooltip
+          wrapperStyle={{ zIndex: 1000 }}
+          content={(
+            <ChartTooltipContent
+              labelFormatter={label => t('statistics.yearLabel', { year: label })}
+            />
+          )}
+        />
+        <Legend content={<ChartLegendContent />} />
+        {Object.entries(chartData.config).map(([key, config]) => (
+          <Line key={key} type="monotone" dataKey={key} stroke={config.color} />
+        ))}
+      </LineChart>
+    </ChartContainer>
   )
 }
 
@@ -276,49 +247,6 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
 
-  const [byOption, setByOption] = useState<ByOption>('byPeriod')
-
-  const display = useMemo(() => {
-    switch (byOption) {
-      case 'byPeriod':
-        return <ByPeriod records={records.byPeriod} />
-      case 'byNationality':
-        return <ByNationality records={records.byNationality} />
-      case 'byGenderAge':
-        return <ByGenderAge records={records.byGenderAge} />
-      default:
-        return <div />
-    }
-  }, [records, byOption])
-
-  const keyFigure = useMemo(() => {
-    const configMap: Record<string, { data: any[]; keys: string[] }> = {
-      byPeriod: { data: records.byPeriod, keys: ['first_time_applicants', 'subsequent_applicants'] },
-      byNationality: { data: records.byNationality, keys: ['total_applications'] },
-      byGenderAge: { data: records.byGenderAge, keys: ['applications'] },
-    };
-
-    const currentSelection = configMap[byOption];
-
-    // Fallback
-    if (!currentSelection || currentSelection.data.length === 0) {
-      return { value: 0, firstYear: 0, lastYear: 0 };
-    }
-
-    const { data, keys } = currentSelection;
-    let total = 0;
-    for (const record of data) {
-      for (const key of keys) {
-        total += record[key] || 0;
-      }
-    }
-
-    const firstYear = data[0].year;
-    const lastYear = data[data.length - 1].year;
-
-    return { value: total, firstYear, lastYear };
-  }, [records, byOption]);
-
   if (loading) return <Loading />
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
@@ -333,87 +261,78 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
-        <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
-              <IndicatorInfoButton text={information} />
-            </div>
-            {subtitle && (
-              <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
-            )}
+        <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+            <IndicatorInfoButton text={information} />
           </div>
-
-          <div className="flex gap-2">
-            <select
-              className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
-              value={byOption}
-              onChange={e => {
-                const value = e.target.value;
-                setByOption(value as ByOption);
-              }}
-            >
-              <option value="byPeriod">{t('statistics.byPeriod')}</option>
-              <option value="byGenderAge">{t('statistics.byGenderAge')}</option>
-              <option value="byNationality">{t('statistics.byNationality')}</option>
-            </select>
-          </div>
+          {subtitle && (
+            <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+          )}
         </div>
 
-        {/* Card body */}
-        <div className="space-y-6 p-6">
-          <div className="grid grid-cols-[2fr_1fr] gap-4">
-            {/* Explanatory text */}
-            {(explanatoryTitle || explanatoryText) && (
-              <div className="rounded-lg border border-gray-200 p-5">
-                {explanatoryTitle && (
-                  <h3 className="mb-2 text-sm font-bold text-gray-900">{explanatoryTitle}</h3>
-                )}
-                {explanatoryText && (
-                  <p className="text-sm leading-relaxed text-gray-600">{explanatoryText}</p>
-                )}
-              </div>
-            )}
-
+        {/* Card body — charts stacked sequentially instead of behind a filter */}
+        <div className="space-y-8 p-6">
+          {(explanatoryTitle || explanatoryText) && (
             <div className="rounded-lg border border-gray-200 p-5">
-              {subtitle && (
-                <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p>
+              {explanatoryTitle && (
+                <h3 className="mb-2 text-sm font-bold text-gray-900">{explanatoryTitle}</h3>
               )}
-              <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
-                {Number(keyFigure.value).toLocaleString('fr-FR')}
-              </p>
-              <p className="text-sm text-gray-600 mt-2">
-                {keyFigure.firstYear} - {keyFigure.lastYear}
-              </p>
+              {explanatoryText && (
+                <p className="text-sm leading-relaxed text-gray-600">{explanatoryText}</p>
+              )}
             </div>
+          )}
+
+          <div>
+            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.dataApplicationsPerYear')}</h3>
+            <ByPeriod records={records.byPeriod} />
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.dataApplicantsByCountryOfOrigin')}</h3>
+            <ByNationality records={records.byNationality} />
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.dataApplicantsByAgeGroup')}</h3>
+            <ByPivot records={records.byGenderAge} pivotKey="age" />
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.dataApplicantsByGender')}</h3>
+            <ByPivot records={records.byGenderAge} pivotKey="gender" />
           </div>
         </div>
-
-        {display}
 
         {/* Card footer — source & last updated */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
-            {customText.source && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
-                {' '}
-                <a
-                  href={customText.source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-gray-800 transition-colors"
-                >
-                  {customText.sourceText || customText.source}
-                </a>
-              </span>
-            )}
-            {customText.last_updated_on && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
-                {' '}
-                {customText.last_updated_on}
-              </span>
+          <div className="space-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+              {customText.source && (
+                <span>
+                  <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                  {' '}
+                  <a
+                    href={customText.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-gray-800 transition-colors"
+                  >
+                    {customText.source}
+                  </a>
+                </span>
+              )}
+              {customText.last_updated_on && (
+                <span>
+                  <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                  {' '}
+                  {customText.last_updated_on}
+                </span>
+              )}
+            </div>
+            {customText.sourceText && (
+              <p className="italic text-gray-400">{customText.sourceText}</p>
             )}
           </div>
         )}

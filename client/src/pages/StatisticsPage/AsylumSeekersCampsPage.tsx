@@ -5,6 +5,6 @@ import type { StatisticOutletContext } from '@/types'
 export const AsylumSeekersCampsPage = () => {
   const { getCustomText } = useOutletContext<StatisticOutletContext>()
   return (
-    <AsylumSeekersCamps customText={getCustomText('AsylumSeekersCamps')} />
+    <AsylumSeekersCamps customText={getCustomText('AsylumSeekersLivingInCamps')} />
   )
 }

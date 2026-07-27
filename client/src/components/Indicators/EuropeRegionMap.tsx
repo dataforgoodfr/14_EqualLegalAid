@@ -382,9 +382,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
                         {formatValue(greeceRecord.first_time_applicants, false)}
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
-                        {t('statistics.firstTimeApplicantsLabel')}
-                        {effectiveYear ? ` in ${effectiveYear}` : ''}
-                        {' in Greece'}
+                        {t('statistics.firstTimeApplicationsInGreeceYear', { year: effectiveYear })}
                       </p>
                     </div>
                   )
@@ -418,7 +416,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
                     <div className="absolute bottom-full mb-2 left-0 min-w-[150px] rounded-lg border border-gray-200 bg-white/95 p-3 shadow-lg backdrop-blur-sm text-xs">
                       {euRecord && (
                         <p className="text-muted-foreground mb-2 text-[11px]">
-                          {t('statistics.euEquals')}
+                          {t('statistics.euEquals', { year: effectiveYear })}
                           {' '}
                           <span className="font-semibold tabular-nums">
                             {formatValue(euRecord[valueKey], perCapita)}
@@ -447,33 +445,38 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
 
         {/* Card footer — source & last updated */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
-            {customText.source && (
-              <span>
-                <span className="font-medium text-gray-600">
-                  {t('statistics.source')}
-                  :
+          <div className="space-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+              {customText.source && (
+                <span>
+                  <span className="font-medium text-gray-600">
+                    {t('statistics.source')}
+                    :
+                  </span>
+                  {' '}
+                  <a
+                    href={customText.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline transition-colors hover:text-gray-800"
+                  >
+                    {customText.source}
+                  </a>
                 </span>
-                {' '}
-                <a
-                  href={customText.source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline transition-colors hover:text-gray-800"
-                >
-                  {customText.sourceText || customText.source}
-                </a>
-              </span>
-            )}
-            {customText.last_updated_on && (
-              <span>
-                <span className="font-medium text-gray-600">
-                  {t('statistics.lastUpdated')}
-                  :
+              )}
+              {customText.last_updated_on && (
+                <span>
+                  <span className="font-medium text-gray-600">
+                    {t('statistics.lastUpdated')}
+                    :
+                  </span>
+                  {' '}
+                  {customText.last_updated_on}
                 </span>
-                {' '}
-                {customText.last_updated_on}
-              </span>
+              )}
+            </div>
+            {customText.sourceText && (
+              <p className="italic text-gray-400">{customText.sourceText}</p>
             )}
           </div>
         )}

@@ -7,6 +7,33 @@ import {
 
 import { cn } from '@/lib/utils'
 
+// ─── Shared chart chrome ────────────────────────────────────────────────────
+// Spread these onto <CartesianGrid>/<XAxis>/<YAxis>/<Line> in each chart —
+// recharts requires its own components as direct children, so these are plain
+// prop objects (not wrapper components) that stay in one place to tweak.
+
+// Solid, recessive hairline grid — no dashed "checkerboard", horizontal only.
+export const CHART_GRID_PROPS = {
+  strokeDasharray: '0',
+  stroke: 'var(--border)',
+  vertical: false,
+} as const
+
+// Minimal axis: no axis line/tick marks, muted small tick labels.
+export const CHART_AXIS_PROPS = {
+  axisLine: false,
+  tickLine: false,
+  tick: { fill: 'var(--muted-foreground)', fontSize: 11 },
+  tickMargin: 8,
+} as const
+
+// 2px rounded line, no resting dots — the active dot below carries the hover state.
+export const CHART_LINE_PROPS = {
+  strokeWidth: 2,
+  dot: false,
+  activeDot: { r: 4, strokeWidth: 2, stroke: 'var(--background)' },
+} as const
+
 // Minimal legend payload shape (avoids brittle deep recharts type imports)
 interface LegendPayload {
   value?: string

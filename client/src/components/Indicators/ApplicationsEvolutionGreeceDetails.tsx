@@ -4,7 +4,7 @@ import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import type { ApplicationsEvolutionRecord } from '@/hooks/useApplicationsEvolution'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
-import { StatCard, ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton } from '@/components/ui'
+import { StatCard, ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton, CHART_GRID_PROPS, CHART_AXIS_PROPS, CHART_LINE_PROPS } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 
@@ -85,15 +85,15 @@ export function ApplicationsEvolutionGreeceDetails({
           {/* Line chart */}
           <ChartContainer config={chartConfig} className="h-80 w-full">
             <LineChart data={records}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" />
-              <YAxis />
+              <CartesianGrid {...CHART_GRID_PROPS} />
+              <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
+              <YAxis {...CHART_AXIS_PROPS} />
               <Tooltip
                 content={<ChartTooltipContent labelFormatter={label => t('statistics.yearLabel', { year: label })} />}
               />
               <Legend content={<ChartLegendContent />} />
-              <Line type="monotone" dataKey="first_applications" stroke={chartConfig.first_applications.color} />
-              <Line type="monotone" dataKey="subsequent_applications" stroke={chartConfig.subsequent_applications.color} />
+              <Line type="monotone" dataKey="first_applications" stroke={chartConfig.first_applications.color} {...CHART_LINE_PROPS} />
+              <Line type="monotone" dataKey="subsequent_applications" stroke={chartConfig.subsequent_applications.color} {...CHART_LINE_PROPS} />
             </LineChart>
           </ChartContainer>
 

@@ -9,6 +9,9 @@ import {
   ChartLegendContent,
   ChartTooltipContent,
   IndicatorInfoButton,
+  CHART_GRID_PROPS,
+  CHART_AXIS_PROPS,
+  CHART_LINE_PROPS,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
@@ -130,19 +133,20 @@ function ByPeriod({
   return (
     <ChartContainer config={chartConfig} className="h-80 w-full">
       <LineChart width={500} height={300} data={records}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="year" />
-        <YAxis />
+        <CartesianGrid {...CHART_GRID_PROPS} />
+        <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
+        <YAxis {...CHART_AXIS_PROPS} />
         <Tooltip
           content={(
             <ChartTooltipContent
               labelFormatter={label => t('statistics.yearLabel', { year: label })}
+              sortByValueDesc
             />
           )}
         />
         <Legend content={<ChartLegendContent />} />
-        <Line type="monotone" dataKey="first_time_applicants" stroke={chartConfig.first_time_applicants.color} />
-        <Line type="monotone" dataKey="subsequent_applicants" stroke={chartConfig.subsequent_applicants.color} />
+        <Line type="monotone" dataKey="first_time_applicants" stroke={chartConfig.first_time_applicants.color} {...CHART_LINE_PROPS} />
+        <Line type="monotone" dataKey="subsequent_applicants" stroke={chartConfig.subsequent_applicants.color} {...CHART_LINE_PROPS} />
       </LineChart>
     </ChartContainer>
   )
@@ -170,9 +174,9 @@ function ByNationality({
     // overlap (see the "Country of origin" readability request).
     <ChartContainer config={chartData.config} className="h-[560px] w-full">
       <LineChart width={500} height={300} data={chartData.records}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="year" />
-        <YAxis width={70} />
+        <CartesianGrid {...CHART_GRID_PROPS} />
+        <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
+        <YAxis width={70} {...CHART_AXIS_PROPS} />
         <Tooltip
           wrapperStyle={{ zIndex: 1000 }}
           content={(
@@ -185,7 +189,7 @@ function ByNationality({
         />
         <Legend content={<ChartLegendContent />} />
         {Object.entries(chartData.config).map(([key, config]) => (
-          <Line key={key} type="monotone" dataKey={key} stroke={config.color} />
+          <Line key={key} type="monotone" dataKey={key} stroke={config.color} {...CHART_LINE_PROPS} />
         ))}
       </LineChart>
     </ChartContainer>
@@ -213,20 +217,21 @@ function ByPivot({
   return (
     <ChartContainer config={chartData.config} className="h-80 w-full">
       <LineChart width={500} height={300} data={chartData.records}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="year" />
-        <YAxis />
+        <CartesianGrid {...CHART_GRID_PROPS} />
+        <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
+        <YAxis {...CHART_AXIS_PROPS} />
         <Tooltip
           wrapperStyle={{ zIndex: 1000 }}
           content={(
             <ChartTooltipContent
               labelFormatter={label => t('statistics.yearLabel', { year: label })}
+              sortByValueDesc
             />
           )}
         />
         <Legend content={<ChartLegendContent />} />
         {Object.entries(chartData.config).map(([key, config]) => (
-          <Line key={key} type="monotone" dataKey={key} stroke={config.color} />
+          <Line key={key} type="monotone" dataKey={key} stroke={config.color} {...CHART_LINE_PROPS} />
         ))}
       </LineChart>
     </ChartContainer>

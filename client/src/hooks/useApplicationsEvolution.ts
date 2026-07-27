@@ -17,10 +17,13 @@ const toNum = (v: unknown): number => {
   return 0
 }
 
-// year field is stored as "YYYY-01-01" date string
+// year is an Airtable Date field; the API renders it as "YYYY-01-01" or
+// "1/1/YYYY" depending on cellFormat/locale, so pull out the 4-digit year
+// instead of assuming a fixed position.
 const parseYear = (v: unknown): number => {
   const s = typeof v === 'string' ? v : String(v ?? '')
-  return parseInt(s.slice(0, 4), 10) || 0
+  const match = s.match(/\d{4}/)
+  return match ? parseInt(match[0], 10) : 0
 }
 
 export function useApplicationsEvolution() {

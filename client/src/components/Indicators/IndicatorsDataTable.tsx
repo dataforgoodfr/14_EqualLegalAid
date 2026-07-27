@@ -13,8 +13,8 @@ import { useTranslation } from 'react-i18next'
 
 const ELA_BLUE = '#1d4ed8'
 
-const fmtInt = (n: number) => n.toLocaleString('en-US')
-const fmtDec = (n: number) => n.toLocaleString('en-US', { maximumFractionDigits: 2 })
+const fmtInt = (n: number) => n.toLocaleString('fr-FR')
+const fmtDec = (n: number) => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 })
 
 interface Props {
   data: MapIndicatorRecord[]

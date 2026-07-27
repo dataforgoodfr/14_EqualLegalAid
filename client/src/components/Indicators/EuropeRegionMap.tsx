@@ -74,10 +74,8 @@ function applyMapData(
 }
 
 function formatValue(n: number, perCapita: boolean) {
-  if (perCapita) return n.toLocaleString('en-US', { maximumFractionDigits: 2 })
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`
-  return n.toLocaleString('en-US')
+  if (perCapita) return n.toLocaleString('fr-FR', { maximumFractionDigits: 2 })
+  return n.toLocaleString('fr-FR')
 }
 
 export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomText | null }) {
@@ -386,6 +384,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
                       <p className="text-muted-foreground mt-1 text-xs">
                         {t('statistics.firstTimeApplicantsLabel')}
                         {effectiveYear ? ` in ${effectiveYear}` : ''}
+                        {' in Greece'}
                       </p>
                     </div>
                   )

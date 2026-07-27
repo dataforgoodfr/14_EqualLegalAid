@@ -14,27 +14,17 @@ export function KeyFiguresHeader({ data }: { data: KeyFiguresData }) {
   const { i18n } = useTranslation()
   const isGr = i18n.language === 'el'
 
-  const title = isGr ? data.title_gr : data.title_en
   const subtitle = isGr ? data.subtitle_gr : data.subtitle_en
   const last_update_title = isGr ? data.last_updated_title_gr : data.last_updated_title_en
 
   return (
     <div className="py-8 space-y-6 border-b border-gray-200">
 
-      {/* Title + description */}
-      {(title || subtitle) && (
-        <div className="space-y-3">
-          {title && (
-            <h1 className="text-2xl font-bold text-gray-900 leading-snug whitespace-pre-line">
-              {title}
-            </h1>
-          )}
-          {subtitle && (
-            <p className="text-sm text-gray-600 leading-relaxed max-w-2xl">
-              {subtitle}
-            </p>
-          )}
-        </div>
+      {/* Description */}
+      {subtitle && (
+        <p className="text-sm text-gray-600 leading-relaxed max-w-2xl">
+          {subtitle}
+        </p>
       )}
 
       {/* Key figures */}

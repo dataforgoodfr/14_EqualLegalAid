@@ -106,6 +106,7 @@ function ChartTooltipContent({
   indicator = 'dot',
   labelFormatter,
   multiColumn = false,
+  sortByValueDesc = false,
 }: {
   active?: boolean
   payload?: TooltipPayloadItem[]
@@ -115,6 +116,7 @@ function ChartTooltipContent({
   hideIndicator?: boolean
   indicator?: 'dot' | 'line' | 'dashed'
   multiColumn?: boolean
+  sortByValueDesc?: boolean
   labelFormatter?: (label: string | number, payload: TooltipPayloadItem[]) => React.ReactNode
 }) {
   const { config } = useChart()
@@ -124,6 +126,10 @@ function ChartTooltipContent({
   const displayLabel = labelFormatter
     ? labelFormatter(label ?? '', payload)
     : label
+
+  const items = sortByValueDesc
+    ? [...payload].sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))
+    : payload
 
   return (
     <div
@@ -139,7 +145,7 @@ function ChartTooltipContent({
         "grid gap-1",
         multiColumn ? "grid-cols-2 gap-x-4 gap-y-1.5" : "grid-cols-1"
       )}>
-        {payload.map((item, i) => {
+        {items.map((item, i) => {
           const key = String(item.dataKey ?? item.name ?? 'value')
           const cfg = config[key]
           const color = item.color ?? item.fill ?? cfg?.color

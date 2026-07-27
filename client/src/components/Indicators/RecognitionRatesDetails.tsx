@@ -103,22 +103,27 @@ export function RecognitionRatesDetails({
 
         {/* Card footer */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500">
-            {customText.source && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
-                {' '}
-                <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-800 transition-colors">
-                  {customText.sourceText || customText.source}
-                </a>
-              </span>
-            )}
-            {customText.last_updated_on && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
-                {' '}
-                {customText.last_updated_on}
-              </span>
+          <div className="space-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+              {customText.source && (
+                <span>
+                  <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                  {' '}
+                  <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-800 transition-colors">
+                    {customText.source}
+                  </a>
+                </span>
+              )}
+              {customText.last_updated_on && (
+                <span>
+                  <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                  {' '}
+                  {customText.last_updated_on}
+                </span>
+              )}
+            </div>
+            {customText.sourceText && (
+              <p className="italic text-gray-400">{customText.sourceText}</p>
             )}
           </div>
         )}

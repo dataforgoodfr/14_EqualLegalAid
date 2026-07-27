@@ -107,15 +107,15 @@ export function AsylumApplicationsDetails({
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
   const isGr = lang === 'gr'
-  const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.euAsylumApplications')
+  const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.fluctuationsAsylumApplicationsEu')
   const subtitle = (isGr ? customText?.subtitle_gr : customText?.subtitle_en) || t('statistics.firstTimeSubsequentPerYear')
   const explanatoryTitle = isGr ? customText?.explanatory_text_title_gr : customText?.explanatory_text_title_en
   const explanatoryText = isGr ? customText?.explanatory_text_gr : customText?.explanatory_text_en
 
   const information = isGr ? customText?.information_gr : customText?.information_en
-  const mostRecentData = chartData.length > 0 ? chartData[chartData.length - 1] : null
   const firstYear = chartData.length > 0 ? chartData[0].year : null
   const lastYear = chartData.length > 0 ? chartData[chartData.length - 1].year : null
+  const totalFirstTimeApplicants = chartData.reduce((sum, d) => sum + d.first_time_applicants, 0)
 
   return (
     <div className="mx-auto max-w-5xl my-6">
@@ -148,10 +148,10 @@ export function AsylumApplicationsDetails({
         {/* Card body */}
         <div className="space-y-6 p-6">
 
-          {/* Two info cards */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Info card (3/4) + key figure (1/4) */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             {(explanatoryTitle || explanatoryText) && (
-              <div className="rounded-lg border border-gray-200 p-5">
+              <div className="rounded-lg border border-gray-200 p-5 md:col-span-3">
                 {explanatoryTitle && (
                   <h3 className="text-sm font-bold text-gray-900 mb-3">{explanatoryTitle}</h3>
                 )}
@@ -161,13 +161,13 @@ export function AsylumApplicationsDetails({
               </div>
             )}
 
-            {mostRecentData && (
-              <div className="rounded-lg border border-gray-200 p-5">
-                <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
-                  {mostRecentData.first_time_applicants.toLocaleString('fr-FR')}
+            {chartData.length > 0 && (
+              <div className="flex flex-col justify-center rounded-lg border border-gray-200 p-5 md:col-span-1">
+                <p className="text-4xl font-bold text-gray-900 leading-none tabular-nums">
+                  {totalFirstTimeApplicants.toLocaleString('fr-FR')}
                 </p>
                 <p className="text-sm text-gray-600 mt-2">
-                  {t('statistics.firstTimeApplicantsLabel')} in {mostRecentData.year}
+                  {t('statistics.totalFirstTime', { start: firstYear, end: lastYear })}
                 </p>
               </div>
             )}
@@ -221,27 +221,32 @@ export function AsylumApplicationsDetails({
 
         {/* Card footer — source & last updated */}
         {(customText?.source || customText?.last_updated_on) && (
-          <div className="border-t border-gray-100 bg-gray-50/60 px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-xs text-gray-500">
-            {customText?.source && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
-                {' '}
-                <a
-                  href={customText.source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-gray-800 transition-colors"
-                >
-                  {customText.sourceText || customText.source}
-                </a>
-                {firstYear && lastYear ? ` — From ${firstYear} to ${lastYear}` : ''}
-              </span>
-            )}
-            {customText?.last_updated_on && (
-              <span>
-                <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
-                {' '}{customText.last_updated_on}
-              </span>
+          <div className="space-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+              {customText?.source && (
+                <span>
+                  <span className="font-medium text-gray-600">{t('statistics.source')}:</span>
+                  {' '}
+                  <a
+                    href={customText.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-gray-800 transition-colors"
+                  >
+                    {customText.source}
+                  </a>
+                  {firstYear && lastYear ? ` — From ${firstYear} to ${lastYear}` : ''}
+                </span>
+              )}
+              {customText?.last_updated_on && (
+                <span>
+                  <span className="font-medium text-gray-600">{t('statistics.lastUpdated')}:</span>
+                  {' '}{customText.last_updated_on}
+                </span>
+              )}
+            </div>
+            {customText?.sourceText && (
+              <p className="italic text-gray-400">{customText.sourceText}</p>
             )}
           </div>
         )}

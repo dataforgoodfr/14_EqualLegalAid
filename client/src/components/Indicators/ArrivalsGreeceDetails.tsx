@@ -11,6 +11,7 @@ import { IndicatorInfoButton } from '@/components/ui/IndicatorInfoButton'
 import { useTranslation } from 'react-i18next'
 import { Map as MapIcon, BarChart2 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
+import { CHART_GRID_PROPS } from '@/components/ui'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
@@ -401,9 +402,9 @@ export function ArrivalsGreeceDetails({
                   data={barData}
                   margin={{ top: 16, right: 16, left: 16, bottom: 48 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
-                  <YAxis tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
+                  <CartesianGrid {...CHART_GRID_PROPS} />
+                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
+                  <YAxis axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
                   <Tooltip
                     formatter={(value) => [Number(value).toLocaleString('fr-FR'), t('statistics.arrivals')]}
                     cursor={{ fill: 'rgba(0,0,0,0.04)' }}

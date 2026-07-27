@@ -6,11 +6,15 @@ export interface RecognitionRateRecord {
   year: number
   refugee_status_first: number
   subsidiary_protection_first: number
+  rejected_first: number
+  total_first: number
   refugee_status_second: number
   subsidiary_protection_second: number
-  total_decisions_first: number
-  recognition_rate_first: number
-  recognition_rate_second: number
+  rejected_second: number
+  total_second: number
+  international_protection_rate: number
+  subsidiary_protection_rate: number
+  rejection_rate: number
 }
 
 const toNum = (v: unknown): number => {
@@ -22,11 +26,18 @@ const toNum = (v: unknown): number => {
   return 0
 }
 
-// year field is stored as "YYYY-01-01" date string
+// year is an Airtable Date field; the API renders it as "YYYY-01-01" or
+// "1/1/YYYY" depending on cellFormat/locale, so pull out the 4-digit year
+// instead of assuming a fixed position.
 const parseYear = (v: unknown): number => {
   const s = typeof v === 'string' ? v : String(v ?? '')
-  return parseInt(s.slice(0, 4), 10) || 0
+  const match = s.match(/\d{4}/)
+  return match ? parseInt(match[0], 10) : 0
 }
+
+// Data before 2022 is incomplete in Airtable (missing total-decisions fields),
+// so this indicator only covers 2022 onward.
+const FIRST_COMPLETE_YEAR = 2022
 
 export function useRecognitionRates() {
   const airtableService = useAirtableService()
@@ -46,27 +57,42 @@ export function useRecognitionRates() {
         },
       })
       const parsed: RecognitionRateRecord[] = raw
-        .map(r => {
+        .map((r) => {
           const refugeeFirst = toNum(r.fields['refugee_status_first_instance_mom_table'])
           const subFirst = toNum(r.fields['subsidiary_protection_first_instance_mom_table'])
-          const refugeeSecond = toNum(r.fields['refugee_status_second_instance'])
-          const subSecond = toNum(r.fields['subsidiary_protection_second_instance'])
           const totalFirst = toNum(r.fields['total_decisions_issued_first_instance'])
-          const positiveFirst = refugeeFirst + subFirst
-          const positiveSecond = refugeeSecond + subSecond
+          const rejectedFirst = Math.max(0, totalFirst - refugeeFirst - subFirst)
+
+          const refugeeSecond = toNum(r.fields['refugee_status_second_instance_mom_apdx'])
+          const subSecond = toNum(r.fields['subsidiary_protection_second_instance_mom_apdx'])
+          const totalSecond = toNum(r.fields['total_decisions_issued_second_instance_mom_apdx'])
+          const rejectedSecond = Math.max(0, totalSecond - refugeeSecond - subSecond)
+
+          const combinedTotal = totalFirst + totalSecond
+
           return {
             id: r.id,
             year: parseYear(r.fields['year']),
             refugee_status_first: refugeeFirst,
             subsidiary_protection_first: subFirst,
+            rejected_first: rejectedFirst,
+            total_first: totalFirst,
             refugee_status_second: refugeeSecond,
             subsidiary_protection_second: subSecond,
-            total_decisions_first: totalFirst,
-            recognition_rate_first: totalFirst > 0 ? Math.round((positiveFirst / totalFirst) * 1000) / 10 : 0,
-            recognition_rate_second: positiveSecond,
+            rejected_second: rejectedSecond,
+            total_second: totalSecond,
+            international_protection_rate: combinedTotal > 0
+              ? Math.round(((refugeeFirst + refugeeSecond) / combinedTotal) * 1000) / 10
+              : 0,
+            subsidiary_protection_rate: combinedTotal > 0
+              ? Math.round(((subFirst + subSecond) / combinedTotal) * 1000) / 10
+              : 0,
+            rejection_rate: combinedTotal > 0
+              ? Math.round(((rejectedFirst + rejectedSecond) / combinedTotal) * 1000) / 10
+              : 0,
           }
         })
-        .filter(r => r.year > 0)
+        .filter(r => r.year >= FIRST_COMPLETE_YEAR)
         .sort((a, b) => a.year - b.year)
       setRecords(parsed)
     }

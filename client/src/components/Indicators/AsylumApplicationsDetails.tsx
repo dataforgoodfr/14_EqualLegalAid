@@ -17,6 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  CHART_GRID_PROPS,
 } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { Loading } from '../Loading'
@@ -181,7 +182,7 @@ export function AsylumApplicationsDetails({
             : (
               <ChartContainer config={chartConfig} className="h-80 w-full">
                 <BarChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid {...CHART_GRID_PROPS} />
                   <XAxis
                     dataKey="year"
                     tickLine={false}

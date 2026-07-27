@@ -5,6 +5,7 @@ export interface AnnulmentRecord {
   id: string
   year: number
   applications_for_annulment_submitted: number
+  decisions_on_applications_for_annulment: number
   positive_decisions: number
   negative_decisions_on_the_merits: number
   negative_decisions_on_admissibility_grounds: number
@@ -77,6 +78,7 @@ export function useCourtAsylumProcedures() {
           id: r.id,
           year: parseYear(r.fields['year']),
           applications_for_annulment_submitted: toNum(r.fields['applications_for_annulment_submitted']),
+          decisions_on_applications_for_annulment: toNum(r.fields['decisions_on_applications_for_annulment']),
           positive_decisions: toNum(r.fields['positive_decisions']),
           negative_decisions_on_the_merits: toNum(r.fields['negative_decisions_on_the_merits']),
           negative_decisions_on_admissibility_grounds: toNum(r.fields['negative_decisions_on_admissibility_grounds']),

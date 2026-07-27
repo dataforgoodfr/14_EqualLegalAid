@@ -5,7 +5,7 @@ import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import type { AnnulmentRecord, InterimMeasuresRecord, LegalAidApplicationRecord } from '@/hooks/useCourtAsylumProcedures'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
-import { ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton } from '@/components/ui'
+import { ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton, CHART_GRID_PROPS, CHART_AXIS_PROPS, CHART_LINE_PROPS } from '@/components/ui'
 import type { ChartConfig } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 
@@ -79,7 +79,7 @@ function AnnulmentsCard({ records }: { records: AnnulmentRecord[] }) {
   const total = granted + rejected
 
   const donutData = useMemo(() => [
-    { name: t('statistics.granted'), value: granted, color: GRANTED_COLOR },
+    { name: t('statistics.accepted'), value: granted, color: GRANTED_COLOR },
     { name: t('statistics.rejected'), value: rejected, color: REJECTED_COLOR },
   ].filter(d => d.value > 0), [granted, rejected, t])
 
@@ -121,7 +121,7 @@ function AnnulmentsCard({ records }: { records: AnnulmentRecord[] }) {
             </thead>
             <tbody>
               <TreeRow
-                label={t('statistics.protectionGranted')}
+                label={t('statistics.applicationAccepted')}
                 value={granted}
                 total={total}
                 depth={0}
@@ -159,7 +159,7 @@ function AnnulmentsCard({ records }: { records: AnnulmentRecord[] }) {
 
         {/* Donut panel */}
         <div className="flex flex-col items-center justify-start gap-4 lg:col-span-2">
-          <p className="mb-4 text-sm font-bold text-gray-900">{t('statistics.protectionDecisions')}</p>
+          <p className="mb-4 text-sm font-bold text-gray-900">{t('statistics.courtDecisionOnApplicationsForAnnulment')}</p>
           <ChartContainer config={{}} className="h-52 w-full">
             <PieChart>
               <Pie
@@ -200,17 +200,22 @@ function AnnulmentApplicationsLineChart({ records }: { records: AnnulmentRecord[
       label: t('statistics.annulmentApplication'),
       color: GRANTED_COLOR,
     },
+    decisions_on_applications_for_annulment: {
+      label: t('statistics.decisionsIssued'),
+      color: '#059669',
+    },
   } satisfies ChartConfig
 
   return (
     <ChartContainer config={chartConfig} className="h-64 w-full">
       <LineChart data={records}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="year" />
-        <YAxis />
+        <CartesianGrid {...CHART_GRID_PROPS} />
+        <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
+        <YAxis {...CHART_AXIS_PROPS} />
         <Tooltip content={<ChartTooltipContent labelFormatter={label => t('statistics.yearLabel', { year: label })} />} />
         <Legend content={<ChartLegendContent />} />
-        <Line type="monotone" dataKey="applications_for_annulment_submitted" stroke={chartConfig.applications_for_annulment_submitted.color} />
+        <Line type="monotone" dataKey="applications_for_annulment_submitted" stroke={chartConfig.applications_for_annulment_submitted.color} {...CHART_LINE_PROPS} />
+        <Line type="monotone" dataKey="decisions_on_applications_for_annulment" stroke={chartConfig.decisions_on_applications_for_annulment.color} {...CHART_LINE_PROPS} />
       </LineChart>
     </ChartContainer>
   )
@@ -232,13 +237,13 @@ function InterimMeasuresLineChart({ records }: { records: InterimMeasuresRecord[
   return (
     <ChartContainer config={chartConfig} className="h-64 w-full">
       <LineChart data={records}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="year" />
-        <YAxis />
+        <CartesianGrid {...CHART_GRID_PROPS} />
+        <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
+        <YAxis {...CHART_AXIS_PROPS} />
         <Tooltip content={<ChartTooltipContent labelFormatter={label => t('statistics.yearLabel', { year: label })} />} />
         <Legend content={<ChartLegendContent />} />
-        <Line type="monotone" dataKey="interim_measures_submitted" stroke={chartConfig.interim_measures_submitted.color} />
-        <Line type="monotone" dataKey="decisions_interim_measures" stroke={chartConfig.decisions_interim_measures.color} />
+        <Line type="monotone" dataKey="interim_measures_submitted" stroke={chartConfig.interim_measures_submitted.color} {...CHART_LINE_PROPS} />
+        <Line type="monotone" dataKey="decisions_interim_measures" stroke={chartConfig.decisions_interim_measures.color} {...CHART_LINE_PROPS} />
       </LineChart>
     </ChartContainer>
   )
@@ -247,7 +252,7 @@ function InterimMeasuresLineChart({ records }: { records: InterimMeasuresRecord[
 function DecisionsEvolutionLineChart({ records }: { records: AnnulmentRecord[] }) {
   const { t } = useTranslation()
   const chartConfig = {
-    positive_decisions: { label: t('statistics.protectionGranted'), color: GRANTED_COLOR },
+    positive_decisions: { label: t('statistics.applicationAccepted'), color: GRANTED_COLOR },
     negative_decisions_on_the_merits: { label: t('statistics.rejectionOnMerits'), color: REJECTED_COLOR },
     negative_decisions_on_admissibility_grounds: { label: t('statistics.rejectionInadmissible'), color: INADMISSIBLE_COLOR },
     negative_decisions_or_withdrawals: { label: t('statistics.withdrawalsArchived'), color: WITHDRAWALS_COLOR },
@@ -256,13 +261,13 @@ function DecisionsEvolutionLineChart({ records }: { records: AnnulmentRecord[] }
   return (
     <ChartContainer config={chartConfig} className="h-72 w-full">
       <LineChart data={records}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="year" />
-        <YAxis />
+        <CartesianGrid {...CHART_GRID_PROPS} />
+        <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
+        <YAxis {...CHART_AXIS_PROPS} />
         <Tooltip content={<ChartTooltipContent labelFormatter={label => t('statistics.yearLabel', { year: label })} />} />
         <Legend content={<ChartLegendContent />} />
         {Object.entries(chartConfig).map(([key, config]) => (
-          <Line key={key} type="monotone" dataKey={key} stroke={config.color} />
+          <Line key={key} type="monotone" dataKey={key} stroke={config.color} {...CHART_LINE_PROPS} />
         ))}
       </LineChart>
     </ChartContainer>

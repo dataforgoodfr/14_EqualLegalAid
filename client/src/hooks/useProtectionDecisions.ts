@@ -30,7 +30,15 @@ export interface SecondInstanceRecord {
   refugee_status: number
   subsidiary_protection: number
   rejected_as_unfounded: number
+  rejected_as_manifestly_unfounded: number
+  rejected_as_manifestly_unfounded_safe_country: number
+  rejected_other: number
+  exclusion_from_refugee_status: number
+  revocation_of_protection_status: number
   formal_grounds_rejections: number
+  border_procedure: number
+  dublin_regulation: number
+  subsequent_applications: number
   explicit_withdrawals: number
   implicit_withdrawals: number
   protection_rate: number
@@ -47,12 +55,23 @@ export interface DecisionsYearly {
   refugee_status: number
   subsidiary_protection: number
   positive: number
+  // Rejection on the merits
   rejected_as_unfounded: number
   exclusion_from_refugee_status: number
   negative_first_instance: number
   negative_accelerated: number
+  rejected_as_manifestly_unfounded: number
+  rejected_as_manifestly_unfounded_safe_country: number
+  revocation_of_protection_status: number
+  rejected_other: number
   rejection_on_merits: number
+  // Rejection as inadmissible
+  border_procedure: number
+  dublin_regulation: number
+  subsequent_applications: number
   formal_grounds_rejections: number
+  rejection_inadmissible: number
+  // Withdrawals
   explicit_withdrawals: number
   implicit_withdrawals: number
   withdrawals_archived: number
@@ -128,8 +147,16 @@ export function useProtectionDecisions() {
         month: toNum(r.fields['month']),
         refugee_status: toNum(r.fields['refugee_status']),
         subsidiary_protection: toNum(r.fields['subsidiary_protection']),
-        rejected_as_unfounded: toNum(r.fields['rejected_as_unfounded']),
-        formal_grounds_rejections: toNum(r.fields['formal_grounds_rejections']),
+        rejected_as_unfounded: toNum(r.fields['Rejection_on_the_merits_Rejected_as_unfounded']),
+        rejected_as_manifestly_unfounded: toNum(r.fields['Rejection_on_the_merits_Rejected_as_manifestly_unfounded']),
+        rejected_as_manifestly_unfounded_safe_country: toNum(r.fields['Rejection_on_the_merits_Rejected_as_manifestly_unfounded_Safe_country_of_origin']),
+        rejected_other: toNum(r.fields['Rejection_on_the_merits_Rejected']),
+        exclusion_from_refugee_status: toNum(r.fields['Rejection_on_the_merits_Exclusion_from_refugee_status']),
+        revocation_of_protection_status: toNum(r.fields['Rejection_on_the_merits_Revocation_of_protection_status']),
+        formal_grounds_rejections: toNum(r.fields['Rejection_on_formal_grounds']),
+        border_procedure: toNum(r.fields['Border_procedure_Safe_Third_Country']) + toNum(r.fields['Border_procedure_Safe_Third_Country_ALBANIA']) + toNum(r.fields['Border_procedure_Safe_Third_Country_NORTH_MACEDONIA']),
+        dublin_regulation: toNum(r.fields['Dublin_Regulation']),
+        subsequent_applications: toNum(r.fields['Subsequent_Applications']),
         explicit_withdrawals: toNum(r.fields['explicit_withdrawals']),
         implicit_withdrawals: toNum(r.fields['implicit_withdrawals']),
         protection_rate: toNum(r.fields['protection_rate']),
@@ -157,24 +184,38 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
   const map = new Map<number, DecisionsYearly>()
   for (const r of records) {
     const isFirst = 'negative_first_instance' in r
-    const exclusion = isFirst ? (r as FirstInstanceRecord).exclusion_from_refugee_status : 0
     const negFirst = isFirst ? (r as FirstInstanceRecord).negative_first_instance : 0
     const negAccel = isFirst ? (r as FirstInstanceRecord).negative_accelerated : 0
+    const manifestlyUnfounded = !isFirst ? (r as SecondInstanceRecord).rejected_as_manifestly_unfounded : 0
+    const manifestlyUnfoundedSafeCountry = !isFirst ? (r as SecondInstanceRecord).rejected_as_manifestly_unfounded_safe_country : 0
+    const revocation = !isFirst ? (r as SecondInstanceRecord).revocation_of_protection_status : 0
+    const rejectedOther = !isFirst ? (r as SecondInstanceRecord).rejected_other : 0
+
     const positive = r.refugee_status + r.subsidiary_protection
-    const rejection_on_merits = r.rejected_as_unfounded + exclusion + negFirst + negAccel
+    const rejection_on_merits = r.rejected_as_unfounded + r.exclusion_from_refugee_status + negFirst + negAccel
+      + manifestlyUnfounded + manifestlyUnfoundedSafeCountry + revocation + rejectedOther
+    const rejection_inadmissible = r.border_procedure + r.dublin_regulation + r.subsequent_applications + r.formal_grounds_rejections
     const withdrawals_archived = r.explicit_withdrawals + r.implicit_withdrawals
-    const negative = rejection_on_merits + r.formal_grounds_rejections + withdrawals_archived
+    const negative = rejection_on_merits + rejection_inadmissible + withdrawals_archived
     const existing = map.get(r.year)
     if (existing) {
       existing.refugee_status += r.refugee_status
       existing.subsidiary_protection += r.subsidiary_protection
       existing.positive += positive
       existing.rejected_as_unfounded += r.rejected_as_unfounded
-      existing.exclusion_from_refugee_status += exclusion
+      existing.exclusion_from_refugee_status += r.exclusion_from_refugee_status
       existing.negative_first_instance += negFirst
       existing.negative_accelerated += negAccel
+      existing.rejected_as_manifestly_unfounded += manifestlyUnfounded
+      existing.rejected_as_manifestly_unfounded_safe_country += manifestlyUnfoundedSafeCountry
+      existing.revocation_of_protection_status += revocation
+      existing.rejected_other += rejectedOther
       existing.rejection_on_merits += rejection_on_merits
+      existing.border_procedure += r.border_procedure
+      existing.dublin_regulation += r.dublin_regulation
+      existing.subsequent_applications += r.subsequent_applications
       existing.formal_grounds_rejections += r.formal_grounds_rejections
+      existing.rejection_inadmissible += rejection_inadmissible
       existing.explicit_withdrawals += r.explicit_withdrawals
       existing.implicit_withdrawals += r.implicit_withdrawals
       existing.withdrawals_archived += withdrawals_archived
@@ -188,11 +229,19 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
         subsidiary_protection: r.subsidiary_protection,
         positive,
         rejected_as_unfounded: r.rejected_as_unfounded,
-        exclusion_from_refugee_status: exclusion,
+        exclusion_from_refugee_status: r.exclusion_from_refugee_status,
         negative_first_instance: negFirst,
         negative_accelerated: negAccel,
+        rejected_as_manifestly_unfounded: manifestlyUnfounded,
+        rejected_as_manifestly_unfounded_safe_country: manifestlyUnfoundedSafeCountry,
+        revocation_of_protection_status: revocation,
+        rejected_other: rejectedOther,
         rejection_on_merits,
+        border_procedure: r.border_procedure,
+        dublin_regulation: r.dublin_regulation,
+        subsequent_applications: r.subsequent_applications,
         formal_grounds_rejections: r.formal_grounds_rejections,
+        rejection_inadmissible,
         explicit_withdrawals: r.explicit_withdrawals,
         implicit_withdrawals: r.implicit_withdrawals,
         withdrawals_archived,

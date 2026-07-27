@@ -1,11 +1,10 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import type { AsylumCampRecord, AsylumSeekersCampsRecord } from '@/hooks/useAsylumSeekersCamps'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
-import { ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton } from '@/components/ui'
-import type { ChartConfig } from '@/components/ui'
+import { ChartContainer, ChartTooltipContent, IndicatorInfoButton, CHART_GRID_PROPS } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 import maplibregl, { type ExpressionSpecification } from 'maplibre-gl'
 import layersFn from 'protomaps-themes-base'
@@ -40,6 +39,19 @@ const EXCLUDED_CAMP_TYPE = 'ESTIA'
 // So we split on spaces and take the first word as the camp type.
 function isCampType(record: { type: string }, campType: string): boolean {
   return record.type.includes(campType)
+}
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+
+// Formats the "{year}-{month}" key used internally for chart data
+// (e.g. "2025-6") into a readable "Month YYYY" label.
+function formatYearMonth(yearMonth: string): string {
+  const [year, month] = yearMonth.split('-').map(Number)
+  const name = MONTH_NAMES[(month ?? 1) - 1]
+  return name ? `${name} ${year}` : yearMonth
 }
 
 const convertToGeoJSON = (arr: AsylumCampRecord[]) => ({
@@ -77,7 +89,7 @@ export function AsylumSeekersCampsDetails({
 
   const [selectedRegion, setSelectedRegion] = useState<string>('all')
   const [selectedCampType, setSelectedCampType] = useState<string>('all')
-  const [byRegion, setByRegion] = useState(true)
+  const [selectedDate, setSelectedDate] = useState<string>('')
 
   // ESTIA data stops very early in the series, so it's excluded everywhere (chart, map, key figure).
   const visibleRecords = useMemo(
@@ -102,81 +114,67 @@ export function AsylumSeekersCampsDetails({
     return types
   }, [visibleRecords])
 
-  // Group by year-month, then by region/camp type — one series per region/camp type
-  const chartData = useMemo(() => {
-    const filtered = visibleRecords.filter(r => {
-      return (selectedRegion == 'all' || r.region === selectedRegion)
-        &&
-        (selectedCampType == 'all' || isCampType(r, selectedCampType))
+  // All year-month combinations available, most recent last.
+  const dates = useMemo(() => {
+    const set = new Set<string>()
+    for (const r of visibleRecords) set.add(`${r.year}-${r.month}`)
+    return Array.from(set).sort()
+  }, [visibleRecords])
+  const effectiveDate = selectedDate || dates[dates.length - 1] || ''
+
+  // Snapshot of records for the selected month, matching the type/region filters.
+  const snapshotRecords = useMemo(() => {
+    return visibleRecords.filter(r => {
+      return `${r.year}-${r.month}` === effectiveDate
+        && (selectedRegion === 'all' || r.region === selectedRegion)
+        && (selectedCampType === 'all' || isCampType(r, selectedCampType))
     })
+  }, [visibleRecords, effectiveDate, selectedRegion, selectedCampType])
 
-    // Aggregate by date
-    const map = new Map<string, Record<string, number>>()
-    for (const r of filtered) {
-      const key = `${r.year}-${r.month}`
-      const entry = map.get(key) ?? {}
+  // Once a specific region is picked there's only one bar left to show if we keep
+  // grouping by region, so switch the breakdown to camp type instead.
+  const groupByType = selectedRegion !== 'all'
 
-      // Because some records are labeled as multiple camp types,
-      // we have to treat records as potentially belonging to multiple groups.
-      // However, records always belong to only one region.
-      let groups = byRegion ? [r.region] : (campTypes.get(r.id) || []);
+  const snapshotData = useMemo(() => {
+    const totals = new Map<string, number>()
+    for (const r of snapshotRecords) {
+      const groups = groupByType ? (campTypes.get(r.id) || []) : [r.region]
       for (const group of groups) {
-        entry[group] = (entry[group] ?? 0) + r.asylum_seekers
+        totals.set(group, (totals.get(group) ?? 0) + r.asylum_seekers)
       }
-
-      map.set(key, entry)
     }
-    return Array.from(map.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, values]) => ({ date, ...values })) as ({ date: string } & Record<string, number>)[]
-  }, [visibleRecords, selectedRegion, selectedCampType, byRegion])
+    const keys = groupByType
+      ? (selectedCampType === 'all' ? CAMP_TYPES : [selectedCampType])
+      : regions
+    return keys
+      .map((key, i) => ({
+        group: groupByType ? (CAMP_TYPE_LABELS[key] ?? key) : key,
+        value: totals.get(key) ?? 0,
+        color: groupByType ? CAMP_COLORS[key] : REGION_COLORS[i % REGION_COLORS.length],
+      }))
+      .filter(d => d.value > 0)
+  }, [snapshotRecords, groupByType, selectedCampType, regions, campTypes])
 
   const keyFigure = useMemo(() => {
-    if (chartData.length == 0) {
-      return null;
-    } else {
-      const mostRecentData = chartData[chartData.length - 1];
-      const total = regions.reduce((sum, region) => {
-        return sum + (mostRecentData[region] ?? 0);
-      }, 0);
-      return {
-        total,
-        date: mostRecentData.date,
-      }
+    if (snapshotRecords.length === 0) return null
+    return {
+      total: snapshotRecords.reduce((sum, r) => sum + r.asylum_seekers, 0),
+      date: effectiveDate,
     }
-  }, [chartData])
-
-  // Line key (matches the data field name in chartData) + display label + color.
-  const chartLines = useMemo(() => {
-    if (byRegion) {
-      const groups = selectedRegion === 'all' ? regions : [selectedRegion];
-      return groups.map((region, i) => ({
-        key: region,
-        label: region,
-        color: REGION_COLORS[i % REGION_COLORS.length],
-      }))
-    } else {
-      const groups = selectedCampType === 'all' ? CAMP_TYPES : [selectedCampType];
-      return groups.map(campType => ({
-        key: campType,
-        label: CAMP_TYPE_LABELS[campType] ?? campType,
-        color: CAMP_COLORS[campType]
-      }))
-    }
-  }, [regions, selectedRegion, selectedCampType, byRegion])
-
-  const chartConfig = useMemo(() => {
-    return Object.fromEntries(
-      chartLines.map(meta => [meta.key, { label: meta.label, color: meta.color }]),
-    ) as ChartConfig
-  }, [chartLines])
+  }, [snapshotRecords, effectiveDate])
 
   // Looks up which region a named location belongs to, so the map (which only has
   // name/type/coordinates, no region) can be filtered by the region select too.
+  // Note: `location` only holds the coarse "Northern/Southern Greece/Islands" split —
+  // the individual camp name(s) live in `area` instead (sometimes comma-separated
+  // when one record covers several camps), so that's what has to be matched against.
   const nameToRegion = useMemo(() => {
     const map = new Map<string, string>()
     for (const r of visibleRecords) {
-      if (r.location && r.region && !map.has(r.location)) map.set(r.location, r.region)
+      if (!r.area || !r.region) continue
+      for (const name of r.area.split(',').map(n => n.trim()).filter(Boolean)) {
+        if (!map.has(name)) map.set(name, r.region)
+      }
     }
     return map
   }, [visibleRecords])
@@ -332,19 +330,16 @@ export function AsylumSeekersCampsDetails({
               <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
               <IndicatorInfoButton text={information} />
             </div>
+            {subtitle && <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>}
           </div>
 
           <div className="flex gap-2">
             <select
               className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
-              value={byRegion.toString()}
-              onChange={e => {
-                const value = e.target.value;
-                setByRegion(value === 'true');
-              }}
+              value={effectiveDate}
+              onChange={e => setSelectedDate(e.target.value)}
             >
-              <option value="true">{t('statistics.byRegion')}</option>
-              <option value="false">{t('statistics.byTypeOfCamp')}</option>
+              {[...dates].reverse().map(d => <option key={d} value={d}>{formatYearMonth(d)}</option>)}
             </select>
 
             <select
@@ -384,14 +379,14 @@ export function AsylumSeekersCampsDetails({
 
             {keyFigure && (
               <div className="rounded-lg border border-gray-200 p-5">
-                {subtitle && (
-                  <p className="text-sm font-bold text-gray-900 mb-4">{subtitle}</p>
-                )}
+                <p className="text-sm font-bold text-gray-900 mb-4">
+                  {t('statistics.totalAsylumSeekersInCamps')}
+                </p>
                 <p className="text-6xl font-bold text-gray-900 leading-none tabular-nums">
                   {Number(keyFigure.total).toLocaleString('fr-FR')}
                 </p>
                 <p className="text-sm text-gray-600 mt-2">
-                  In {keyFigure.date}
+                  {formatYearMonth(keyFigure.date)}
                 </p>
               </div>
             )}
@@ -426,27 +421,29 @@ export function AsylumSeekersCampsDetails({
               </div>
             </div>
 
-            {/* Line chart */}
+            {/* Bar chart — snapshot for the selected month */}
             <div className="w-64 flex-1 min-w-0 overflow-y-auto rounded-lg border border-gray-200 p-4">
-              <ChartContainer config={chartConfig} className="h-80 w-full">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={d => d.slice(0, 7)} />
-                  <YAxis />
+              <ChartContainer config={{}} className="h-80 w-full">
+                <BarChart data={snapshotData} margin={{ top: 4, right: 8, left: 8, bottom: 24 }}>
+                  <CartesianGrid {...CHART_GRID_PROPS} />
+                  <XAxis
+                    dataKey="group"
+                    interval={0}
+                    angle={-25}
+                    textAnchor="end"
+                    height={60}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
                   <Tooltip
                     wrapperStyle={{ zIndex: 1000 }}
-                    content={<ChartTooltipContent />} />
-                  <Legend content={<ChartLegendContent />} />
-                  {chartLines.map(meta => (
-                    <Line
-                      key={meta.key}
-                      type="monotone"
-                      dataKey={meta.key}
-                      stroke={meta.color}
-                      dot={false}
-                    />
-                  ))}
-                </LineChart>
+                    content={<ChartTooltipContent hideLabel />} />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {snapshotData.map(d => <Cell key={d.group} fill={d.color} />)}
+                  </Bar>
+                </BarChart>
               </ChartContainer>
             </div>
           </div>

@@ -167,24 +167,44 @@ function DecisionsContent({
                   {expanded.onMerits && (
                     <>
                       <TreeRow label={t('statistics.rejectedUnfounded')} value={data.rejected_as_unfounded} total={data.total} depth={2} expandable={false} />
-                      {isFirstInstance && (
-                        <>
-                          <TreeRow label={t('statistics.exclusionRefugeeStatus')} value={data.exclusion_from_refugee_status} total={data.total} depth={2} expandable={false} />
-                          <TreeRow label={t('statistics.negativeFirstInstance')} value={data.negative_first_instance} total={data.total} depth={2} expandable={false} />
-                          <TreeRow label={t('statistics.negativeAccelerated')} value={data.negative_accelerated} total={data.total} depth={2} expandable={false} />
-                        </>
-                      )}
+                      {isFirstInstance
+                        ? (
+                          <>
+                            <TreeRow label={t('statistics.exclusionRefugeeStatus')} value={data.exclusion_from_refugee_status} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.negativeFirstInstance')} value={data.negative_first_instance} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.negativeAccelerated')} value={data.negative_accelerated} total={data.total} depth={2} expandable={false} />
+                          </>
+                        )
+                        : (
+                          <>
+                            <TreeRow label={t('statistics.rejectedManifestlyUnfounded')} value={data.rejected_as_manifestly_unfounded} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.rejectedManifestlyUnfoundedSafeCountry')} value={data.rejected_as_manifestly_unfounded_safe_country} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.exclusionRefugeeStatus')} value={data.exclusion_from_refugee_status} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.revocationProtectionStatus')} value={data.revocation_of_protection_status} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.rejectedOther')} value={data.rejected_other} total={data.total} depth={2} expandable={false} />
+                          </>
+                        )}
                     </>
                   )}
 
                   {/* Rejection as inadmissible */}
                   <TreeRow
                     label={t('statistics.rejectionInadmissible')}
-                    value={data.formal_grounds_rejections}
+                    value={data.rejection_inadmissible}
                     total={data.total}
                     depth={1}
-                    expandable={false}
+                    expandable
+                    expanded={expanded.inadmissible}
+                    onToggle={() => toggle('inadmissible')}
                   />
+                  {expanded.inadmissible && (
+                    <>
+                      <TreeRow label={t('statistics.borderProcedure')} value={data.border_procedure} total={data.total} depth={2} expandable={false} />
+                      <TreeRow label={t('statistics.dublinRegulation')} value={data.dublin_regulation} total={data.total} depth={2} expandable={false} />
+                      <TreeRow label={t('statistics.subsequentApplicants')} value={data.subsequent_applications} total={data.total} depth={2} expandable={false} />
+                      <TreeRow label={t('statistics.formalGrounds')} value={data.formal_grounds_rejections} total={data.total} depth={2} expandable={false} />
+                    </>
+                  )}
 
                   {/* Withdrawals */}
                   <TreeRow

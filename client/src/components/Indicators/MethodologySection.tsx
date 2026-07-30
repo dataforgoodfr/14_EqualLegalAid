@@ -20,7 +20,7 @@ export function MethodologySection({ customText }: { customText?: IndicatorCusto
   const displayText = expanded ? information : explanatoryText
 
   return (
-    <div className="mx-auto my-10 max-w-5xl">
+    <div className="mx-auto my-10">
       <div className="relative overflow-hidden rounded-xl border border-[#C4B5E3] bg-white p-8">
         <img
           src={elaAvatar}
@@ -30,11 +30,11 @@ export function MethodologySection({ customText }: { customText?: IndicatorCusto
 
         <div className="pr-24">
           {title && (
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="mb-4 text-2xl font-bold text-gray-900 whitespace-pre-line">{title}</h2>
           )}
 
           {subtitle && (
-            <p className="mb-4 text-sm font-bold text-gray-900">{subtitle}</p>
+            <p className="mb-4 text-sm font-bold text-gray-900 whitespace-pre-line">{subtitle}</p>
           )}
 
           {displayText && (

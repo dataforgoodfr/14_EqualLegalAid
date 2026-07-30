@@ -528,7 +528,7 @@ export function AsylumSeekersCampsDetails({
   if (records.length === 0) return <p className="text-muted-foreground text-sm p-6">{t('statistics.noData')}</p>
 
   return (
-    <div className="mx-auto max-w-5xl my-6">
+    <div className="mx-auto my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}

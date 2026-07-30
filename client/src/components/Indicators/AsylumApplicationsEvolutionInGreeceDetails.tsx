@@ -262,17 +262,17 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
   const information = isGr ? customText?.information_gr : customText?.information_en
 
   return (
-    <div className="mx-auto max-w-5xl my-6">
+    <div className="mx-auto my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && (
-            <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+            <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">{subtitle}</p>
           )}
         </div>
 
@@ -281,10 +281,10 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
           {(explanatoryTitle || explanatoryText) && (
             <div className="rounded-lg border border-gray-200 p-5">
               {explanatoryTitle && (
-                <h3 className="mb-2 text-sm font-bold text-gray-900">{explanatoryTitle}</h3>
+                <h3 className="mb-2 text-sm font-bold text-gray-900 whitespace-pre-line">{explanatoryTitle}</h3>
               )}
               {explanatoryText && (
-                <p className="text-sm leading-relaxed text-gray-600">{explanatoryText}</p>
+                <p className="text-sm leading-relaxed text-gray-600 whitespace-pre-line">{explanatoryText}</p>
               )}
             </div>
           )}
@@ -337,7 +337,7 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
               )}
             </div>
             {customText.sourceText && (
-              <p className="italic text-gray-400">{customText.sourceText}</p>
+              <p className="italic text-gray-400 whitespace-pre-line">{customText.sourceText}</p>
             )}
           </div>
         )}

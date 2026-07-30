@@ -84,6 +84,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
+  const mapLoadedRef = useRef(false)
   const popupRootRef = useRef<ReturnType<typeof createRoot> | null>(null)
   const dataByCodeRef = useRef<Record<string, MapIndicatorRecord>>({})
   const perCapitaRef = useRef(false)
@@ -250,10 +251,12 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
         popup.remove()
       })
 
+      mapLoadedRef.current = true
       applyMapData(map, yearRecordsRef.current, perCapitaRef.current, thresholdsRef.current)
     })
 
     return () => {
+      mapLoadedRef.current = false
       popupRootRef.current?.unmount()
       popup.remove()
       map.remove()
@@ -264,16 +267,10 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   // ── Re-apply whenever data / year / perCapita changes ───────────────────────
   useEffect(() => {
     const map = mapRef.current
-    if (!map) return
-    const apply = () => applyMapData(map, yearRecords, perCapita, thresholds)
-    if (map.isStyleLoaded()) {
-      apply()
-    }
-    else {
-      // Map not ready yet — apply as soon as it is
-      map.once('load', apply)
-      return () => { map.off('load', apply) }
-    }
+    // Before `load` fires, the load handler applies the latest refs itself. Waiting
+    // on `once('load')` here would deadlock: the event may already have fired.
+    if (!map || !mapLoadedRef.current) return
+    applyMapData(map, yearRecords, perCapita, thresholds)
   }, [yearRecords, perCapita, thresholds])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.numberOfApplicationsEurope')
@@ -283,17 +280,17 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   const information = isGr ? customText?.information_gr : customText?.information_en
 
   return (
-    <div className="mx-auto my-6 max-w-5xl">
+    <div className="mx-auto my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && (
-            <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+            <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">{subtitle}</p>
           )}
         </div>
 
@@ -363,12 +360,12 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
                 {(explanatoryTitle || explanatoryText) && (
                   <div>
                     {explanatoryTitle && (
-                      <p className="text-foreground text-sm leading-snug font-bold">
+                      <p className="text-foreground text-sm leading-snug font-bold whitespace-pre-line">
                         {explanatoryTitle}
                       </p>
                     )}
                     {explanatoryText && (
-                      <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+                      <p className="text-muted-foreground mt-2 text-xs leading-relaxed whitespace-pre-line">
                         {explanatoryText}
                       </p>
                     )}
@@ -446,7 +443,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
         {/* Card footer — source & last updated */}
         {(customText?.source || customText?.last_updated_on) && (
           <div className="space-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
               {customText.source && (
                 <span>
                   <span className="font-medium text-gray-600">
@@ -476,7 +473,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
               )}
             </div>
             {customText.sourceText && (
-              <p className="italic text-gray-400">{customText.sourceText}</p>
+              <p className="italic text-gray-400 whitespace-pre-line">{customText.sourceText}</p>
             )}
           </div>
         )}

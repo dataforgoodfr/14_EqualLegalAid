@@ -83,7 +83,7 @@ function regionBucketColor(value: number): string {
 // Une ligne du graphique d'évolution. La signature d'index couvre les colonnes
 // d'aires, ajoutées dynamiquement d'après les valeurs présentes en base.
 interface AreaRow {
-  [area: string]: number | string
+  [area: string]: number | string | null
   key: string
   total: number
 }
@@ -314,7 +314,17 @@ export function AsylumSeekersCampsDetails({
       row[r.area] = ((row[r.area] as number) ?? 0) + r.asylum_seekers
       row.total += r.asylum_seekers
     }
-    return Array.from(map.values()).sort((a, b) => a.key.localeCompare(b.key))
+    // Airtable garde des lignes à 0 longtemps après la fermeture d'une zone — la
+    // Crète en a 38, de décembre 2022 à janvier 2026. Tracées, elles donnent une
+    // courbe plate collée à l'axe, qui se lit comme une donnée alors que c'est une
+    // absence. `null` fait rompre la courbe au lieu de la poser à zéro.
+    const rows = Array.from(map.values()).sort((a, b) => a.key.localeCompare(b.key))
+    for (const row of rows) {
+      for (const [k, v] of Object.entries(row)) {
+        if (k !== 'key' && k !== 'total' && v === 0) row[k] = null
+      }
+    }
+    return rows
   }, [records])
 
   // Même série au pas annuel. Ici la moyenne mensuelle est obligatoire : additionner

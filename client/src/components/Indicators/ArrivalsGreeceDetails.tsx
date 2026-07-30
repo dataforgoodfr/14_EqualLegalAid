@@ -9,8 +9,8 @@ import { aggregateByYear } from '@/hooks/useArrivalsGreece'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { IndicatorInfoButton } from '@/components/ui/IndicatorInfoButton'
 import { useTranslation } from 'react-i18next'
-import { Map as MapIcon, BarChart2 } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
+import { Map as MapIcon, BarChart2, LineChart as LineChartIcon } from 'lucide-react'
+import { BarChart, Bar, LabelList, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ResponsiveContainer } from 'recharts'
 import { CHART_GRID_PROPS } from '@/components/ui'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
@@ -83,6 +83,13 @@ const SEA_ISLANDS: { key: keyof ArrivalsGreeceYearly, label: string }[] = [
   { key: 'leros', label: 'Leros' },
 ]
 
+// Découpage par point d'entrée du graphique d'évolution. Evros ferme la liste :
+// c'est la seule arrivée terrestre, elle se lit mieux en haut de l'empilement.
+const LOCATION_SERIES: { key: keyof ArrivalsGreeceYearly, label: string }[] = [
+  ...SEA_ISLANDS,
+  { key: 'evros', label: 'Evros' },
+]
+
 function applyMapData(map: maplibregl.Map, yearData: ArrivalsGreeceYearly | null) {
   const source = map.getSource('points') as maplibregl.GeoJSONSource | undefined
   if (!source) return
@@ -107,9 +114,12 @@ export function ArrivalsGreeceDetails({
   const isGr = i18n.language === 'el'
 
   const [view, setView] = useState<'map' | 'chart'>('map')
+  const [evolutionStep, setEvolutionStep] = useState<'year' | 'month'>('year')
+  const [evolutionSplit, setEvolutionSplit] = useState<'mode' | 'location'>('mode')
 
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
+  const mapLoadedRef = useRef(false)
   const yearDataRef = useRef<ArrivalsGreeceYearly | null>(null)
 
   const yearly = useMemo(() => aggregateByYear(records), [records])
@@ -139,6 +149,68 @@ export function ArrivalsGreeceDetails({
     ...seaRanking,
     ...(evrosValue > 0 ? [{ label: 'Evros', value: evrosValue, color: COLORS.evros }] : []),
   ], [seaRanking, evrosValue])
+
+  // Série annuelle complète — l'amplitude entre années se lit mal sur la carte,
+  // qui ne montre qu'une année à la fois. Bornes prises dans les données plutôt
+  // que fixées à 2019-2025, pour ne pas tronquer les millésimes à venir.
+  // Empilé : les composantes se somment au total, la hauteur de barre reste donc
+  // lisible comme le total annuel — ce qu'un groupement côte à côte perdrait.
+  const evolutionData = useMemo(
+    () => yearly.map(y => ({
+      year: y.year,
+      sea: y.total_arrivals_sea,
+      land: y.total_arrivals_land,
+      total: y.total_arrivals,
+      ...Object.fromEntries(LOCATION_SERIES.map(s => [s.key, y[s.key] as number])),
+    })),
+    [yearly],
+  )
+
+  // Même série au pas mensuel. Agrégée par année-mois plutôt que prise ligne à
+  // ligne : rien ne garantit qu'Airtable n'ait qu'un enregistrement par mois.
+  const monthlyData = useMemo(() => {
+    const map = new Map<string, Record<string, number> & { key: string }>()
+    for (const r of records) {
+      if (!r.year || !r.month) continue
+      const key = `${r.year}-${String(r.month).padStart(2, '0')}`
+      const existing = map.get(key)
+      if (existing) {
+        existing.sea += r.total_arrivals_sea
+        existing.land += r.total_arrivals_land
+        existing.total += r.total_arrivals
+        for (const s of LOCATION_SERIES) existing[s.key] += r[s.key] as number
+      }
+      else {
+        map.set(key, {
+          key,
+          year: r.year,
+          month: r.month,
+          sea: r.total_arrivals_sea,
+          land: r.total_arrivals_land,
+          total: r.total_arrivals,
+          ...Object.fromEntries(LOCATION_SERIES.map(s => [s.key, r[s.key] as number])),
+        })
+      }
+    }
+    const rows = Array.from(map.values()).sort((a, b) => a.key.localeCompare(b.key))
+    // Airtable porte les mois à venir de l'année courante avec des zéros. Tracés
+    // tels quels, ils se lisent comme un arrêt des arrivées — on coupe la série
+    // au dernier mois réellement renseigné.
+    let last = rows.length - 1
+    while (last >= 0 && rows[last].total === 0) last--
+    return rows.slice(0, last + 1)
+  }, [records])
+
+  // Séries tracées dans le graphique d'évolution, selon le découpage choisi.
+  const evolutionSeries = useMemo(
+    () => evolutionSplit === 'mode'
+      ? [
+        { key: 'sea', label: t('statistics.seaArrivals'), color: '#3b82f6' },
+        { key: 'land', label: t('statistics.landArrivals'), color: '#1e3a8a' },
+      ]
+      : LOCATION_SERIES.map(s => ({ key: s.key as string, label: s.label, color: COLORS[s.key] })),
+    [evolutionSplit, t],
+  )
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.arrivalsGreece')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
@@ -225,6 +297,7 @@ export function ArrivalsGreeceDetails({
         },
       })
 
+      mapLoadedRef.current = true
       applyMapData(map, yearDataRef.current)
 
       map.on('mousemove', 'points-circle', (e) => {
@@ -247,6 +320,7 @@ export function ArrivalsGreeceDetails({
     })
 
     return () => {
+      mapLoadedRef.current = false
       popup.remove()
       map.remove()
       mapRef.current = null
@@ -256,13 +330,10 @@ export function ArrivalsGreeceDetails({
   // Re-apply data on year change
   useEffect(() => {
     const map = mapRef.current
-    if (!map) return
-    const apply = () => applyMapData(map, yearData)
-    if (map.isStyleLoaded()) apply()
-    else {
-      map.once('load', apply)
-      return () => { map.off('load', apply) }
-    }
+    // Avant `load`, le handler de load applique lui-même les refs à jour. Attendre
+    // `once('load')` ici bloquerait : l'événement a pu être déjà émis.
+    if (!map || !mapLoadedRef.current) return
+    applyMapData(map, yearData)
   }, [yearData])
 
   // When switching back to map view, the container was hidden (display:none) so
@@ -320,17 +391,30 @@ export function ArrivalsGreeceDetails({
         {/* Card body */}
         <div className="space-y-4 p-6">
 
-          {/* Explanatory text */}
-          {(explanatoryTitle || explanatoryText) && (
-            <div className="rounded-lg border border-gray-200 p-5">
-              {explanatoryTitle && (
-                <h3 className="mb-2 text-sm font-bold text-gray-900">{explanatoryTitle}</h3>
-              )}
-              {explanatoryText && (
-                <p className="text-sm leading-relaxed text-gray-600">{explanatoryText}</p>
-              )}
-            </div>
-          )}
+          {/* Explanatory text (3/4) + key figure (1/4) */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            {(explanatoryTitle || explanatoryText) && (
+              <div className="rounded-lg border border-gray-200 p-5 md:col-span-3">
+                {explanatoryTitle && (
+                  <h3 className="mb-2 text-sm font-bold text-gray-900">{explanatoryTitle}</h3>
+                )}
+                {explanatoryText && (
+                  <p className="text-sm leading-relaxed text-gray-600">{explanatoryText}</p>
+                )}
+              </div>
+            )}
+
+            {yearData && (
+              <div className="flex flex-col justify-center rounded-lg border border-gray-200 p-5 md:col-span-1">
+                <p className="text-4xl leading-none font-bold tabular-nums text-gray-900">
+                  {yearData.total_arrivals.toLocaleString('fr-FR')}
+                </p>
+                <p className="mt-2 text-sm text-gray-600">
+                  {t('statistics.totalArrivalsInYear', { year: effectiveYear })}
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Map + ranking — kept in DOM always so MapLibre isn't destroyed on view switch */}
           <div className={`flex gap-4 ${view === 'map' ? '' : 'hidden'}`} style={{ height: 460 }}>
@@ -416,6 +500,176 @@ export function ArrivalsGreeceDetails({
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Évolution annuelle — visible quelle que soit la vue : c'est la seule
+              lecture de la période entière, les deux autres portent sur une année. */}
+          {evolutionData.length > 1 && (
+            <div className="rounded-lg border border-gray-200 p-4">
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <h3 className="text-sm font-bold text-gray-900">
+                  {t('statistics.arrivalsEvolutionRange', {
+                    start: evolutionData[0].year,
+                    end: evolutionData[evolutionData.length - 1].year,
+                  })}
+                </h3>
+                <div className="flex flex-shrink-0 items-center gap-2">
+                  {/* Découpage des séries : mer/terre ou point d'entrée */}
+                  <div className="border-border flex items-center overflow-hidden rounded-md border">
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1.5 text-xs whitespace-nowrap ${evolutionSplit === 'mode' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                      onClick={() => setEvolutionSplit('mode')}
+                    >
+                      {t('statistics.bySeaLand')}
+                    </button>
+                    <button
+                      type="button"
+                      className={`border-border border-l px-2.5 py-1.5 text-xs whitespace-nowrap ${evolutionSplit === 'location' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                      onClick={() => setEvolutionSplit('location')}
+                    >
+                      {t('statistics.byEntryPoint')}
+                    </button>
+                  </div>
+
+                  {/* Pas de temps : année ou mois */}
+                  <div className="border-border flex items-center overflow-hidden rounded-md border">
+                    <button
+                      type="button"
+                      className={`flex items-center justify-center px-2.5 py-1.5 ${evolutionStep === 'year' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                      title={t('statistics.byYear')}
+                      onClick={() => setEvolutionStep('year')}
+                    >
+                      <BarChart2 size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`border-border flex items-center justify-center border-l px-2.5 py-1.5 ${evolutionStep === 'month' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                      title={t('statistics.byMonth')}
+                      onClick={() => setEvolutionStep('month')}
+                    >
+                      <LineChartIcon size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div style={{ height: 360 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  {evolutionStep === 'year'
+                    ? (
+                      <BarChart data={evolutionData} margin={{ top: 20, right: 16, left: 16, bottom: 8 }}>
+                        <CartesianGrid {...CHART_GRID_PROPS} />
+                        <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                        <YAxis axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
+                        <Tooltip
+                          formatter={(value, name) => [Number(value).toLocaleString('fr-FR'), name]}
+                          labelFormatter={label => t('statistics.yearLabel', { year: label })}
+                          cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                        />
+                        <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                        {/* Volontairement indépendant du sélecteur d'année : ce graphique
+                            porte sur la période entière, la carte sur une année. */}
+                        {evolutionSeries.map((s, i) => {
+                          const isTop = i === evolutionSeries.length - 1
+                          return (
+                            <Bar
+                              key={s.key}
+                              dataKey={s.key}
+                              stackId="arrivals"
+                              name={s.label}
+                              fill={s.color}
+                              radius={isTop ? [3, 3, 0, 0] : undefined}
+                            >
+                              {/* Total posé sur la barre du haut de la pile : c'est le seul
+                                  endroit où il coiffe l'empilement entier. */}
+                              {isTop && (
+                                <LabelList
+                                  dataKey="total"
+                                  position="top"
+                                  offset={6}
+                                  className="fill-gray-600"
+                                  style={{ fontSize: 10 }}
+                                  formatter={(v: number) => v.toLocaleString('fr-FR')}
+                                />
+                              )}
+                            </Bar>
+                          )
+                        })}
+                      </BarChart>
+                    )
+                    : evolutionSplit === 'mode'
+                      ? (
+                        // Deux séries seulement : des courbes se suivent sans se gêner et
+                        // laissent comparer mer et terre directement, ce que l'empilement
+                        // interdit — le segment du haut y est lu depuis une base mouvante.
+                        <LineChart data={monthlyData} margin={{ top: 20, right: 16, left: 16, bottom: 8 }}>
+                          <CartesianGrid {...CHART_GRID_PROPS} />
+                          {/* Un seul repère par an : 80 mois d'étiquettes seraient illisibles. */}
+                          <XAxis
+                            dataKey="key"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fontSize: 11 }}
+                            interval={0}
+                            tickFormatter={k => k.endsWith('-01') ? k.slice(0, 4) : ''}
+                          />
+                          <YAxis axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
+                          <Tooltip
+                            formatter={(value, name) => [Number(value).toLocaleString('fr-FR'), name]}
+                            labelFormatter={label => String(label).split('-').reverse().join('/')}
+                          />
+                          <Legend iconType="line" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                          {evolutionSeries.map(s => (
+                            <Line
+                              key={s.key}
+                              type="monotone"
+                              dataKey={s.key}
+                              name={s.label}
+                              stroke={s.color}
+                              strokeWidth={2}
+                              dot={false}
+                            />
+                          ))}
+                        </LineChart>
+                      )
+                      : (
+                        <AreaChart data={monthlyData} margin={{ top: 20, right: 16, left: 16, bottom: 8 }}>
+                          <CartesianGrid {...CHART_GRID_PROPS} />
+                          <XAxis
+                            dataKey="key"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fontSize: 11 }}
+                            interval={0}
+                            tickFormatter={k => k.endsWith('-01') ? k.slice(0, 4) : ''}
+                          />
+                          <YAxis axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
+                          <Tooltip
+                            formatter={(value, name) => [Number(value).toLocaleString('fr-FR'), name]}
+                            labelFormatter={label => String(label).split('-').reverse().join('/')}
+                          />
+                          <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                          {/* Aires empilées plutôt que courbes superposées : à 8 séries,
+                              des lignes s'entremêlent sans être lisibles. L'empilement
+                              garde en prime la même lecture du total que les barres. */}
+                          {evolutionSeries.map(s => (
+                            <Area
+                              key={s.key}
+                              type="monotone"
+                              dataKey={s.key}
+                              name={s.label}
+                              stackId="arrivals"
+                              stroke={s.color}
+                              strokeWidth={1}
+                              fill={s.color}
+                              fillOpacity={0.85}
+                            />
+                          ))}
+                        </AreaChart>
+                      )}
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
         </div>

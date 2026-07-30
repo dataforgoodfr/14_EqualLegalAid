@@ -33,11 +33,9 @@ interface Segment {
 
 export function CountryAlluvial({
   records,
-  countryFix,
   topN,
 }: {
   records: AsylumApplicationByNationalityRecord[]
-  countryFix: Record<string, string>
   /** 0 = tous les pays détaillés, sans regroupement. */
   topN: number
 }) {
@@ -57,7 +55,7 @@ export function CountryAlluvial({
     const perYear = new Map<number, Map<string, number>>()
     const grand = new Map<string, number>()
     for (const r of records) {
-      const country = countryFix[r.country] ?? r.country
+      const country = r.country
       if (!country || !r.year) continue
       if (!perYear.has(r.year)) perYear.set(r.year, new Map())
       const y = perYear.get(r.year)!
@@ -113,7 +111,7 @@ export function CountryAlluvial({
     })
 
     return { years, order, colorOf, columns, otherLabel, groupedCount }
-  }, [records, countryFix, topN, hidden, t])
+  }, [records, topN, hidden, t])
 
   if (!model.columns.length) {
     return <p className="text-muted-foreground p-6 text-sm">{t('statistics.noData')}</p>

@@ -25,14 +25,6 @@ const COUNTRY_PALETTE = [
   '#A78BFA', '#B45309', '#059669', '#94a3b8',
 ]
 
-// TODO retirer après correction d'Airtable : « Palestina » et « other » sont des
-// doublons de saisie de « Palestine » et « Other » dans le singleSelect `country`.
-// Sans cette fusion la Palestine perd 2 832 demandes et apparaît deux fois.
-const COUNTRY_FIX: Record<string, string> = {
-  Palestina: 'Palestine',
-  other: 'Other',
-}
-
 // Centroïdes approximatifs, en [lng, lat] comme l'attend MapLibre. Écrits ici
 // plutôt que calculés depuis countries.geojson : ce fichier pèse 14 Mo et n'est
 // chargé que par l'onglet EU — l'importer ici pour 38 points serait disproportionné.
@@ -91,7 +83,7 @@ function aggregate(
   const map = new Map<string, CountryRow>()
   for (const r of records) {
     if (year !== null && r.year !== year) continue
-    const country = COUNTRY_FIX[r.country] ?? r.country
+    const country = r.country
     if (!country) continue
     let row = map.get(country)
     if (!row) {
@@ -600,7 +592,7 @@ export function CountryOfOriginViews({
       {view === 'sankey' && <CountrySankey rows={rows} />}
       {/* L'alluvial porte toutes les années de front : il consomme les records bruts,
           pas l'agrégat d'une seule année. */}
-      {view === 'alluvial' && <CountryAlluvial records={records} countryFix={COUNTRY_FIX} topN={topN} />}
+      {view === 'alluvial' && <CountryAlluvial records={records} topN={topN} />}
       {view === 'lines' && linesView}
     </div>
   )

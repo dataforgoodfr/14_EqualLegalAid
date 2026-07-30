@@ -391,10 +391,12 @@ export function ArrivalsGreeceDetails({
         {/* Card body */}
         <div className="space-y-4 p-6">
 
-          {/* Explanatory text (3/4) + key figure (1/4) */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          {/* Texte explicatif + key figure. Mêmes largeurs que la rangée carte +
+              classement en dessous (w-64, gap-4) pour que les deux colonnes de
+              droite s'alignent au pixel. */}
+          <div className="flex flex-col gap-4 md:flex-row">
             {(explanatoryTitle || explanatoryText) && (
-              <div className="rounded-lg border border-gray-200 p-5 md:col-span-3">
+              <div className="rounded-lg border border-gray-200 p-5 md:flex-1">
                 {explanatoryTitle && (
                   <h3 className="mb-2 text-sm font-bold text-gray-900">{explanatoryTitle}</h3>
                 )}
@@ -405,7 +407,7 @@ export function ArrivalsGreeceDetails({
             )}
 
             {yearData && (
-              <div className="flex flex-col justify-center rounded-lg border border-gray-200 p-5 md:col-span-1">
+              <div className="flex flex-col justify-center rounded-lg border border-gray-200 p-5 md:w-64 md:flex-shrink-0">
                 <p className="text-4xl leading-none font-bold tabular-nums text-gray-900">
                   {yearData.total_arrivals.toLocaleString('fr-FR')}
                 </p>

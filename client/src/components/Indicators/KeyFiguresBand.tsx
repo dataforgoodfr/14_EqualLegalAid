@@ -20,8 +20,10 @@ function splitPeriod(label: string): { label: string, period: string } {
 function Cell({ card, isGr, bordered }: { card: KeyFigureCard, isGr: boolean, bordered: boolean }) {
   const { label, period } = splitPeriod(isGr ? card.label_gr : card.label_en)
   return (
+    // Padding symétrique et non seulement à gauche : avec un contenu centré, une
+    // marge d'un seul côté décalerait visuellement la colonne par rapport au trait.
     <div
-      className={bordered ? 'pl-7 md:border-l' : ''}
+      className={`px-3 text-center ${bordered ? 'md:border-l' : ''}`}
       style={bordered ? { borderColor: 'rgba(255,255,255,.16)' } : undefined}
     >
       <div

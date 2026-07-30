@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
+import { BarChart, Bar, Cell, LabelList, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { BarChart2, LineChart as LineChartIcon, RotateCcw, Play, Pause } from 'lucide-react'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import type { AsylumCampRecord, AsylumSeekersCampsRecord } from '@/hooks/useAsylumSeekersCamps'
 import { Loading } from '../Loading'
@@ -7,6 +8,7 @@ import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { ChartContainer, ChartTooltipContent, IndicatorInfoButton, CHART_GRID_PROPS } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 import maplibregl, { type ExpressionSpecification } from 'maplibre-gl'
+import grUrl from '@/assets/gr.json?url'
 import layersFn from 'protomaps-themes-base'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
@@ -20,19 +22,82 @@ const CAMP_TYPES = [
   "CCAC",
   "RIC",
   "Site",
+  "ESTIA",
 ] as const
 const CAMP_COLORS: Record<string, string> = {
   'CCAC': '#04356C',
   'RIC': '#d97706',
   'Site': '#0090ff',
+  'ESTIA': '#7C3AED',
 }
 // Display-only label override — keeps the underlying "Site" data key intact
 // (it's what Airtable and the filter logic use) while showing nicer copy.
 const CAMP_TYPE_LABELS: Record<string, string> = {
   'Site': 'Facilities',
 }
-// ESTIA data stops very early in the series and was flagged as too confusing to show.
-const EXCLUDED_CAMP_TYPE = 'ESTIA'
+
+// Découpage géographique large porté par la colonne `area`. Ordre fixé ici plutôt
+// qu'alphabétique pour que l'empilement aille du plus gros au plus petit.
+const AREA_ORDER = ['Southern Greece', 'Northern Greece', 'Aegean Islands', 'Crete']
+const AREA_COLORS: Record<string, string> = {
+  'Southern Greece': '#04356C',
+  'Northern Greece': '#1E6FA5',
+  'Aegean Islands': '#3F9FD8',
+  'Crete': '#d97706',
+}
+
+// La colonne `region` d'Airtable est en anglais, le GeoJSON porte des
+// translittérations du grec. Les 11 régions présentes en base sont toutes
+// couvertes ; les trois autres n'accueillent aucun camp mais restent listées
+// pour ne pas avoir à y revenir si ça change.
+const REGION_GEO_NAME: Record<string, string> = {
+  'Attica': 'Attiki',
+  'Central Macedonia': 'Kentriki Makedonia',
+  'Eastern Macedonia and Thrace': 'Anatoliki Makedonia kai Thraki',
+  'Central Greece': 'Stereá Elláda',
+  'Crete': 'Kriti',
+  'Epirus': 'Ipeiros',
+  'North Aegean': 'Voreio Aigaio',
+  'South Aegean': 'Notio Aigaio',
+  'Peloponnese': 'Peloponnisos',
+  'Thessaly': 'Thessalia',
+  'Western Greece': 'Dytiki Ellada',
+  'Western Macedonia': 'Dytiki Makedonia',
+  'Ionian Islands': 'Ionioi Nisoi',
+}
+
+// Gamme d'ardoise et non de bleus : les quatre couleurs de type de camp occupent
+// déjà le bleu, le marine, l'ambre et le violet. Un aplat coloré sous les points
+// les rendrait illisibles — le choropleth est le fond, les points le sujet.
+const REGION_SCALE_COLORS = ['#f1f5f9', '#dde3ea', '#c2cbd6', '#9aa7b7', '#6b7c91']
+const REGION_THRESHOLDS = [500, 1500, 3000, 5000]
+const REGION_NO_DATA_COLOR = '#fafafa'
+
+function regionBucketColor(value: number): string {
+  for (let i = 0; i < REGION_THRESHOLDS.length; i++) {
+    if (value <= REGION_THRESHOLDS[i]) return REGION_SCALE_COLORS[i]
+  }
+  return REGION_SCALE_COLORS[REGION_SCALE_COLORS.length - 1]
+}
+
+// Une ligne du graphique d'évolution. La signature d'index couvre les colonnes
+// d'aires, ajoutées dynamiquement d'après les valeurs présentes en base.
+interface AreaRow {
+  [area: string]: number | string | null
+  key: string
+  total: number
+}
+
+// Une ligne peut couvrir plusieurs camps, sous trois formes rencontrées en base :
+// « Elefsina, Schisto », « Drama and Kavala », « Islands (Lesvos, Samos, Chios) ».
+// Les parenthèses portent la liste réelle, le préfixe n'est qu'un intitulé.
+// Sans ce découpage, 6 des 31 camps de la carte n'étaient rattachés à aucune région
+// et disparaissaient dès qu'un filtre régional était appliqué.
+function campNamesFromLocation(location: string): string[] {
+  const inParens = /\(([^)]*)\)/.exec(location)
+  const source = inParens ? inParens[1] : location
+  return source.split(/,| and /).map(n => n.trim()).filter(Boolean)
+}
 
 // Camp types are specified in a string with additional data,
 // but the camp type is always the first word in the string.
@@ -46,8 +111,7 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ]
 
-// Formats the "{year}-{month}" key used internally for chart data
-// (e.g. "2025-6") into a readable "Month YYYY" label.
+// "2025-06" -> "June 2025", pour l'infobulle de la courbe mensuelle.
 function formatYearMonth(yearMonth: string): string {
   const [year, month] = yearMonth.split('-').map(Number)
   const name = MONTH_NAMES[(month ?? 1) - 1]
@@ -89,47 +153,82 @@ export function AsylumSeekersCampsDetails({
 
   const [selectedRegion, setSelectedRegion] = useState<string>('all')
   const [selectedCampType, setSelectedCampType] = useState<string>('all')
-  const [selectedDate, setSelectedDate] = useState<string>('')
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState<number | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [evolutionStep, setEvolutionStep] = useState<'month' | 'year'>('month')
 
-  // ESTIA data stops very early in the series, so it's excluded everywhere (chart, map, key figure).
-  const visibleRecords = useMemo(
-    () => records.filter(r => !r.type.includes(EXCLUDED_CAMP_TYPE)),
-    [records],
-  )
+  const filtersActive = selectedRegion !== 'all' || selectedCampType !== 'all' || selectedMonthIndex !== null
+  const resetFilters = () => {
+    setSelectedRegion('all')
+    setSelectedCampType('all')
+    setSelectedMonthIndex(null)
+    setPlaying(false)
+  }
 
   // Collect all region names based on the data records.
   const regions = useMemo(() => {
     const set = new Set<string>()
-    for (const r of visibleRecords) if (r.region) set.add(r.region)
+    for (const r of records) if (r.region) set.add(r.region)
     return Array.from(set).sort()
-  }, [visibleRecords])
+  }, [records])
 
   // Cache a lookup of record ids to their camp types.
   // Some camps are labeled as multiple types, in particular "CCAC/RIC".
   const campTypes = useMemo(() => {
     const types = new Map<string, string[]>()
-    for (const r of visibleRecords) {
+    for (const r of records) {
       types.set(r.id, CAMP_TYPES.filter(t => isCampType(r, t)));
     }
     return types
-  }, [visibleRecords])
+  }, [records])
 
-  // All year-month combinations available, most recent last.
-  const dates = useMemo(() => {
+  // Liste ordonnée des mois disponibles — c'est l'axe du curseur.
+  const months = useMemo(() => {
     const set = new Set<string>()
-    for (const r of visibleRecords) set.add(`${r.year}-${r.month}`)
+    for (const r of records) {
+      if (!r.year || !r.month) continue
+      set.add(`${r.year}-${String(r.month).padStart(2, '0')}`)
+    }
     return Array.from(set).sort()
-  }, [visibleRecords])
-  const effectiveDate = selectedDate || dates[dates.length - 1] || ''
+  }, [records])
 
-  // Snapshot of records for the selected month, matching the type/region filters.
+  const lastMonthIndex = Math.max(months.length - 1, 0)
+  const monthIndex = selectedMonthIndex ?? lastMonthIndex
+  const effectiveMonth = months[monthIndex] ?? ''
+
+  // Nombre de mois renseignés par année — sert au seul agrégat annuel du graphique
+  // d'évolution. L'indicateur mesure un STOCK (personnes hébergées à un instant
+  // donné) : additionner douze mois compterait douze fois la même personne, c'est
+  // la moyenne mensuelle qui fait sens. Le diviseur suit les données, donc 2026
+  // (6 mois) reste comparable à une année pleine.
+  const monthsPerYear = useMemo(() => {
+    const map = new Map<number, Set<number>>()
+    for (const r of records) {
+      if (!r.year || !r.month) continue
+      if (!map.has(r.year)) map.set(r.year, new Set())
+      map.get(r.year)!.add(r.month)
+    }
+    return new Map(Array.from(map, ([y, ms]) => [y, ms.size]))
+  }, [records])
+
+  // Records du mois sélectionné. Aucune moyenne ici : au pas mensuel la valeur EST
+  // le nombre de personnes hébergées ce mois-là.
   const snapshotRecords = useMemo(() => {
-    return visibleRecords.filter(r => {
-      return `${r.year}-${r.month}` === effectiveDate
+    return records.filter(r => {
+      return `${r.year}-${String(r.month).padStart(2, '0')}` === effectiveMonth
         && (selectedRegion === 'all' || r.region === selectedRegion)
         && (selectedCampType === 'all' || isCampType(r, selectedCampType))
     })
-  }, [visibleRecords, effectiveDate, selectedRegion, selectedCampType])
+  }, [records, effectiveMonth, selectedRegion, selectedCampType])
+
+  // Lecture automatique : un pas par 450 ms, retour au début en fin de série.
+  useEffect(() => {
+    if (!playing || months.length < 2) return
+    const id = setInterval(() => {
+      setSelectedMonthIndex(prev => ((prev ?? lastMonthIndex) + 1) % months.length)
+    }, 450)
+    return () => clearInterval(id)
+  }, [playing, months.length, lastMonthIndex])
 
   // Once a specific region is picked there's only one bar left to show if we keep
   // grouping by region, so switch the breakdown to camp type instead.
@@ -158,40 +257,125 @@ export function AsylumSeekersCampsDetails({
   const keyFigure = useMemo(() => {
     if (snapshotRecords.length === 0) return null
     return {
-      total: snapshotRecords.reduce((sum, r) => sum + r.asylum_seekers, 0),
-      date: effectiveDate,
+      total: snapshotRecords.reduce((acc, r) => acc + r.asylum_seekers, 0),
+      month: effectiveMonth,
     }
-  }, [snapshotRecords, effectiveDate])
+  }, [snapshotRecords, effectiveMonth])
 
   // Looks up which region a named location belongs to, so the map (which only has
   // name/type/coordinates, no region) can be filtered by the region select too.
-  // Note: `location` only holds the coarse "Northern/Southern Greece/Islands" split —
-  // the individual camp name(s) live in `area` instead (sometimes comma-separated
-  // when one record covers several camps), so that's what has to be matched against.
+  // Note : `area` porte le découpage large (Southern Greece, Aegean Islands…), les
+  // noms de camps sont dans `location` — parfois plusieurs séparés par des virgules
+  // quand une ligne couvre plusieurs camps. C'est donc `location` qu'on découpe.
   const nameToRegion = useMemo(() => {
     const map = new Map<string, string>()
-    for (const r of visibleRecords) {
-      if (!r.area || !r.region) continue
-      for (const name of r.area.split(',').map(n => n.trim()).filter(Boolean)) {
+    for (const r of records) {
+      if (!r.location || !r.region) continue
+      for (const name of campNamesFromLocation(r.location)) {
         if (!map.has(name)) map.set(name, r.region)
       }
     }
     return map
-  }, [visibleRecords])
+  }, [records])
 
   // The map points, filtered to match the currently selected camp type / region —
   // previously the map always showed every location regardless of the filters.
   const visibleLocations = useMemo(() => {
     return locations.filter(loc => {
-      if (loc.type.includes(EXCLUDED_CAMP_TYPE)) return false
       if (selectedCampType !== 'all' && !isCampType(loc, selectedCampType)) return false
       if (selectedRegion !== 'all' && nameToRegion.get(loc.name) !== selectedRegion) return false
       return true
     })
   }, [locations, selectedCampType, selectedRegion, nameToRegion])
 
+  // Évolution mensuelle par zone géographique, sur toute la période et
+  // indépendamment des filtres du haut — ceux-ci portent sur un mois donné.
+  const areaSeries = useMemo(() => {
+    const present = new Set(records.map(r => r.area).filter(Boolean))
+    return [
+      ...AREA_ORDER.filter(a => present.has(a)),
+      ...[...present].filter(a => !AREA_ORDER.includes(a)).sort(),
+    ]
+  }, [records])
+
+  // Effectifs mensuels par zone, sur toute la période. Au pas mensuel les valeurs
+  // sont directement le nombre de personnes hébergées ce mois-là : aucune moyenne
+  // à faire, contrairement à l'agrégat annuel du sélecteur ci-dessus.
+  const areaEvolution = useMemo(() => {
+    const map = new Map<string, AreaRow>()
+    for (const r of records) {
+      if (!r.year || !r.month || !r.area) continue
+      const key = `${r.year}-${String(r.month).padStart(2, '0')}`
+      let row = map.get(key)
+      if (!row) {
+        row = { key, total: 0 }
+        map.set(key, row)
+      }
+      row[r.area] = ((row[r.area] as number) ?? 0) + r.asylum_seekers
+      row.total += r.asylum_seekers
+    }
+    // Airtable garde des lignes à 0 longtemps après la fermeture d'une zone — la
+    // Crète en a 38, de décembre 2022 à janvier 2026. Tracées, elles donnent une
+    // courbe plate collée à l'axe, qui se lit comme une donnée alors que c'est une
+    // absence. `null` fait rompre la courbe au lieu de la poser à zéro.
+    const rows = Array.from(map.values()).sort((a, b) => a.key.localeCompare(b.key))
+    for (const row of rows) {
+      for (const [k, v] of Object.entries(row)) {
+        if (k !== 'key' && k !== 'total' && v === 0) row[k] = null
+      }
+    }
+    return rows
+  }, [records])
+
+  // Même série au pas annuel. Ici la moyenne mensuelle est obligatoire : additionner
+  // les douze mois donnerait des « personnes-mois », et 2026 (6 mois) paraîtrait
+  // deux fois plus basse qu'une année pleine.
+  const areaYearly = useMemo(() => {
+    const sums = new Map<number, Map<string, number>>()
+    for (const r of records) {
+      if (!r.year || !r.area) continue
+      if (!sums.has(r.year)) sums.set(r.year, new Map())
+      const byArea = sums.get(r.year)!
+      byArea.set(r.area, (byArea.get(r.area) ?? 0) + r.asylum_seekers)
+    }
+    return Array.from(sums.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([year, byArea]) => {
+        const months = monthsPerYear.get(year) || 1
+        const row: AreaRow = { key: String(year), total: 0 }
+        for (const [area, sum] of byArea) {
+          const avg = Math.round(sum / months)
+          row[area] = avg
+          row.total += avg
+        }
+        return row
+      })
+  }, [records, monthsPerYear])
+
+  // Effectif par région pour l'année choisie — moyenne mensuelle, comme le key
+  // figure. Suit les filtres type et région, pour rester cohérent avec les points.
+  const regionFillExpression = useMemo(() => {
+    const totals = new Map<string, number>()
+    for (const r of snapshotRecords) {
+      if (!r.region) continue
+      totals.set(r.region, (totals.get(r.region) ?? 0) + r.asylum_seekers)
+    }
+    const pairs: string[] = []
+    for (const [region, sum] of totals) {
+      const geoName = REGION_GEO_NAME[region]
+      if (!geoName) continue
+      pairs.push(geoName, regionBucketColor(sum))
+    }
+    // `match` exige au moins un couple étiquette/valeur.
+    if (!pairs.length) return REGION_NO_DATA_COLOR as unknown as ExpressionSpecification
+    return ['match', ['get', 'name'], ...pairs, REGION_NO_DATA_COLOR] as unknown as ExpressionSpecification
+  }, [snapshotRecords])
+
   const visibleLocationsRef = useRef<AsylumCampRecord[]>([])
   visibleLocationsRef.current = visibleLocations
+  const regionFillRef = useRef<ExpressionSpecification>(regionFillExpression)
+  regionFillRef.current = regionFillExpression
+  const mapLoadedRef = useRef(false)
 
   // Map init (once)
   useEffect(() => {
@@ -231,6 +415,7 @@ export function AsylumSeekersCampsDetails({
 
     map.on('load', () => {
       map.resize()
+      map.addSource('regions-source', { type: 'geojson', data: grUrl })
       map.addSource('points-source', {
         type: 'geojson',
         data: convertToGeoJSON(visibleLocationsRef.current),
@@ -256,6 +441,24 @@ export function AsylumSeekersCampsDetails({
         fallbackColor
       ] as unknown as ExpressionSpecification;
 
+      // Régions d'abord, points ensuite : insérés au même endroit de la pile, le
+      // dernier ajouté se retrouve au-dessus. Les points doivent rester lisibles.
+      map.addLayer({
+        id: 'regions-fill',
+        type: 'fill',
+        source: 'regions-source',
+        paint: {
+          'fill-color': regionFillRef.current,
+          'fill-opacity': 0.75,
+        },
+      }, firstSymbolId)
+      map.addLayer({
+        id: 'regions-border',
+        type: 'line',
+        source: 'regions-source',
+        paint: { 'line-color': '#ffffff', 'line-width': 0.8, 'line-opacity': 0.9 },
+      }, firstSymbolId)
+
       map.addLayer({
         id: 'points-circle',
         type: 'circle',
@@ -267,6 +470,8 @@ export function AsylumSeekersCampsDetails({
           'circle-color': circleColorExpression,
         }
       }, firstSymbolId);
+
+      mapLoadedRef.current = true
 
       map.on('mousemove', 'points-circle', (e) => {
         if (!e.features?.length) return
@@ -288,6 +493,7 @@ export function AsylumSeekersCampsDetails({
     })
 
     return () => {
+      mapLoadedRef.current = false
       popup.remove()
       map.remove()
       mapRef.current = null
@@ -295,19 +501,21 @@ export function AsylumSeekersCampsDetails({
   }, [locations])
 
   // Re-apply the point source whenever the camp-type/region filters change.
+  // Avant `load`, le handler de load applique lui-même les refs à jour — attendre
+  // `once('load')` ici bloquerait, l'événement ayant pu être déjà émis.
   useEffect(() => {
     const map = mapRef.current
-    if (!map) return
-    const apply = () => {
-      const source = map.getSource('points-source') as maplibregl.GeoJSONSource | undefined
-      source?.setData(convertToGeoJSON(visibleLocations))
-    }
-    if (map.isStyleLoaded()) apply()
-    else {
-      map.once('load', apply)
-      return () => { map.off('load', apply) }
-    }
+    if (!map || !mapLoadedRef.current) return
+    const source = map.getSource('points-source') as maplibregl.GeoJSONSource | undefined
+    source?.setData(convertToGeoJSON(visibleLocations))
   }, [visibleLocations])
+
+  // Recolore les régions quand l'année ou les filtres changent.
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapLoadedRef.current) return
+    map.setPaintProperty('regions-fill', 'fill-color', regionFillExpression)
+  }, [regionFillExpression])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.asylumSeekersCamps')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
@@ -327,20 +535,45 @@ export function AsylumSeekersCampsDetails({
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5 flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+              <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
               <IndicatorInfoButton text={information} />
             </div>
-            {subtitle && <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>}
+            {/* whitespace-pre-line : les sauts de ligne saisis dans Airtable sont
+                sinon écrasés en simple espace par le rendu HTML. */}
+            {subtitle && <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">{subtitle}</p>}
           </div>
 
           <div className="flex gap-2">
-            <select
-              className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
-              value={effectiveDate}
-              onChange={e => setSelectedDate(e.target.value)}
-            >
-              {[...dates].reverse().map(d => <option key={d} value={d}>{formatYearMonth(d)}</option>)}
-            </select>
+            {/* Curseur temporel + lecture. Un menu déroulant de 54 mois serait
+                pénible ; le balayage rend l'évolution lisible d'un geste. */}
+            {months.length > 1 && (
+              <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-1.5 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setPlaying(p => !p)}
+                  title={playing ? t('statistics.pause') : t('statistics.play')}
+                  className="text-gray-600 transition-colors hover:text-gray-900"
+                >
+                  {playing ? <Pause size={14} /> : <Play size={14} />}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={lastMonthIndex}
+                  step={1}
+                  value={monthIndex}
+                  onChange={(e) => {
+                    setPlaying(false)
+                    setSelectedMonthIndex(Number(e.target.value))
+                  }}
+                  className="w-40 accent-[#04356C]"
+                  aria-label={t('statistics.year')}
+                />
+                <span className="w-24 flex-shrink-0 text-xs tabular-nums text-gray-700">
+                  {formatYearMonth(effectiveMonth)}
+                </span>
+              </div>
+            )}
 
             <select
               className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
@@ -359,6 +592,19 @@ export function AsylumSeekersCampsDetails({
               <option value="all">{t('statistics.allRegions')}</option>
               {regions.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
+
+            {/* Désactivé tant que rien n'est filtré : un bouton toujours actif
+                laisserait croire qu'il reste quelque chose à remettre à zéro. */}
+            <button
+              type="button"
+              onClick={resetFilters}
+              disabled={!filtersActive}
+              title={t('statistics.resetFilters')}
+              className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white"
+            >
+              <RotateCcw size={12} />
+              {t('statistics.resetFilters')}
+            </button>
           </div>
         </div>
 
@@ -369,10 +615,10 @@ export function AsylumSeekersCampsDetails({
             {(explanatoryTitle || explanatoryText) && (
               <div className="rounded-lg border border-gray-200 p-5">
                 {explanatoryTitle && (
-                  <h3 className="text-sm font-bold text-gray-900 mb-3">{explanatoryTitle}</h3>
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 whitespace-pre-line">{explanatoryTitle}</h3>
                 )}
                 {explanatoryText && (
-                  <p className="text-sm text-gray-600 leading-relaxed">{explanatoryText}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{explanatoryText}</p>
                 )}
               </div>
             )}
@@ -386,7 +632,7 @@ export function AsylumSeekersCampsDetails({
                   {Number(keyFigure.total).toLocaleString('fr-FR')}
                 </p>
                 <p className="text-sm text-gray-600 mt-2">
-                  {formatYearMonth(keyFigure.date)}
+                  {formatYearMonth(keyFigure.month)}
                 </p>
               </div>
             )}
@@ -407,8 +653,9 @@ export function AsylumSeekersCampsDetails({
                 </div>
               )}
 
-              {/* Key */}
-              <div className="absolute bottom-5 left-5 bg-white p-2.5 rounded-[4px] text-xs z-10">
+              {/* Key — deux couches distinctes : les points portent le type de camp,
+                  l'aplat des régions l'effectif hébergé. */}
+              <div className="absolute bottom-5 left-5 z-10 rounded-[4px] bg-white/95 p-2.5 text-xs">
                 {Object.entries(CAMP_COLORS).map(([type, color]) => (
                   <div key={type} className="flex items-center mb-1">
                     <span
@@ -418,12 +665,39 @@ export function AsylumSeekersCampsDetails({
                     {CAMP_TYPE_LABELS[type] ?? type}
                   </div>
                 ))}
+
+                <div className="mt-2 border-t border-gray-200 pt-2">
+                  <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                    {t('statistics.byRegion')}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {REGION_SCALE_COLORS.map(c => (
+                      <span
+                        key={c}
+                        className="inline-block h-3 w-5 border border-white"
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-0.5 flex justify-between text-[9px] tabular-nums text-gray-500">
+                    <span>0</span>
+                    <span>{`> ${REGION_THRESHOLDS[REGION_THRESHOLDS.length - 1].toLocaleString('fr-FR')}`}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Bar chart — snapshot for the selected month */}
             <div className="w-64 flex-1 min-w-0 overflow-y-auto rounded-lg border border-gray-200 p-4">
-              <ChartContainer config={{}} className="h-80 w-full">
+              {/* Toutes les combinaisons filtre/mois ne portent pas de donnée — la
+                  Crète s'arrête en janvier 2026, Attica n'a pas de CCAC. Sans ce
+                  message, le graphique se vidait sans rien dire. */}
+              {snapshotData.length === 0 && (
+                <p className="text-muted-foreground flex h-full items-center justify-center text-sm">
+                  {t('statistics.noData')}
+                </p>
+              )}
+              <ChartContainer config={{}} className={`h-80 w-full ${snapshotData.length === 0 ? 'hidden' : ''}`}>
                 <BarChart data={snapshotData} margin={{ top: 4, right: 8, left: 8, bottom: 24 }}>
                   <CartesianGrid {...CHART_GRID_PROPS} />
                   <XAxis
@@ -447,6 +721,129 @@ export function AsylumSeekersCampsDetails({
               </ChartContainer>
             </div>
           </div>
+
+          {/* Évolution par zone — la carte et l'histogramme ci-dessus portent sur
+              un mois, celui-ci sur toute la période. */}
+          {areaEvolution.length > 1 && (
+            <div className="rounded-lg border border-gray-200 p-4">
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <h3 className="text-sm font-bold text-gray-900">
+                  {t('statistics.evolutionResidingInCamps')}
+                  {evolutionStep === 'year' && (
+                    <span className="ml-2 font-normal text-gray-500">
+                      {t('statistics.monthlyAverageSuffix')}
+                    </span>
+                  )}
+                </h3>
+                <div className="border-border flex flex-shrink-0 items-center overflow-hidden rounded-md border">
+                  <button
+                    type="button"
+                    className={`flex items-center justify-center px-2.5 py-1.5 ${evolutionStep === 'month' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                    title={t('statistics.byMonth')}
+                    onClick={() => setEvolutionStep('month')}
+                  >
+                    <LineChartIcon size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className={`border-border flex items-center justify-center border-l px-2.5 py-1.5 ${evolutionStep === 'year' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+                    title={t('statistics.byYear')}
+                    onClick={() => setEvolutionStep('year')}
+                  >
+                    <BarChart2 size={14} />
+                  </button>
+                </div>
+              </div>
+              <div style={{ height: 320 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  {evolutionStep === 'month'
+                    ? (
+                      <LineChart data={areaEvolution} margin={{ top: 8, right: 16, left: 16, bottom: 8 }}>
+                        <CartesianGrid {...CHART_GRID_PROPS} />
+                        {/* Un repère par an : 54 mois d'étiquettes seraient illisibles. */}
+                        <XAxis
+                          dataKey="key"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 11 }}
+                          interval={0}
+                          tickFormatter={k => k.endsWith('-01') ? k.slice(0, 4) : ''}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 11 }}
+                          tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
+                        />
+                        <Tooltip
+                          formatter={(value, name) => [Number(value).toLocaleString('fr-FR'), name]}
+                          labelFormatter={label => formatYearMonth(String(label))}
+                        />
+                        <Legend iconType="line" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                        {/* Courbes non empilées : on compare les zones entre elles, et
+                            un empilement ferait lire chaque zone depuis une base mouvante. */}
+                        {areaSeries.map(area => (
+                          <Line
+                            key={area}
+                            type="monotone"
+                            dataKey={area}
+                            name={area}
+                            stroke={AREA_COLORS[area] ?? '#94a3b8'}
+                            strokeWidth={2}
+                            dot={false}
+                          />
+                        ))}
+                      </LineChart>
+                    )
+                    : (
+                      // Empilé, contrairement aux courbes : les zones sont disjointes,
+                      // leur somme est donc le total hébergé — information que la vue
+                      // mensuelle ne donne pas.
+                      <BarChart data={areaYearly} margin={{ top: 20, right: 16, left: 16, bottom: 8 }}>
+                        <CartesianGrid {...CHART_GRID_PROPS} />
+                        <XAxis dataKey="key" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 11 }}
+                          tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
+                        />
+                        <Tooltip
+                          formatter={(value, name) => [Number(value).toLocaleString('fr-FR'), name]}
+                          labelFormatter={label => t('statistics.yearLabel', { year: label })}
+                          cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                        />
+                        <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                        {areaSeries.map((area, i) => {
+                          const isTop = i === areaSeries.length - 1
+                          return (
+                            <Bar
+                              key={area}
+                              dataKey={area}
+                              name={area}
+                              stackId="areas"
+                              fill={AREA_COLORS[area] ?? '#94a3b8'}
+                              radius={isTop ? [3, 3, 0, 0] : undefined}
+                            >
+                              {isTop && (
+                                <LabelList
+                                  dataKey="total"
+                                  position="top"
+                                  offset={6}
+                                  className="fill-gray-600"
+                                  style={{ fontSize: 10 }}
+                                  formatter={v => Number(v ?? 0).toLocaleString('fr-FR')}
+                                />
+                              )}
+                            </Bar>
+                          )
+                        })}
+                      </BarChart>
+                    )}
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
 
         </div>
 
@@ -472,7 +869,7 @@ export function AsylumSeekersCampsDetails({
               )}
             </div>
             {customText.sourceText && (
-              <p className="italic text-gray-400">{customText.sourceText}</p>
+              <p className="italic text-gray-400 whitespace-pre-line">{customText.sourceText}</p>
             )}
           </div>
         )}

@@ -119,7 +119,7 @@ export function AsylumApplicationsDetails({
   const totalFirstTimeApplicants = chartData.reduce((sum, d) => sum + d.first_time_applicants, 0)
 
   return (
-    <div className="mx-auto max-w-5xl my-6">
+    <div className="mx-auto my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}

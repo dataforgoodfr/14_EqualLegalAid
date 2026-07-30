@@ -280,7 +280,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   const information = isGr ? customText?.information_gr : customText?.information_en
 
   return (
-    <div className="mx-auto my-6 max-w-5xl">
+    <div className="mx-auto my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}

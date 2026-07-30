@@ -293,7 +293,7 @@ export function ProtectionDecisionsDetails({
   if (error) return <ErrorMessage message={error} onRetry={() => window.location.reload()} />
 
   return (<Tabs.Root className="TabsRoot" defaultValue="tab1">
-    <div className="mx-auto max-w-5xl my-6">
+    <div className="mx-auto my-6">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
         {/* Card header */}

@@ -30,11 +30,11 @@ export function MethodologySection({ customText }: { customText?: IndicatorCusto
 
         <div className="pr-24">
           {title && (
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="mb-4 text-2xl font-bold text-gray-900 whitespace-pre-line">{title}</h2>
           )}
 
           {subtitle && (
-            <p className="mb-4 text-sm font-bold text-gray-900">{subtitle}</p>
+            <p className="mb-4 text-sm font-bold text-gray-900 whitespace-pre-line">{subtitle}</p>
           )}
 
           {displayText && (

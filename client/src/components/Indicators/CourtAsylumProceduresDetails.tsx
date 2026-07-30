@@ -371,7 +371,7 @@ export function CourtAsylumProceduresDetails({
   const information = isGr ? customText?.information_gr : customText?.information_en
 
   return (
-    <div className="mx-auto my-6 max-w-5xl space-y-8">
+    <div className="mx-auto my-6 space-y-8">
       {/* Card 1: header + annulments table/donut */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">

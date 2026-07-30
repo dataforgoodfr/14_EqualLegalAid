@@ -36,8 +36,6 @@ export function IndicatorsDataTable({ data, perCapita }: Props) {
   const perCapitaColumns: ColumnDef<MapIndicatorRecord>[] = useMemo(() => [
     { accessorKey: 'name_country', header: t('statistics.country') },
     { accessorKey: 'total_applicants_per_capita', header: t('statistics.totalPerCapita'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
-    { accessorKey: 'first_time_applicants_per_capita', header: t('statistics.firstTimePerCapitaShort'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
-    { accessorKey: 'subsequent_applicants_per_capita', header: t('statistics.subsequentPerCapita'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
   ], [t])
 
   const columns = useMemo(

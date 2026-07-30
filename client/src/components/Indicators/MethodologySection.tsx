@@ -20,7 +20,7 @@ export function MethodologySection({ customText }: { customText?: IndicatorCusto
   const displayText = expanded ? information : explanatoryText
 
   return (
-    <div className="mx-auto my-10 max-w-5xl">
+    <div className="mx-auto my-10">
       <div className="relative overflow-hidden rounded-xl border border-[#C4B5E3] bg-white p-8">
         <img
           src={elaAvatar}

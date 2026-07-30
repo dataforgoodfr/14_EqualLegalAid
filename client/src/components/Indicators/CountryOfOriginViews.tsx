@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { CountryAlluvial } from './CountryAlluvial'
 import maplibregl from 'maplibre-gl'
 import grUrl from '@/assets/gr.json?url'
 import layersFn from 'protomaps-themes-base'
@@ -515,7 +516,7 @@ export function CountrySankey({ rows }: { rows: CountryRow[] }) {
 
 // ── Sélecteur de vue ──────────────────────────────────────────────────────────
 
-export type CountryView = 'bars' | 'map' | 'sankey' | 'lines'
+export type CountryView = 'bars' | 'map' | 'sankey' | 'alluvial' | 'lines'
 
 export function CountryOfOriginViews({
   records,
@@ -543,6 +544,7 @@ export function CountryOfOriginViews({
     { key: 'bars', label: t('statistics.viewRanking') },
     { key: 'map', label: t('statistics.viewMap') },
     { key: 'sankey', label: t('statistics.viewFlow') },
+    { key: 'alluvial', label: t('statistics.viewAlluvial') },
     ...(linesView ? [{ key: 'lines' as CountryView, label: t('statistics.viewLines') }] : []),
   ]
 
@@ -563,7 +565,7 @@ export function CountryOfOriginViews({
         </div>
 
         <div className="flex items-center gap-2">
-          {view === 'bars' && (
+          {(view === 'bars' || view === 'alluvial') && (
             <div className="border-border flex items-center overflow-hidden rounded-md border">
               {[5, 10, 20, 0].map((n, i) => (
                 <button
@@ -580,7 +582,7 @@ export function CountryOfOriginViews({
 
           {/* La vue en courbes porte déjà toutes les années sur son axe : un filtre
               annuel la réduirait à un point par pays. */}
-          {view !== 'lines' && (
+          {view !== 'lines' && view !== 'alluvial' && (
             <select
               className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"
               value={year ?? 'all'}
@@ -596,6 +598,9 @@ export function CountryOfOriginViews({
       {view === 'bars' && <CountryBars rows={topN > 0 ? rows.slice(0, topN) : rows} />}
       {view === 'map' && <CountryBubbleMap rows={rows} />}
       {view === 'sankey' && <CountrySankey rows={rows} />}
+      {/* L'alluvial porte toutes les années de front : il consomme les records bruts,
+          pas l'agrégat d'une seule année. */}
+      {view === 'alluvial' && <CountryAlluvial records={records} countryFix={COUNTRY_FIX} topN={topN} />}
       {view === 'lines' && linesView}
     </div>
   )

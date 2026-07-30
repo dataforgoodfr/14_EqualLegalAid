@@ -22,7 +22,7 @@ export function KeyFiguresHeader({ data }: { data: KeyFiguresData }) {
 
       {/* Description */}
       {subtitle && (
-        <p className="text-sm text-gray-600 leading-relaxed max-w-2xl">
+        <p className="text-sm text-gray-600 leading-relaxed max-w-2xl whitespace-pre-line">
           {subtitle}
         </p>
       )}

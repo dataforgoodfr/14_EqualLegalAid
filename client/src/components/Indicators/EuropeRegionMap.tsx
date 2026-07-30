@@ -286,11 +286,11 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && (
-            <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+            <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">{subtitle}</p>
           )}
         </div>
 
@@ -360,12 +360,12 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
                 {(explanatoryTitle || explanatoryText) && (
                   <div>
                     {explanatoryTitle && (
-                      <p className="text-foreground text-sm leading-snug font-bold">
+                      <p className="text-foreground text-sm leading-snug font-bold whitespace-pre-line">
                         {explanatoryTitle}
                       </p>
                     )}
                     {explanatoryText && (
-                      <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+                      <p className="text-muted-foreground mt-2 text-xs leading-relaxed whitespace-pre-line">
                         {explanatoryText}
                       </p>
                     )}
@@ -473,7 +473,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
               )}
             </div>
             {customText.sourceText && (
-              <p className="italic text-gray-400">{customText.sourceText}</p>
+              <p className="italic text-gray-400 whitespace-pre-line">{customText.sourceText}</p>
             )}
           </div>
         )}

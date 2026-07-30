@@ -9,8 +9,8 @@ import { aggregateByYear } from '@/hooks/useArrivalsGreece'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { IndicatorInfoButton } from '@/components/ui/IndicatorInfoButton'
 import { useTranslation } from 'react-i18next'
-import { Map as MapIcon, BarChart2, LineChart as LineChartIcon } from 'lucide-react'
-import { BarChart, Bar, LabelList, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ResponsiveContainer } from 'recharts'
+import { BarChart2, LineChart as LineChartIcon } from 'lucide-react'
+import { BarChart, Bar, LabelList, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { CHART_GRID_PROPS } from '@/components/ui'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
@@ -113,7 +113,6 @@ export function ArrivalsGreeceDetails({
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
 
-  const [view, setView] = useState<'map' | 'chart'>('map')
   const [evolutionStep, setEvolutionStep] = useState<'year' | 'month'>('year')
   const [evolutionSplit, setEvolutionSplit] = useState<'mode' | 'location'>('mode')
 
@@ -144,11 +143,6 @@ export function ArrivalsGreeceDetails({
 
   const evrosValue = yearData?.evros ?? 0
   const maxRankValue = Math.max(...seaRanking.map(d => d.value), evrosValue, 1)
-
-  const barData = useMemo(() => [
-    ...seaRanking,
-    ...(evrosValue > 0 ? [{ label: 'Evros', value: evrosValue, color: COLORS.evros }] : []),
-  ], [seaRanking, evrosValue])
 
   // Série annuelle complète — l'amplitude entre années se lit mal sur la carte,
   // qui ne montre qu'une année à la fois. Bornes prises dans les données plutôt
@@ -336,14 +330,6 @@ export function ArrivalsGreeceDetails({
     applyMapData(map, yearData)
   }, [yearData])
 
-  // When switching back to map view, the container was hidden (display:none) so
-  // MapLibre doesn't know its real size — resize to fix blank canvas.
-  useEffect(() => {
-    if (view === 'map') {
-      requestAnimationFrame(() => { mapRef.current?.resize() })
-    }
-  }, [view])
-
   return (
     <div className="mx-auto my-6 max-w-5xl">
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -367,24 +353,6 @@ export function ArrivalsGreeceDetails({
             >
               {years.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
-            <div className="border-border flex items-center overflow-hidden rounded-md border">
-              <button
-                type="button"
-                className={`flex items-center justify-center px-2.5 py-1.5 ${view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-                title={t('statistics.mapView')}
-                onClick={() => setView('map')}
-              >
-                <MapIcon size={14} />
-              </button>
-              <button
-                type="button"
-                className={`border-border flex items-center justify-center border-l px-2.5 py-1.5 ${view === 'chart' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-                title={t('statistics.chartView')}
-                onClick={() => setView('chart')}
-              >
-                <BarChart2 size={14} />
-              </button>
-            </div>
           </div>
         </div>
 
@@ -418,8 +386,8 @@ export function ArrivalsGreeceDetails({
             )}
           </div>
 
-          {/* Map + ranking — kept in DOM always so MapLibre isn't destroyed on view switch */}
-          <div className={`flex gap-4 ${view === 'map' ? '' : 'hidden'}`} style={{ height: 460 }}>
+          {/* Map + ranking */}
+          <div className="flex gap-4" style={{ height: 460 }}>
             <div className="relative flex-1 overflow-hidden rounded-lg border border-gray-200">
               <div ref={containerRef} className="h-full w-full" />
               {loading && (
@@ -480,33 +448,8 @@ export function ArrivalsGreeceDetails({
             </div>
           </div>
 
-          {/* Bar chart view */}
-          {view === 'chart' && (
-            <div className="rounded-lg border border-gray-200 p-4" style={{ height: 460 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={barData}
-                  margin={{ top: 16, right: 16, left: 16, bottom: 48 }}
-                >
-                  <CartesianGrid {...CHART_GRID_PROPS} />
-                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
-                  <YAxis axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(value) => [Number(value).toLocaleString('fr-FR'), t('statistics.arrivals')]}
-                    cursor={{ fill: 'rgba(0,0,0,0.04)' }}
-                  />
-                  <Bar dataKey="value" radius={[3, 3, 0, 0]}>
-                    {barData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {/* Évolution annuelle — visible quelle que soit la vue : c'est la seule
-              lecture de la période entière, les deux autres portent sur une année. */}
+          {/* Évolution — la carte porte une seule année, ce graphique la période
+              entière. C'est ici que se règlent découpage et pas de temps. */}
           {evolutionData.length > 1 && (
             <div className="rounded-lg border border-gray-200 p-4">
               <div className="mb-3 flex items-center justify-between gap-4">

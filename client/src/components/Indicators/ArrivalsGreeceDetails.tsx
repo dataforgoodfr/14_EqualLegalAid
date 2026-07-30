@@ -90,6 +90,18 @@ const LOCATION_SERIES: { key: keyof ArrivalsGreeceYearly, label: string }[] = [
   { key: 'evros', label: 'Evros' },
 ]
 
+// Une ligne du graphique mensuel. La signature d'index couvre les colonnes de
+// LOCATION_SERIES, ajoutées dynamiquement — d'où les casts à la lecture.
+interface MonthlyRow {
+  [field: string]: number | string
+  key: string
+  year: number
+  month: number
+  sea: number
+  land: number
+  total: number
+}
+
 function applyMapData(map: maplibregl.Map, yearData: ArrivalsGreeceYearly | null) {
   const source = map.getSource('points') as maplibregl.GeoJSONSource | undefined
   if (!source) return
@@ -163,7 +175,7 @@ export function ArrivalsGreeceDetails({
   // Même série au pas mensuel. Agrégée par année-mois plutôt que prise ligne à
   // ligne : rien ne garantit qu'Airtable n'ait qu'un enregistrement par mois.
   const monthlyData = useMemo(() => {
-    const map = new Map<string, Record<string, number> & { key: string }>()
+    const map = new Map<string, MonthlyRow>()
     for (const r of records) {
       if (!r.year || !r.month) continue
       const key = `${r.year}-${String(r.month).padStart(2, '0')}`
@@ -172,7 +184,9 @@ export function ArrivalsGreeceDetails({
         existing.sea += r.total_arrivals_sea
         existing.land += r.total_arrivals_land
         existing.total += r.total_arrivals
-        for (const s of LOCATION_SERIES) existing[s.key] += r[s.key] as number
+        for (const s of LOCATION_SERIES) {
+          existing[s.key] = (existing[s.key] as number) + (r[s.key] as number)
+        }
       }
       else {
         map.set(key, {
@@ -535,7 +549,7 @@ export function ArrivalsGreeceDetails({
                                   offset={6}
                                   className="fill-gray-600"
                                   style={{ fontSize: 10 }}
-                                  formatter={(v: number) => v.toLocaleString('fr-FR')}
+                                  formatter={v => Number(v ?? 0).toLocaleString('fr-FR')}
                                 />
                               )}
                             </Bar>

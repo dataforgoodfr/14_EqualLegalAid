@@ -20,7 +20,7 @@ import { CountryOfOriginViews } from './CountryOfOriginViews'
 
 const COLORS = [
   '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
-  '#7C3AED', '#A78BFA', '#B45309', '#D97706', '#065F46', '#059669',
+  '#7C3AED', '#A78BFA', '#9D4729', '#D15F36', '#065F46', '#059669',
 ]
 
 // Aggregate an array of records such that there is only

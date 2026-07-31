@@ -16,7 +16,7 @@ const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
 const REGION_COLORS = [
   '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
-  '#7C3AED', '#A78BFA', '#B45309', '#D97706', '#065F46', '#059669',
+  '#7C3AED', '#A78BFA', '#9D4729', '#D15F36', '#065F46', '#059669',
 ]
 const CAMP_TYPES = [
   "CCAC",
@@ -26,7 +26,7 @@ const CAMP_TYPES = [
 ] as const
 const CAMP_COLORS: Record<string, string> = {
   'CCAC': '#003366',
-  'RIC': '#d97706',
+  'RIC': '#D15F36',
   'Site': '#0090ff',
   'ESTIA': '#7C3AED',
 }

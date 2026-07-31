@@ -61,12 +61,12 @@ export function useRecognitionRates() {
           const refugeeFirst = toNum(r.fields['refugee_status_first_instance_mom_table'])
           const subFirst = toNum(r.fields['subsidiary_protection_first_instance_mom_table'])
           const totalFirst = toNum(r.fields['total_decisions_issued_first_instance'])
-          const rejectedFirst = Math.max(0, totalFirst - refugeeFirst - subFirst)
+          const rejectedFirst = toNum(r.fields['Rejected_on_the_merit_first_instance'])
 
           const refugeeSecond = toNum(r.fields['refugee_status_second_instance_mom_apdx'])
           const subSecond = toNum(r.fields['subsidiary_protection_second_instance_mom_apdx'])
           const totalSecond = toNum(r.fields['total_decisions_issued_second_instance_mom_apdx'])
-          const rejectedSecond = Math.max(0, totalSecond - refugeeSecond - subSecond)
+          const rejectedSecond = toNum(r.fields['Rejected_on_the_merit_second_instance'])
 
           const combinedTotal = totalFirst + totalSecond
 

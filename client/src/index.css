@@ -31,6 +31,11 @@
 /* Fallback Montserrat si Gotham indisponible */
 @theme {
   --font-gotham: 'Gotham', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  /* Gotham n'est auto-hébergée qu'en 400, 800 et 900. Pour les graisses
+     intermédiaires — 500, 600, 700 des libellés, onglets et pastilles — on passe
+     par Montserrat, importée en 400 à 900, plutôt que de laisser le navigateur
+     synthétiser un gras approximatif. */
+  --font-montserrat: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {

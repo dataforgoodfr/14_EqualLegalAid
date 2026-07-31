@@ -1,24 +1,19 @@
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { HeaderComponent } from '@/components/Header'
-import { KeyFiguresHeader } from '@/components/Indicators/KeyFiguresHeader'
+import { KeyFiguresBand } from '@/components/Indicators/KeyFiguresBand'
 import { MethodologySection } from '@/components/Indicators/MethodologySection'
-import { HighlightTitle } from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { IndicatorNav, type IndicatorItem } from '@/components/Layout/IndicatorNav'
 import { useKeyFigures } from '@/hooks/useKeyFigures'
 import { useIndicatorCustomTexts } from '@/hooks/useIndicatorCustomTexts'
 import { useEmbedMode } from '@/hooks/useEmbedMode'
 import { useTranslation } from 'react-i18next'
 import asylumDataHero from '@/assets/refugee-camp-diavata.jpg'
-interface NavLinkItem {
-  label: string
-  to: string
-}
+
 export const StatisticLayoutPage = () => {
   const { records: customTexts } = useIndicatorCustomTexts()
   const keyFigures = useKeyFigures()
   const isEmbed = useEmbedMode()
-  const location = useLocation()
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
   const asylumApplicationsInEuropeanUnion = customTexts.filter(ct => ct.name === 'AsylumApplicationsInEuropeanUnion')[0] ?? null
@@ -32,15 +27,18 @@ export const StatisticLayoutPage = () => {
 
   const getCustomText = (name: string) => customTexts.find(ct => ct.name === name) ?? null
 
-  const tabItems: NavLinkItem[] = [
-    { label: (isGr ? asylumApplicationsInEuropeanUnion?.title_gr : asylumApplicationsInEuropeanUnion?.title_en) || t('statistics.fluctuationsAsylumApplicationsEu'), to: 'AsylumApplicationsInEuropeanUnion' },
-    { label: (isGr ? asylumApplicationsInEurope?.title_gr : asylumApplicationsInEurope?.title_en) || t('statistics.euAsylumApplications'), to: 'AsylumApplicationsInEurope' },
-    { label: (isGr ? arrivalsInGreece?.title_gr : arrivalsInGreece?.title_en) || t('statistics.arrivalsGreece'), to: 'ArrivalsInGreece' },
-    { label: (isGr ? asylumSeekersCamps?.title_gr : asylumSeekersCamps?.title_en) || t('statistics.asylumSeekersCamps'), to: 'AsylumSeekersCamps' },
-    { label: (isGr ? asylumApplicationsEvolutionInGreece?.title_gr : asylumApplicationsEvolutionInGreece?.title_en) || t('statistics.asylumEvolutionGreece'), to: 'AsylumApplicationsEvolutionInGreece' },
-    { label: (isGr ? protectionGrantedVsRejected?.title_gr : protectionGrantedVsRejected?.title_en) || t('statistics.firstSecondInstanceDecisionsGreece'), to: 'ProtectionGrantedVsRejected' },
-    { label: (isGr ? courtAsylumProcedures?.title_gr : courtAsylumProcedures?.title_en) || t('statistics.courtAsylumProcedures'), to: 'CourtAsylumProcedures' },
-    { label: (isGr ? recognitionRates?.title_gr : recognitionRates?.title_en) || t('statistics.overallProtectionRate'), to: 'RecognitionRates' },
+  // Les groupes sont portés par la donnée : ajouter un indicateur ne demande pas
+  // de toucher au balisage de la navigation. L'ordre de cette liste fixe à la fois
+  // l'ordre des groupes et celui des pastilles.
+  const tabItems: IndicatorItem[] = [
+    { group: 'europe', label: (isGr ? asylumApplicationsInEuropeanUnion?.title_gr : asylumApplicationsInEuropeanUnion?.title_en) || t('statistics.fluctuationsAsylumApplicationsEu'), to: 'AsylumApplicationsInEuropeanUnion' },
+    { group: 'europe', label: (isGr ? asylumApplicationsInEurope?.title_gr : asylumApplicationsInEurope?.title_en) || t('statistics.euAsylumApplications'), to: 'AsylumApplicationsInEurope' },
+    { group: 'greeceFlows', label: (isGr ? arrivalsInGreece?.title_gr : arrivalsInGreece?.title_en) || t('statistics.arrivalsGreece'), to: 'ArrivalsInGreece' },
+    { group: 'greeceFlows', label: (isGr ? asylumSeekersCamps?.title_gr : asylumSeekersCamps?.title_en) || t('statistics.asylumSeekersCamps'), to: 'AsylumSeekersCamps' },
+    { group: 'greeceFlows', label: (isGr ? asylumApplicationsEvolutionInGreece?.title_gr : asylumApplicationsEvolutionInGreece?.title_en) || t('statistics.asylumEvolutionGreece'), to: 'AsylumApplicationsEvolutionInGreece' },
+    { group: 'decisions', label: (isGr ? protectionGrantedVsRejected?.title_gr : protectionGrantedVsRejected?.title_en) || t('statistics.firstSecondInstanceDecisionsGreece'), to: 'ProtectionGrantedVsRejected' },
+    { group: 'decisions', label: (isGr ? courtAsylumProcedures?.title_gr : courtAsylumProcedures?.title_en) || t('statistics.courtAsylumProcedures'), to: 'CourtAsylumProcedures' },
+    { group: 'decisions', label: (isGr ? recognitionRates?.title_gr : recognitionRates?.title_en) || t('statistics.overallProtectionRate'), to: 'RecognitionRates' },
   ]
   return (
     <div className="app mx-auto my-0 w-full xl:max-w-315">
@@ -63,23 +61,9 @@ export const StatisticLayoutPage = () => {
             {t('statistics.photoCredit')}
           </p>
         </div>
-        {(isGr ? keyFigures.title_gr : keyFigures.title_en) && (
-          <HighlightTitle title={isGr ? keyFigures.title_gr : keyFigures.title_en} />
-        )}
-        <KeyFiguresHeader data={keyFigures} />
-        <div className="flex flex-wrap gap-2 border-b border-gray-200 px-1 py-3">
-          {tabItems.map(tabItem => (
-            <NavLink
-              to={{ pathname: tabItem.to, search: location.search }}
-              key={tabItem.to}
-              className={({ isActive }: { isActive: boolean }) => cn(
-                'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
-                { 'bg-[#04356C] text-white': isActive },
-              )}
-            >
-              {tabItem.label}
-            </NavLink>
-          ))}
+        <KeyFiguresBand data={keyFigures} />
+        <div className="pt-6">
+          <IndicatorNav items={tabItems} groupLabel={g => t(`statistics.group.${g}`)} />
         </div>
         <Outlet context={{ customTexts, getCustomText }} />
         <MethodologySection customText={getCustomText('Methodology')} />

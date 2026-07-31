@@ -76,6 +76,11 @@
     }
   },
   "statistics": {
+    "group": {
+      "europe": "Ευρώπη",
+      "greeceFlows": "Ελλάδα · ροές",
+      "decisions": "Αποφάσεις"
+    },
     "photoCredit": "Diavata refugee camp, 2022 © Mattia Bidoli",
     "euAsylumApplications": "Αιτήσεις ασύλου στα κράτη μέλη της ΕΕ",
     "fluctuationsAsylumApplicationsEu": "Διακυμάνσεις των αιτήσεων ασύλου στην ΕΕ",

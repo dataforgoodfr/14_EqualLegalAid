@@ -11,13 +11,13 @@ import {
 import { CHART_GRID_PROPS } from '@/components/ui'
 import type { AsylumApplicationByNationalityRecord } from '@/hooks/useGreeceTotalApplications'
 import { useTotalApplicationsGreece, annualTotals } from '@/hooks/useTotalApplicationsGreece'
+import { SankeyNode, SankeyLink, SANKEY_MARGIN, midShiftFor } from './SankeyParts'
 import { useTranslation } from 'react-i18next'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
-// Deux crans de la rampe bleue commune aux graphiques par âge et par genre
-// (`#04356C → #1E6FA5 → #3F9FD8 → #6BB8E8 → #9AD0F2 → #C5E5F8`). L'ambre Tailwind
-// `#D97706` d'origine ne venait d'aucune palette du projet.
+// Deux crans de la rampe bleue de la charte, commune aux graphiques par âge et par
+// genre. L'ambre Tailwind `#D97706` d'origine ne venait d'aucune palette.
 const ISLANDS_COLOR = '#1E6FA5'
 const MAINLAND_COLOR = '#9AD0F2'
 // Bleu primaire de la charte. La Grèce est un aplat de pays, pas une bulle : la
@@ -427,88 +427,6 @@ export function CountryBubbleMap({ rows }: { rows: CountryRow[] }) {
 
 // ── Vue 3 : Sankey pays → route ───────────────────────────────────────────────
 
-// Recharts ne dessine que des rectangles nus : sans nœud personnalisé, le
-// diagramme n'a aucune étiquette. Les sources reçoivent leur libellé à gauche,
-// les destinations à droite, d'où les marges latérales généreuses.
-function SankeyNode(props: any) {
-  const { y, width, height, payload, maxDepth, midShift } = props
-  // Recharts répartit les colonnes à intervalles égaux. Les niveaux intermédiaires
-  // sont poussés vers la droite : leurs rubans sortants sont courts et épais, ceux
-  // qui entrent doivent traverser la forêt de libellés d'origines.
-  const x = props.x + ((payload?.depth ?? 0) > 0 && (payload?.depth ?? 0) < (maxDepth ?? 1) ? midShift ?? 0 : 0)
-  // `depth` plutôt qu'une comparaison à containerWidth : recharts ne transmet pas
-  // toujours cette largeur au nœud personnalisé, et le libellé basculait à droite.
-  const depth = payload?.depth ?? 0
-  const isSource = depth === 0
-  const color = payload.nodeColor ?? '#94a3b8'
-
-  // Niveau intermédiaire : les deux flancs du nœud sont occupés par des rubans,
-  // le libellé se pose donc au-dessus.
-  if (!isSource && depth !== (maxDepth ?? 1)) {
-    return (
-      <g>
-        <rect x={x} y={y} width={width} height={height} fill={color} rx={2} />
-        <text x={x + width / 2} y={y - 15} textAnchor="middle" fontSize={11} fill="#334155">
-          {payload.name}
-        </text>
-        <text x={x + width / 2} y={y - 4} textAnchor="middle" fontSize={10} fill="#94a3b8">
-          {Number(payload.value ?? 0).toLocaleString('fr-FR')}
-        </text>
-      </g>
-    )
-  }
-
-  return (
-    <g>
-      <rect x={x} y={y} width={width} height={height} fill={color} rx={2} />
-      <text
-        x={isSource ? x - 8 : x + width + 8}
-        y={y + height / 2}
-        textAnchor={isSource ? 'end' : 'start'}
-        dominantBaseline="middle"
-        fontSize={11}
-        fill="#334155"
-      >
-        {payload.name}
-      </text>
-      <text
-        x={isSource ? x - 8 : x + width + 8}
-        y={y + height / 2 + 13}
-        textAnchor={isSource ? 'end' : 'start'}
-        dominantBaseline="middle"
-        fontSize={10}
-        fill="#94a3b8"
-      >
-        {Number(payload.value ?? 0).toLocaleString('fr-FR')}
-      </text>
-    </g>
-  )
-}
-
-// Ruban coloré d'après le pays d'origine, sinon les huit flux se confondent.
-function SankeyLink(props: any) {
-  const { sourceY, targetY, linkWidth, payload, maxDepth, midShift } = props
-  const color = payload?.source?.nodeColor ?? '#94a3b8'
-  // Les extrémités suivent le décalage appliqué aux nœuds intermédiaires, sinon les
-  // rubans se décrocheraient de leur nœud.
-  const isMid = (d: number) => d > 0 && d < (maxDepth ?? 1)
-  const shift = midShift ?? 0
-  const sourceX = props.sourceX + (isMid(payload?.source?.depth ?? 0) ? shift : 0)
-  const targetX = props.targetX + (isMid(payload?.target?.depth ?? 0) ? shift : 0)
-  // Points de contrôle recalculés à mi-distance : ceux de recharts se rapportent aux
-  // positions d'avant décalage et tordraient la courbe.
-  const mid = (sourceX + targetX) / 2
-  return (
-    <path
-      d={`M${sourceX},${sourceY}C${mid},${sourceY} ${mid},${targetY} ${targetX},${targetY}`}
-      fill="none"
-      stroke={color}
-      strokeWidth={linkWidth}
-      strokeOpacity={0.4}
-    />
-  )
-}
-
 export function CountrySankey({ rows, topN }: { rows: CountryRow[], topN: number }) {
   const { t } = useTranslation()
   // « entry » sépare mer et terre, « greece » agrège : le second répond à la seule
@@ -598,11 +516,7 @@ export function CountrySankey({ rows, topN }: { rows: CountryRow[], topN: number
   // chevauchent. La hauteur suit donc le nombre d'origines, comme le classement —
   // sans quoi « Tous » entasse une quarantaine de pays dans 460 px.
   const height = Math.max(460, data.sourceCount * 34 + 60)
-  // 22 % de la zone traçable, plafonné : au-delà les rubans mer/terre → Grèce
-  // deviennent trop courts pour se lire.
-  const midShift = data.maxDepth > 1
-    ? Math.min(170, Math.max(0, (wrapW - 260) * 0.22))
-    : 0
+  const midShift = midShiftFor(wrapW, data.maxDepth)
 
   return (
     <div>
@@ -633,10 +547,7 @@ export function CountrySankey({ rows, topN }: { rows: CountryRow[], topN: number
             data={data}
             nodePadding={26}
             nodeWidth={12}
-            // Marges généreuses : chaque nœud porte une seconde ligne (sa valeur) sous
-            // son libellé, qui déborderait du dernier nœud de la pile — et les nœuds
-            // intermédiaires portent le leur au-dessus.
-            margin={{ top: 34, right: 130, bottom: 30, left: 130 }}
+            margin={SANKEY_MARGIN}
             link={<SankeyLink maxDepth={data.maxDepth} midShift={midShift} />}
             node={<SankeyNode maxDepth={data.maxDepth} midShift={midShift} />}
           >

@@ -9,17 +9,12 @@
  * importe déjà le Sankey, l'import inverse formerait un cycle.
  *
  * ── Origine des teintes ─────────────────────────────────────────────────────
- * Reprises de `REGION_COLORS` (indicateur « Asylum seekers living in camps »,
- * découpage par région), **violets exclus** :
+ * Charte du site : bleu foncé #003366, bleu clair #D1EFF9, orange #D15F36,
+ * orange clair #FEB06A, vert #4A7C6F.
  *
- *   #003366  #1E6FA5  #3F9FD8  #6BB8E8  #9AD0F2  #C5E5F8   ← repris
- *   #7C3AED  #A78BFA                                        ← violets, écartés
- *   #B45309  #D97706                                        ← ambres
- *   #065F46  #059669                                        ← verts, non utilisés ici
- *
- * Deux crans sont interpolés dans la famille bleue (`#8FC4E6`, `#B8DFF0`) : la
- * palette d'origine en compte six, or il faut sept teintes insulaires distinctes
- * plus une pour l'agrégat maritime.
+ * La rampe insulaire interpole entre les deux bleus de la charte. Evros prend
+ * l'orange : seule arrivée terrestre, la distinguer par la teinte plutôt que par
+ * une nuance de bleu rend le découpage mer/terre lisible d'un coup d'œil.
  */
 
 /**

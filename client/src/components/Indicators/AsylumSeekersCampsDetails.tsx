@@ -15,8 +15,8 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
 const REGION_COLORS = [
-  '#04356C', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
-  '#7C3AED', '#A78BFA', '#B45309', '#D97706', '#065F46', '#059669',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#D1EFF9',
+  '#D15F36', '#FEB06A', '#8C3A1E', '#4A7C6F', '#7FA79C', '#2C4F46',
 ]
 const CAMP_TYPES = [
   "CCAC",
@@ -25,10 +25,10 @@ const CAMP_TYPES = [
   "ESTIA",
 ] as const
 const CAMP_COLORS: Record<string, string> = {
-  'CCAC': '#04356C',
-  'RIC': '#d97706',
+  'CCAC': '#003366',
+  'RIC': '#D15F36',
   'Site': '#0090ff',
-  'ESTIA': '#7C3AED',
+  'ESTIA': '#4A7C6F',
 }
 // Display-only label override — keeps the underlying "Site" data key intact
 // (it's what Airtable and the filter logic use) while showing nicer copy.
@@ -45,7 +45,7 @@ const AREA_ORDER = ['Southern Greece', 'Northern Greece', 'Aegean Islands', 'Cre
 // Marine et orange sont ceux de la marque ; le vert et le violet viennent de la
 // palette Okabe-Ito, qui reste lisible avec un daltinisme deutan ou protan.
 const AREA_COLORS: Record<string, string> = {
-  'Southern Greece': '#093266',
+  'Southern Greece': '#003366',
   'Northern Greece': '#D15F36',
   'Aegean Islands': '#009E73',
   'Crete': '#CC79A7',
@@ -549,7 +549,7 @@ export function AsylumSeekersCampsDetails({
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5 flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+              <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
               <IndicatorInfoButton text={information} />
             </div>
             {/* whitespace-pre-line : les sauts de ligne saisis dans Airtable sont
@@ -580,7 +580,7 @@ export function AsylumSeekersCampsDetails({
                     setPlaying(false)
                     setSelectedMonthIndex(Number(e.target.value))
                   }}
-                  className="w-40 accent-[#04356C]"
+                  className="w-40 accent-[#003366]"
                   aria-label={t('statistics.year')}
                 />
                 <span className="w-24 flex-shrink-0 text-xs tabular-nums text-gray-700">

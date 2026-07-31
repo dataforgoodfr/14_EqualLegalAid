@@ -23,8 +23,12 @@ const GREECE_CODE = 'GR'
 const INITIAL_CENTER: [number, number] = [13, 54]
 const INITIAL_ZOOM = 2.5
 
-// 5-step ELA blues
-const BUCKET_COLORS = ['#bfdbfe', '#7db9f5', '#3b82f6', '#1d56c4', '#1e3a8a']
+// Rampe séquentielle bornée par les deux bleus de la charte : #D1EFF9 pour la
+// tranche la plus faible, #003366 pour la plus forte. Les trois crans du milieu
+// sont ceux des autres graphiques du projet, ce qui aligne la carte sur eux.
+// Remplace une rampe Tailwind (`#bfdbfe → #1e3a8a`) qui formait une sixième
+// famille de bleus, propre à ce seul indicateur.
+const BUCKET_COLORS = ['#D1EFF9', '#9AD0F2', '#6BB8E8', '#1E6FA5', '#003366']
 
 // Fixed thresholds — independent of data
 const TOTAL_THRESHOLDS = [5_000, 50_000, 100_000, 200_000]
@@ -47,7 +51,7 @@ function buildColorExpression(
   valueKey: ValueKey,
   thresholds: number[],
 ) {
-  if (!records.length) return '#dbeafe'
+  if (!records.length) return '#D1EFF9'
   const unique = Array.from(new Map(records.map(r => [r.country_code, r])).values())
   return [
     'match',
@@ -194,7 +198,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
         type: 'fill',
         source: 'countries',
         filter: ['==', ['get', ISO_PROP], ''],
-        paint: { 'fill-color': '#dbeafe', 'fill-opacity': 0.85 },
+        paint: { 'fill-color': '#D1EFF9', 'fill-opacity': 0.85 },
       }, firstSymbolId)
       map.addLayer({
         id: 'region-border',
@@ -291,7 +295,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && (

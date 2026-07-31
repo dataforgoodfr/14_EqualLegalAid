@@ -49,7 +49,7 @@ export default function StatisticPage() {
             key={i}
             onClick={() => setActiveTab(i)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === i
-                ? 'bg-[#04356C] text-white'
+                ? 'bg-[#003366] text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
               }`}
           >

@@ -19,8 +19,8 @@ import { useTotalApplicationsGreece, annualTotals, monthlySeries } from '@/hooks
 import { CountryOfOriginViews } from './CountryOfOriginViews'
 
 const COLORS = [
-  '#04356C', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
-  '#7C3AED', '#A78BFA', '#B45309', '#D97706', '#065F46', '#059669',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#D1EFF9',
+  '#D15F36', '#FEB06A', '#8C3A1E', '#4A7C6F', '#7FA79C', '#2C4F46',
 ]
 
 // Aggregate an array of records such that there is only
@@ -167,7 +167,7 @@ function ByPeriod() {
                 />
                 <Bar dataKey="total_applications" radius={[3, 3, 0, 0]}>
                   {yearly.map(y => (
-                    <Cell key={y.year} fill={y.fromMonthly ? '#9AD0F2' : '#04356C'} />
+                    <Cell key={y.year} fill={y.fromMonthly ? '#9AD0F2' : '#003366'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -190,8 +190,8 @@ function ByPeriod() {
                   labelFormatter={label => String(label)}
                 />
                 <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="first_applications" stackId="a" name={t('statistics.firstTime')} fill="#04356C" />
-                <Bar dataKey="subsequent_applications" stackId="a" name={t('statistics.subsequent')} fill="#6B9BD2" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="first_applications" stackId="a" name={t('statistics.firstTime')} fill="#003366" />
+                <Bar dataKey="subsequent_applications" stackId="a" name={t('statistics.subsequent')} fill="#6BB8E8" radius={[3, 3, 0, 0]} />
               </BarChart>
             )}
         </ResponsiveContainer>
@@ -406,7 +406,7 @@ export function AsylumApplicationsEvolutionInGreeceDetails({
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && (

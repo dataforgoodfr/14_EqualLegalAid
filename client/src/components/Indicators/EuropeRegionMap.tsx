@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next'
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 const ISO_PROP = 'ISO3166-1-Alpha-2'
 const GREECE_CODE = 'GR'
+const INITIAL_CENTER: [number, number] = [13, 54]
+const INITIAL_ZOOM = 2.5
 
 // 5-step ELA blues
 const BUCKET_COLORS = ['#bfdbfe', '#7db9f5', '#3b82f6', '#1d56c4', '#1e3a8a']
@@ -61,7 +63,7 @@ function applyMapData(
   perCapita: boolean,
   thresholds: number[],
 ) {
-  if (!records.length) return
+  if (!records.length || !map.getLayer('region-fill')) return
   const valueKey: ValueKey = perCapita ? 'total_applicants_per_capita' : 'total_applicants'
   const active = records.filter(r => r.total_applicants > 0)
   const codes = [...new Set(active.map(r => r.country_code))]
@@ -84,12 +86,11 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
-  const mapLoadedRef = useRef(false)
+  // State, not a ref: the data effect below must re-run once the map becomes ready.
+  const [mapReady, setMapReady] = useState(false)
   const popupRootRef = useRef<ReturnType<typeof createRoot> | null>(null)
   const dataByCodeRef = useRef<Record<string, MapIndicatorRecord>>({})
   const perCapitaRef = useRef(false)
-  const yearRecordsRef = useRef<MapIndicatorRecord[]>([])
-  const thresholdsRef = useRef<number[]>([])
 
   const { records, loading, error } = useMapIndicators()
   const [perCapita, setPerCapita] = useState(false)
@@ -135,10 +136,8 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
     [yearRecords],
   )
 
-  // Keep refs in sync
+  // Keep refs in sync — read by the map's hover handler, which is registered once
   perCapitaRef.current = perCapita
-  yearRecordsRef.current = yearRecords
-  thresholdsRef.current = thresholds
   dataByCodeRef.current = Object.fromEntries(yearRecords.map(r => [r.country_code, r]))
 
   // ── Map initialisation (runs once) ──────────────────────────────────────────
@@ -163,8 +162,8 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
     const map = new maplibregl.Map({
       container: containerRef.current,
       style,
-      center: [13, 54],
-      zoom: 2.5,
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM,
       attributionControl: false,
     })
     mapRef.current = map
@@ -251,12 +250,20 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
         popup.remove()
       })
 
-      mapLoadedRef.current = true
-      applyMapData(map, yearRecordsRef.current, perCapitaRef.current, thresholdsRef.current)
+      // The data effect below applies the choropleth — including data that arrived
+      // before this fired, which is the norm: maplibre defers `load` until the map
+      // first renders, and it does not render while the container is off-screen.
+      setMapReady(true)
     })
 
+    // The card sits far below the fold, so the map is often created before its
+    // container has settled on its final size.
+    const resizeObserver = new ResizeObserver(() => map.resize())
+    resizeObserver.observe(containerRef.current)
+
     return () => {
-      mapLoadedRef.current = false
+      resizeObserver.disconnect()
+      setMapReady(false)
       popupRootRef.current?.unmount()
       popup.remove()
       map.remove()
@@ -264,14 +271,12 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
     }
   }, [])
 
-  // ── Re-apply whenever data / year / perCapita changes ───────────────────────
+  // ── Re-apply whenever the map becomes ready, or data / year / perCapita changes ──
   useEffect(() => {
     const map = mapRef.current
-    // Before `load` fires, the load handler applies the latest refs itself. Waiting
-    // on `once('load')` here would deadlock: the event may already have fired.
-    if (!map || !mapLoadedRef.current) return
+    if (!map || !mapReady) return
     applyMapData(map, yearRecords, perCapita, thresholds)
-  }, [yearRecords, perCapita, thresholds])
+  }, [mapReady, yearRecords, perCapita, thresholds])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.numberOfApplicationsEurope')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en

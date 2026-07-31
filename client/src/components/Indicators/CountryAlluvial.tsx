@@ -12,8 +12,8 @@ import type { AsylumApplicationByNationalityRecord } from '@/hooks/useGreeceTota
  */
 
 const PALETTE = [
-  '#093266', '#1E6FA5', '#3F9FD8', '#6BB8E8',
-  '#D15F36', '#E1977C', '#7C3AED', '#059669',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8',
+  '#D15F36', '#FEB06A', '#4A7C6F', '#7FA79C',
 ]
 const OTHER_COLOR = '#CBD3DE'
 // Clé interne du regroupement, distincte de son libellé affiché : ce dernier porte

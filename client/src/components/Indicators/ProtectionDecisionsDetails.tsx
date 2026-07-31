@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { DecisionsEvolutionBarChart } from './DecisionsEvolutionBarChart'
 
 const GRANTED_COLOR = '#3F9FD8'
-const REJECTED_COLOR = '#04356C'
+const REJECTED_COLOR = '#003366'
 
 function TreeRow({
   label,
@@ -336,7 +336,7 @@ export function ProtectionDecisionsDetails({
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">{subtitle}</p>}
@@ -347,11 +347,11 @@ export function ProtectionDecisionsDetails({
 
           {/* Tab Trigger */}
           <Tabs.List className="rounded-md bg-gray-100 p-1 mt-6 w-max flex items-center">
-            <Tabs.Trigger className="rounded-sm px-3 py-1.5 leading-none data-[state=active]:shadow data-[state=active]:bg-[#04356C] data-[state=active]:text-white" value="tab1">
+            <Tabs.Trigger className="rounded-sm px-3 py-1.5 leading-none data-[state=active]:shadow data-[state=active]:bg-[#003366] data-[state=active]:text-white" value="tab1">
               {t('statistics.firstInstanceDecisions')}
             </Tabs.Trigger>
             {" > "}
-            <Tabs.Trigger className="rounded-sm px-3 py-1.5 leading-none data-[state=active]:shadow data-[state=active]:bg-[#04356C] data-[state=active]:text-white" value="tab2">
+            <Tabs.Trigger className="rounded-sm px-3 py-1.5 leading-none data-[state=active]:shadow data-[state=active]:bg-[#003366] data-[state=active]:text-white" value="tab2">
               {t('statistics.appealsDecisions')}
             </Tabs.Trigger>
           </Tabs.List>
@@ -377,7 +377,7 @@ export function ProtectionDecisionsDetails({
           {(explanatoryTitle || explanatoryText) && (
             <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-4 space-y-1.5">
               {explanatoryTitle && (
-                <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
+                <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#003366' }}>{explanatoryTitle}</h3>
               )}
               {explanatoryText && (
                 <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line text-justify">{explanatoryText}</p>

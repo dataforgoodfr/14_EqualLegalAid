@@ -44,11 +44,11 @@ export function AsylumApplicationsDetails({
   const chartConfig = {
     first_time_applicants: {
       label: t('statistics.firstTime'),
-      color: '#04356C',
+      color: '#003366',
     },
     subsequent_applicants: {
       label: t('statistics.subsequent'),
-      color: '#6B9BD2',
+      color: '#6BB8E8',
     },
   } satisfies ChartConfig
 
@@ -126,7 +126,7 @@ export function AsylumApplicationsDetails({
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5 flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+              <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
               <IndicatorInfoButton text={information} />
             </div>
             {subtitle && (

@@ -71,7 +71,9 @@ export function KeyFiguresBand({ data }: { data: KeyFiguresData }) {
               {title}
             </h2>
             <div
-              className="mx-auto mt-4 h-[5px] w-[88px] rounded-[3px]"
+              // Format du filet du site officiel : 7 px sur 50, bouts carrés.
+              // Même trait que HighlightTitle, pour que les deux titres se répondent.
+              className="mx-auto mt-4 h-[7px] w-[50px]"
               style={{ backgroundColor: NAV_COLORS.orange }}
             />
           </div>

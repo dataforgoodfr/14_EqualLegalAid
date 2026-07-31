@@ -23,6 +23,9 @@ const H = 470
 const M = { top: 16, right: 24, bottom: 34, left: 150 }
 const BAR_W = 40
 const SEG_GAP = 2
+// Interligne minimal entre deux libellés de pays, en unités du viewBox — au niveau
+// de la taille de police (11) plus un filet d'air.
+const LABEL_MIN_GAP = 13
 
 interface Segment {
   country: string
@@ -110,7 +113,31 @@ export function CountryAlluvial({
       return { ...col, x, segments }
     })
 
-    return { years, order, colorOf, columns, otherLabel, groupedCount }
+    // Décollage des libellés de la première colonne. Les petits pays ont des
+    // segments de quelques pixels : posés à leur centre exact, les textes se
+    // chevauchent. On écarte donc les libellés seuls, sans toucher aux segments —
+    // élargir SEG_GAP fausserait la lecture des volumes, puisque les écarts sont
+    // pris sur la hauteur de la pile.
+    const labels = (columns[0]?.segments ?? []).map(s => ({
+      country: s.country,
+      anchorY: s.y + s.h / 2,
+      y: s.y + s.h / 2,
+    }))
+    // Passe descendante, puis remontée si la pile déborde du bas.
+    for (let i = 1; i < labels.length; i++) {
+      const gap = labels[i].y - labels[i - 1].y
+      if (gap < LABEL_MIN_GAP) labels[i].y = labels[i - 1].y + LABEL_MIN_GAP
+    }
+    const floor = H - M.bottom - 4
+    if (labels.length && labels[labels.length - 1].y > floor) {
+      labels[labels.length - 1].y = floor
+      for (let i = labels.length - 2; i >= 0; i--) {
+        const gap = labels[i + 1].y - labels[i].y
+        if (gap < LABEL_MIN_GAP) labels[i].y = labels[i + 1].y - LABEL_MIN_GAP
+      }
+    }
+
+    return { years, order, colorOf, columns, otherLabel, groupedCount, labels }
   }, [records, topN, hidden, t])
 
   if (!model.columns.length) {
@@ -195,29 +222,48 @@ export function CountryAlluvial({
             >
               {col.total.toLocaleString('fr-FR')}
             </text>
-            {/* Libellés de pays sur la première colonne uniquement */}
-            {i === 0 && col.segments.map(seg => (
-              <text
-                key={`lbl-${seg.country}`}
-                x={col.x - 10}
-                y={seg.y + seg.h / 2}
-                textAnchor="end"
-                dominantBaseline="middle"
-                fontSize={11}
-                fontWeight={dim(seg.country) ? 400 : 600}
-                fill={dim(seg.country) ? '#B7C2D4' : '#334155'}
-                onMouseEnter={() => setActive(seg.country)}
-                style={{ cursor: 'pointer' }}
-              >
-                {seg.country}
-              </text>
-            ))}
+            {/* Libellés de pays sur la première colonne uniquement. Quand un libellé
+                a dû être écarté de son segment, un filet de rappel le raccroche —
+                sinon rien n'indique à quelle bande il se rapporte. */}
+            {i === 0 && model.labels.map((lbl) => {
+              const moved = Math.abs(lbl.y - lbl.anchorY) > 1.5
+              return (
+                <g
+                  key={`lbl-${lbl.country}`}
+                  onMouseEnter={() => setActive(lbl.country)}
+                  onClick={() => toggle(lbl.country)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <title>{t('statistics.clickToExclude')}</title>
+                  {moved && (
+                    <path
+                      d={`M${col.x - 9},${lbl.y} H${col.x - 6} L${col.x - 2},${lbl.anchorY}`}
+                      fill="none"
+                      stroke={dim(lbl.country) ? '#CBD3DE' : model.colorOf(lbl.country)}
+                      strokeWidth={0.8}
+                      strokeOpacity={dim(lbl.country) ? 0.35 : 0.65}
+                    />
+                  )}
+                  <text
+                    x={col.x - 13}
+                    y={lbl.y}
+                    textAnchor="end"
+                    dominantBaseline="middle"
+                    fontSize={11}
+                    fontWeight={dim(lbl.country) ? 400 : 600}
+                    fill={dim(lbl.country) ? '#B7C2D4' : '#334155'}
+                  >
+                    {lbl.country}
+                  </text>
+                </g>
+              )
+            })}
           </g>
         ))}
       </svg>
 
       {/* Légende cliquable au survol — les segments les plus fins sont trop petits
-          pour être visés à la souris. */}
+          pour être visés à la souris. Les libellés de gauche portent le même clic. */}
       <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5">
         {model.order.map(country => (
           <button

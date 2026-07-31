@@ -39,11 +39,25 @@ const CAMP_TYPE_LABELS: Record<string, string> = {
 // Découpage géographique large porté par la colonne `area`. Ordre fixé ici plutôt
 // qu'alphabétique pour que l'empilement aille du plus gros au plus petit.
 const AREA_ORDER = ['Southern Greece', 'Northern Greece', 'Aegean Islands', 'Crete']
+// Teintes distinctes et non un dégradé de bleus : un dégradé de clarté code une
+// grandeur ORDONNÉE, or les zones sont des catégories nominales. Trois bleus
+// voisins rendaient les courbes indiscernables dès qu'elles se croisaient.
+// Marine et orange sont ceux de la marque ; le vert et le violet viennent de la
+// palette Okabe-Ito, qui reste lisible avec un daltinisme deutan ou protan.
 const AREA_COLORS: Record<string, string> = {
-  'Southern Greece': '#04356C',
-  'Northern Greece': '#1E6FA5',
-  'Aegean Islands': '#3F9FD8',
-  'Crete': '#d97706',
+  'Southern Greece': '#093266',
+  'Northern Greece': '#D15F36',
+  'Aegean Islands': '#009E73',
+  'Crete': '#CC79A7',
+}
+
+// Renfort non chromatique : à quatre courbes qui se croisent, la couleur seule
+// échoue en impression noir et blanc comme pour une partie des daltoniens.
+const AREA_DASH: Record<string, string | undefined> = {
+  'Southern Greece': undefined,
+  'Northern Greece': '6 3',
+  'Aegean Islands': '2 3',
+  'Crete': '8 3 2 3',
 }
 
 // La colonne `region` d'Airtable est en anglais, le GeoJSON porte des
@@ -789,6 +803,7 @@ export function AsylumSeekersCampsDetails({
                             dataKey={area}
                             name={area}
                             stroke={AREA_COLORS[area] ?? '#94a3b8'}
+                            strokeDasharray={AREA_DASH[area]}
                             strokeWidth={2}
                             dot={false}
                           />

@@ -6,7 +6,7 @@ import type { DecisionsYearly } from '@/hooks/useProtectionDecisions'
 
 const GRANTED_LIGHT = '#3F9FD8'
 const GRANTED_DARK = '#0B4C82'
-const REJECTED_DARK = '#003366'
+const REJECTED_DARK = '#04356C'
 const REJECTED_MID = '#6BB8E8'
 const REJECTED_LIGHT = '#9AD0F2'
 

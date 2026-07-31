@@ -16,6 +16,10 @@ const PALETTE = [
   '#D15F36', '#E1977C', '#7C3AED', '#059669',
 ]
 const OTHER_COLOR = '#CBD3DE'
+// Clé interne du regroupement, distincte de son libellé affiché : ce dernier porte
+// le nombre de pays écartés, qui change à chaque masquage. Une entrée de `hidden`
+// indexée sur le libellé deviendrait donc caduque au clic suivant.
+const OTHER_KEY = '\u0000other'
 
 // Repères du dessin, en unités du viewBox.
 const W = 1000
@@ -77,9 +81,12 @@ export function CountryAlluvial({
 
     // Ordre de pile identique dans toutes les colonnes, du plus gros au plus petit
     // sur l'ensemble de la période : c'est ce qui empêche les rubans de se croiser.
-    const order = [...top, otherLabel]
+    // Masqué, le regroupement quitte la légende comme le ferait un pays — il ne
+    // reste visible que dans la liste des exclus, d'où on le réactive.
+    const order = hidden.has(OTHER_KEY) ? [...top] : [...top, OTHER_KEY]
     const colorOf = (c: string) =>
-      c === otherLabel ? OTHER_COLOR : PALETTE[top.indexOf(c) % PALETTE.length]
+      c === OTHER_KEY ? OTHER_COLOR : PALETTE[top.indexOf(c) % PALETTE.length]
+    const labelOf = (c: string) => (c === OTHER_KEY ? otherLabel : c)
 
     const totals = years.map((year) => {
       const y = perYear.get(year)!
@@ -87,7 +94,7 @@ export function CountryAlluvial({
       for (const [c, v] of y) if (!top.includes(c) && !hidden.has(c)) other += v
       const values = new Map<string, number>()
       for (const c of top) if (y.get(c)) values.set(c, y.get(c)!)
-      if (other > 0) values.set(otherLabel, other)
+      if (other > 0 && !hidden.has(OTHER_KEY)) values.set(OTHER_KEY, other)
       return { year, values, total: Array.from(values.values()).reduce((a, b) => a + b, 0) }
     })
 
@@ -137,7 +144,7 @@ export function CountryAlluvial({
       }
     }
 
-    return { years, order, colorOf, columns, otherLabel, groupedCount, labels }
+    return { years, order, colorOf, labelOf, columns, otherLabel, groupedCount, labels }
   }, [records, topN, hidden, t])
 
   if (!model.columns.length) {
@@ -199,7 +206,7 @@ export function CountryAlluvial({
                 onMouseEnter={() => setActive(seg.country)}
                 style={{ cursor: 'pointer', transition: 'fill-opacity .15s' }}
               >
-                <title>{`${seg.country} — ${col.year} : ${seg.value.toLocaleString('fr-FR')}`}</title>
+                <title>{`${model.labelOf(seg.country)} — ${col.year} : ${seg.value.toLocaleString('fr-FR')}`}</title>
               </rect>
             ))}
             <text
@@ -253,7 +260,7 @@ export function CountryAlluvial({
                     fontWeight={dim(lbl.country) ? 400 : 600}
                     fill={dim(lbl.country) ? '#B7C2D4' : '#334155'}
                   >
-                    {lbl.country}
+                    {model.labelOf(lbl.country)}
                   </text>
                 </g>
               )
@@ -280,7 +287,7 @@ export function CountryAlluvial({
               style={{ backgroundColor: model.colorOf(country) }}
             />
             <span className={active === country ? 'font-semibold text-gray-900' : 'text-gray-600'}>
-              {country}
+              {model.labelOf(country)}
             </span>
           </button>
         ))}
@@ -296,7 +303,7 @@ export function CountryAlluvial({
               onClick={() => toggle(c)}
               className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 line-through hover:bg-gray-200"
             >
-              {c}
+              {model.labelOf(c)}
             </button>
           ))}
           <button

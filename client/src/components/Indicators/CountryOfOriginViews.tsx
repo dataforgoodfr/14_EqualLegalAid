@@ -10,12 +10,16 @@ import {
 } from 'recharts'
 import { CHART_GRID_PROPS } from '@/components/ui'
 import type { AsylumApplicationByNationalityRecord } from '@/hooks/useGreeceTotalApplications'
+import { useTotalApplicationsGreece, annualTotals } from '@/hooks/useTotalApplicationsGreece'
 import { useTranslation } from 'react-i18next'
 
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
+// Deux crans de la rampe bleue commune aux graphiques par âge et par genre
+// (`#04356C → #1E6FA5 → #3F9FD8 → #6BB8E8 → #9AD0F2 → #C5E5F8`). L'ambre Tailwind
+// `#D97706` d'origine ne venait d'aucune palette du projet.
 const ISLANDS_COLOR = '#1E6FA5'
-const MAINLAND_COLOR = '#D97706'
+const MAINLAND_COLOR = '#9AD0F2'
 // Bleu primaire de la charte. La Grèce est un aplat de pays, pas une bulle : la
 // forme suffit à la distinguer des origines, pas besoin d'une couleur d'accent.
 const GREECE_COLOR = '#04356C'
@@ -74,6 +78,12 @@ export interface CountryRow {
   mainland: number
   total: number
 }
+
+// La popup maplibre s'alimente en HTML brut, et son contenu vient d'Airtable.
+const escapeHtml = (s: string) =>
+  String(s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c] as string
+  ))
 
 /** Agrège par pays pour une année donnée (ou toutes années si `year` est null). */
 function aggregate(
@@ -232,6 +242,10 @@ export function CountryBubbleMap({ rows }: { rows: CountryRow[] }) {
   const mapLoadedRef = useRef(false)
   const rowsRef = useRef<CountryRow[]>(rows)
   rowsRef.current = rows
+  // La popup est câblée une fois pour toutes au montage de la carte : sans ref, elle
+  // resterait sur la langue active à cet instant.
+  const tRef = useRef(t)
+  tRef.current = t
   const [projection, setProjection] = useState<'globe' | 'mercator'>('globe')
 
   const unmapped = useMemo(
@@ -322,11 +336,23 @@ export function CountryBubbleMap({ rows }: { rows: CountryRow[] }) {
         if (!e.features?.length) return
         map.getCanvas().style.cursor = 'pointer'
         const p = e.features[0].properties as { label: string, value: number, islands: number, mainland: number }
+        const tr = tRef.current
+        const num = (n: number) => Number(n).toLocaleString('fr-FR')
+        // Les deux sous-totaux étaient affichés « 33 000 / 8 869 », sans rien pour dire
+        // lequel est lequel. Chacun porte désormais son libellé et sa pastille de couleur,
+        // les mêmes que dans le classement et le diagramme de flux.
+        const line = (color: string, label: string, value: number) => `
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+            <span style="width:8px;height:8px;border-radius:9999px;background:${color};flex-shrink:0"></span>
+            <span style="font-size:11px;color:#64748b">${escapeHtml(label)}</span>
+            <span style="font-size:11px;font-weight:600;margin-left:auto">${num(value)}</span>
+          </div>`
         popup.setHTML(`
-          <div style="font-size:12px;font-weight:600;margin-bottom:4px">${p.label}</div>
-          <div style="font-size:12px">${Number(p.value).toLocaleString('fr-FR')}</div>
-          <div style="font-size:11px;color:#64748b">
-            ${Number(p.islands).toLocaleString('fr-FR')} / ${Number(p.mainland).toLocaleString('fr-FR')}
+          <div style="min-width:150px">
+            <div style="font-size:12px;font-weight:600">${escapeHtml(p.label)}</div>
+            <div style="font-size:14px;font-weight:700;margin-top:1px">${num(p.value)}</div>
+            ${line(ISLANDS_COLOR, tr('statistics.islandsApplications'), p.islands)}
+            ${line(MAINLAND_COLOR, tr('statistics.mainlandApplications'), p.mainland)}
           </div>
         `).setLngLat(e.lngLat).addTo(map)
       })
@@ -401,17 +427,37 @@ export function CountryBubbleMap({ rows }: { rows: CountryRow[] }) {
 
 // ── Vue 3 : Sankey pays → route ───────────────────────────────────────────────
 
-const SANKEY_TOP = 8
-
 // Recharts ne dessine que des rectangles nus : sans nœud personnalisé, le
 // diagramme n'a aucune étiquette. Les sources reçoivent leur libellé à gauche,
 // les destinations à droite, d'où les marges latérales généreuses.
 function SankeyNode(props: any) {
-  const { x, y, width, height, payload } = props
+  const { y, width, height, payload, maxDepth, midShift } = props
+  // Recharts répartit les colonnes à intervalles égaux. Les niveaux intermédiaires
+  // sont poussés vers la droite : leurs rubans sortants sont courts et épais, ceux
+  // qui entrent doivent traverser la forêt de libellés d'origines.
+  const x = props.x + ((payload?.depth ?? 0) > 0 && (payload?.depth ?? 0) < (maxDepth ?? 1) ? midShift ?? 0 : 0)
   // `depth` plutôt qu'une comparaison à containerWidth : recharts ne transmet pas
   // toujours cette largeur au nœud personnalisé, et le libellé basculait à droite.
-  const isSource = (payload?.depth ?? 0) === 0
+  const depth = payload?.depth ?? 0
+  const isSource = depth === 0
   const color = payload.nodeColor ?? '#94a3b8'
+
+  // Niveau intermédiaire : les deux flancs du nœud sont occupés par des rubans,
+  // le libellé se pose donc au-dessus.
+  if (!isSource && depth !== (maxDepth ?? 1)) {
+    return (
+      <g>
+        <rect x={x} y={y} width={width} height={height} fill={color} rx={2} />
+        <text x={x + width / 2} y={y - 15} textAnchor="middle" fontSize={11} fill="#334155">
+          {payload.name}
+        </text>
+        <text x={x + width / 2} y={y - 4} textAnchor="middle" fontSize={10} fill="#94a3b8">
+          {Number(payload.value ?? 0).toLocaleString('fr-FR')}
+        </text>
+      </g>
+    )
+  }
+
   return (
     <g>
       <rect x={x} y={y} width={width} height={height} fill={color} rx={2} />
@@ -441,11 +487,20 @@ function SankeyNode(props: any) {
 
 // Ruban coloré d'après le pays d'origine, sinon les huit flux se confondent.
 function SankeyLink(props: any) {
-  const { sourceX, targetX, sourceY, targetY, sourceControlX, targetControlX, linkWidth, payload } = props
+  const { sourceY, targetY, linkWidth, payload, maxDepth, midShift } = props
   const color = payload?.source?.nodeColor ?? '#94a3b8'
+  // Les extrémités suivent le décalage appliqué aux nœuds intermédiaires, sinon les
+  // rubans se décrocheraient de leur nœud.
+  const isMid = (d: number) => d > 0 && d < (maxDepth ?? 1)
+  const shift = midShift ?? 0
+  const sourceX = props.sourceX + (isMid(payload?.source?.depth ?? 0) ? shift : 0)
+  const targetX = props.targetX + (isMid(payload?.target?.depth ?? 0) ? shift : 0)
+  // Points de contrôle recalculés à mi-distance : ceux de recharts se rapportent aux
+  // positions d'avant décalage et tordraient la courbe.
+  const mid = (sourceX + targetX) / 2
   return (
     <path
-      d={`M${sourceX},${sourceY}C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}`}
+      d={`M${sourceX},${sourceY}C${mid},${sourceY} ${mid},${targetY} ${targetX},${targetY}`}
       fill="none"
       stroke={color}
       strokeWidth={linkWidth}
@@ -454,54 +509,141 @@ function SankeyLink(props: any) {
   )
 }
 
-export function CountrySankey({ rows }: { rows: CountryRow[] }) {
+export function CountrySankey({ rows, topN }: { rows: CountryRow[], topN: number }) {
   const { t } = useTranslation()
+  // « entry » sépare mer et terre, « greece » agrège : le second répond à la seule
+  // question du volume par origine, sans le détour par la voie d'entrée.
+  const [dest, setDest] = useState<'entry' | 'greece'>('entry')
+  // Largeur mesurée : le décalage du niveau intermédiaire doit rester proportionnel,
+  // un décalage fixe collerait la colonne à la Grèce sur écran étroit.
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [wrapW, setWrapW] = useState(0)
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setWrapW(el.clientWidth))
+    ro.observe(el)
+    setWrapW(el.clientWidth)
+    return () => ro.disconnect()
+  }, [])
 
-  // Au-delà de 8 pays les rubans deviennent des filets d'un pixel, étiquettes
-  // illisibles — le reste est regroupé, ce que le classement n'a pas à faire.
+  // Le reste est regroupé plutôt que tronqué : sinon les rubans ne totalisent plus
+  // les arrivées de l'année. Au-delà d'une dizaine de pays ils deviennent des filets
+  // d'un pixel — d'où le regroupement par défaut, que `topN` permet de desserrer.
   const data = useMemo(() => {
-    const top = rows.slice(0, SANKEY_TOP)
-    const rest = rows.slice(SANKEY_TOP)
+    const top = topN > 0 ? rows.slice(0, topN) : rows
+    const rest = topN > 0 ? rows.slice(topN) : []
+    // Le nombre de pays regroupés est affiché, comme dans l'alluvial : sans lui, la
+    // bande « autres » masque combien d'origines ont été écartées.
     const restRow: CountryRow = {
-      country: t('statistics.otherCountries'),
+      country: `${t('statistics.otherCountries')} (${rest.length})`,
       islands: rest.reduce((s, r) => s + r.islands, 0),
       mainland: rest.reduce((s, r) => s + r.mainland, 0),
       total: rest.reduce((s, r) => s + r.total, 0),
     }
     const sources = restRow.total > 0 ? [...top, restRow] : top
-    const nodes = [
-      ...sources.map((r, i) => ({ name: r.country, nodeColor: COUNTRY_PALETTE[i % COUNTRY_PALETTE.length] })),
-      { name: t('statistics.seaArrivals'), nodeColor: ISLANDS_COLOR },
-      { name: t('statistics.landArrivals'), nodeColor: MAINLAND_COLOR },
-    ]
+    const sourceNodes = sources.map((r, i) => ({
+      name: r.country,
+      nodeColor: COUNTRY_PALETTE[i % COUNTRY_PALETTE.length],
+    }))
+    const links: { source: number, target: number, value: number }[] = []
+
+    const greeceNode = { name: t('statistics.greece'), nodeColor: GREECE_COLOR }
+
+    if (dest === 'greece') {
+      const greeceIdx = sources.length
+      sources.forEach((r, i) => {
+        if (r.total > 0) links.push({ source: i, target: greeceIdx, value: r.total })
+      })
+      return {
+        nodes: [...sourceNodes, greeceNode],
+        links,
+        sourceCount: sources.length,
+        maxDepth: 1,
+      }
+    }
+
+    // Trois niveaux : origine → voie d'entrée → Grèce. La colonne finale reconstitue
+    // le total, que la seule bifurcation mer/terre obligeait à additionner de tête.
     const islandsIdx = sources.length
     const mainlandIdx = sources.length + 1
-    const links: { source: number, target: number, value: number }[] = []
+    const greeceIdx = sources.length + 2
     sources.forEach((r, i) => {
       if (r.islands > 0) links.push({ source: i, target: islandsIdx, value: r.islands })
       if (r.mainland > 0) links.push({ source: i, target: mainlandIdx, value: r.mainland })
     })
-    return { nodes, links }
-  }, [rows, t])
+    const islandsTotal = sources.reduce((s, r) => s + r.islands, 0)
+    const mainlandTotal = sources.reduce((s, r) => s + r.mainland, 0)
+    if (islandsTotal > 0) links.push({ source: islandsIdx, target: greeceIdx, value: islandsTotal })
+    if (mainlandTotal > 0) links.push({ source: mainlandIdx, target: greeceIdx, value: mainlandTotal })
+
+    return {
+      nodes: [
+        ...sourceNodes,
+        { name: t('statistics.islandsApplications'), nodeColor: ISLANDS_COLOR },
+        { name: t('statistics.mainlandApplications'), nodeColor: MAINLAND_COLOR },
+        greeceNode,
+      ],
+      links,
+      sourceCount: sources.length,
+      maxDepth: 2,
+    }
+  }, [rows, topN, dest, t])
 
   if (!rows.length || !data.links.length) {
     return <p className="text-muted-foreground p-6 text-sm">{t('statistics.noData')}</p>
   }
 
+  // Chaque nœud porte deux lignes de texte : sous ~34 px les libellés se
+  // chevauchent. La hauteur suit donc le nombre d'origines, comme le classement —
+  // sans quoi « Tous » entasse une quarantaine de pays dans 460 px.
+  const height = Math.max(460, data.sourceCount * 34 + 60)
+  // 22 % de la zone traçable, plafonné : au-delà les rubans mer/terre → Grèce
+  // deviennent trop courts pour se lire.
+  const midShift = data.maxDepth > 1
+    ? Math.min(170, Math.max(0, (wrapW - 260) * 0.22))
+    : 0
+
   return (
-    <div style={{ height: 460 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <Sankey
-          data={data}
-          nodePadding={26}
-          nodeWidth={12}
-          margin={{ top: 12, right: 130, bottom: 12, left: 130 }}
-          link={<SankeyLink />}
-          node={<SankeyNode />}
-        >
-          <Tooltip formatter={(value: unknown) => Number(value).toLocaleString('fr-FR')} />
-        </Sankey>
-      </ResponsiveContainer>
+    <div>
+      <div className="mb-2 flex justify-end">
+        <div className="border-border flex items-center overflow-hidden rounded-md border">
+          {/* Libellés structurels et non sémantiques : nommer le niveau intermédiaire
+              revenait à qualifier ce que la donnée mesure, ce qu'on cherche justement
+              à ne plus faire ici. */}
+          <button
+            type="button"
+            onClick={() => setDest('greece')}
+            className={`px-2.5 py-1.5 text-xs ${dest === 'greece' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+          >
+            {t('statistics.flowOneLevel')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setDest('entry')}
+            className={`border-border border-l px-2.5 py-1.5 text-xs ${dest === 'entry' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+          >
+            {t('statistics.flowTwoLevels')}
+          </button>
+        </div>
+      </div>
+      <div ref={wrapRef} style={{ height }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <Sankey
+            data={data}
+            nodePadding={26}
+            nodeWidth={12}
+            // Marges généreuses : chaque nœud porte une seconde ligne (sa valeur) sous
+            // son libellé, qui déborderait du dernier nœud de la pile — et les nœuds
+            // intermédiaires portent le leur au-dessus.
+            margin={{ top: 34, right: 130, bottom: 30, left: 130 }}
+            link={<SankeyLink maxDepth={data.maxDepth} midShift={midShift} />}
+            node={<SankeyNode maxDepth={data.maxDepth} midShift={midShift} />}
+          >
+            <Tooltip formatter={(value: unknown) => Number(value).toLocaleString('fr-FR')} />
+          </Sankey>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }
@@ -522,8 +664,8 @@ export function CountryOfOriginViews({
   const { t } = useTranslation()
   const [view, setView] = useState<CountryView>('bars')
   const [year, setYear] = useState<number | null>(null)
-  // 0 = tous. Le classement seul en tire parti : la carte et le Sankey ont déjà
-  // leur propre façon de gérer la traîne des petits pays.
+  // 0 = tous. La carte n'en tire pas parti : une bulle minuscule ne gêne pas la
+  // lecture, alors qu'un ruban ou une barre de un pixel, si.
   const [topN, setTopN] = useState(10)
 
   const years = useMemo(
@@ -531,6 +673,35 @@ export function CountryOfOriginViews({
     [records],
   )
   const rows = useMemo(() => aggregate(records, year), [records, year])
+
+  // Le découpage par pays ne couvre pas toutes les demandes : le pays d'origine n'est
+  // pas renseigné partout, et les premières années sont incomplètes. Le taux est
+  // recalculé contre le total annuel officiel plutôt que figé en dur — il bougera à
+  // chaque mise à jour Airtable.
+  const { records: totalsRecords } = useTotalApplicationsGreece()
+  const coverage = useMemo(() => {
+    const officialByYear = new Map(
+      annualTotals(totalsRecords).map(y => [y.year, y.total_applications]),
+    )
+    const knownByYear = new Map<number, number>()
+    for (const r of records) {
+      if (!r.year) continue
+      if (year !== null && r.year !== year) continue
+      knownByYear.set(r.year, (knownByYear.get(r.year) ?? 0) + r.total_applications)
+    }
+    const years = [...knownByYear.keys()]
+      .filter(y => (knownByYear.get(y) ?? 0) > 0 && (officialByYear.get(y) ?? 0) > 0)
+      .sort((a, b) => a - b)
+    if (!years.length) return null
+    const known = years.reduce((s, y) => s + (knownByYear.get(y) ?? 0), 0)
+    const official = years.reduce((s, y) => s + (officialByYear.get(y) ?? 0), 0)
+    if (!official || known > official) return null
+    return {
+      pct: Math.round((known / official) * 100),
+      start: years[0],
+      end: years[years.length - 1],
+    }
+  }, [records, totalsRecords, year])
 
   const tabs: { key: CountryView, label: string }[] = [
     { key: 'bars', label: t('statistics.viewRanking') },
@@ -557,7 +728,7 @@ export function CountryOfOriginViews({
         </div>
 
         <div className="flex items-center gap-2">
-          {(view === 'bars' || view === 'alluvial') && (
+          {(view === 'bars' || view === 'alluvial' || view === 'sankey') && (
             <div className="border-border flex items-center overflow-hidden rounded-md border">
               {[5, 10, 20, 0].map((n, i) => (
                 <button
@@ -589,11 +760,19 @@ export function CountryOfOriginViews({
 
       {view === 'bars' && <CountryBars rows={topN > 0 ? rows.slice(0, topN) : rows} />}
       {view === 'map' && <CountryBubbleMap rows={rows} />}
-      {view === 'sankey' && <CountrySankey rows={rows} />}
+      {view === 'sankey' && <CountrySankey rows={rows} topN={topN} />}
       {/* L'alluvial porte toutes les années de front : il consomme les records bruts,
           pas l'agrégat d'une seule année. */}
       {view === 'alluvial' && <CountryAlluvial records={records} topN={topN} />}
       {view === 'lines' && linesView}
+
+      {coverage && (
+        <p className="text-muted-foreground mt-3 text-xs">
+          {coverage.start === coverage.end
+            ? t('statistics.originCoverageYear', { pct: coverage.pct, year: coverage.start })
+            : t('statistics.originCoverageRange', { pct: coverage.pct, start: coverage.start, end: coverage.end })}
+        </p>
+      )}
     </div>
   )
 }

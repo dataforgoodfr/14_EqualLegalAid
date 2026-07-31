@@ -24,7 +24,7 @@ function createDataForAllYear(records: AsylumApplicationRecord[]) {
 
   const dataForAllYear: PieChartData[] = [
     { name: 'First Time Applicants', value: total_first_time, color: '#003366', link: 'chart_first_applicants' },
-    { name: 'Subsequent Applicants', value: total_subsequent, color: '#6B9BD2', link: 'chart_subsequent_applicants' },
+    { name: 'Subsequent Applicants', value: total_subsequent, color: '#6BB8E8', link: 'chart_subsequent_applicants' },
   ]
   return dataForAllYear
 }

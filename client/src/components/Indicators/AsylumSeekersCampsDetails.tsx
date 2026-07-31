@@ -15,8 +15,8 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
 const REGION_COLORS = [
-  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
-  '#7C3AED', '#A78BFA', '#9D4729', '#D15F36', '#065F46', '#059669',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#D1EFF9',
+  '#D15F36', '#FEB06A', '#8C3A1E', '#4A7C6F', '#7FA79C', '#2C4F46',
 ]
 const CAMP_TYPES = [
   "CCAC",
@@ -28,7 +28,7 @@ const CAMP_COLORS: Record<string, string> = {
   'CCAC': '#003366',
   'RIC': '#D15F36',
   'Site': '#0090ff',
-  'ESTIA': '#7C3AED',
+  'ESTIA': '#4A7C6F',
 }
 // Display-only label override — keeps the underlying "Site" data key intact
 // (it's what Airtable and the filter logic use) while showing nicer copy.

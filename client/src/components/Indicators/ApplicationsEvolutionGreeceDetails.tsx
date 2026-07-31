@@ -24,7 +24,7 @@ export function ApplicationsEvolutionGreeceDetails({
 
   const chartConfig = {
     first_applications: { label: t('statistics.firstTime'), color: '#003366' },
-    subsequent_applications: { label: t('statistics.subsequent'), color: '#6B9BD2' },
+    subsequent_applications: { label: t('statistics.subsequent'), color: '#6BB8E8' },
   } satisfies ChartConfig
 
   const totals = useMemo(() => {

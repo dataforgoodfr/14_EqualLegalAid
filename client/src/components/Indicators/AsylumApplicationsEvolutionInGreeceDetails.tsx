@@ -19,8 +19,8 @@ import { useTotalApplicationsGreece, annualTotals, monthlySeries } from '@/hooks
 import { CountryOfOriginViews } from './CountryOfOriginViews'
 
 const COLORS = [
-  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#C5E5F8',
-  '#7C3AED', '#A78BFA', '#9D4729', '#D15F36', '#065F46', '#059669',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#9AD0F2', '#D1EFF9',
+  '#D15F36', '#FEB06A', '#8C3A1E', '#4A7C6F', '#7FA79C', '#2C4F46',
 ]
 
 // Aggregate an array of records such that there is only
@@ -191,7 +191,7 @@ function ByPeriod() {
                 />
                 <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="first_applications" stackId="a" name={t('statistics.firstTime')} fill="#003366" />
-                <Bar dataKey="subsequent_applications" stackId="a" name={t('statistics.subsequent')} fill="#6B9BD2" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="subsequent_applications" stackId="a" name={t('statistics.subsequent')} fill="#6BB8E8" radius={[3, 3, 0, 0]} />
               </BarChart>
             )}
         </ResponsiveContainer>

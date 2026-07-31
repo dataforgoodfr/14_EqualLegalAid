@@ -15,14 +15,14 @@ import { useTranslation } from 'react-i18next'
 const PROTOMAP_KEY = import.meta.env.VITE_PROTOMAP_KEY as string
 
 const ISLANDS_COLOR = '#1E6FA5'
-const MAINLAND_COLOR = '#D97706'
+const MAINLAND_COLOR = '#D15F36'
 // Bleu primaire de la charte. La Grèce est un aplat de pays, pas une bulle : la
 // forme suffit à la distinguer des origines, pas besoin d'une couleur d'accent.
 const GREECE_COLOR = '#003366'
 
 const COUNTRY_PALETTE = [
-  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#7C3AED',
-  '#A78BFA', '#B45309', '#059669', '#94a3b8',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#D15F36',
+  '#FEB06A', '#8C3A1E', '#4A7C6F', '#94a3b8',
 ]
 
 // Centroïdes approximatifs, en [lng, lat] comme l'attend MapLibre. Écrits ici

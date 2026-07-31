@@ -48,7 +48,7 @@ export function AsylumApplicationsDetails({
     },
     subsequent_applicants: {
       label: t('statistics.subsequent'),
-      color: '#6B9BD2',
+      color: '#6BB8E8',
     },
   } satisfies ChartConfig
 

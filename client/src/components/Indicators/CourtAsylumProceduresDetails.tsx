@@ -13,7 +13,7 @@ const GRANTED_COLOR = '#3F9FD8'
 const REJECTED_COLOR = '#003366'
 const INADMISSIBLE_COLOR = '#6BB8E8'
 const WITHDRAWALS_COLOR = '#9AD0F2'
-const ACCEPTED_GREEN = '#059669'
+const ACCEPTED_GREEN = '#4A7C6F'
 
 type AnnulmentsView = 'total' | 'onMerit'
 

@@ -100,6 +100,8 @@ export function SankeyLink(props: any) {
  * courts pour se lire.
  */
 export function midShiftFor(wrapWidth: number, maxDepth: number) {
-  if (maxDepth < 2) return 0
+  // Au-delà d'un seul niveau intermédiaire, les colonnes sont déjà serrées : les
+  // décaler toutes du même pas écraserait le dernier tronçon.
+  if (maxDepth !== 2) return 0
   return Math.min(170, Math.max(0, (wrapWidth - 260) * 0.22))
 }

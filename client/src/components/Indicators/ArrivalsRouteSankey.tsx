@@ -29,10 +29,19 @@ const AEGEAN_ISLANDS: { key: keyof ArrivalsGreeceRecord, label: string, color: s
 const AEGEAN_COLOR = '#1E6FA5'
 const CRETE_COLOR = '#6BB8E8'
 const EVROS_COLOR = '#04356C'
+const SEA_COLOR = '#3F9FD8'
+const LAND_COLOR = '#04356C'
+
+/** Noms des trois routes dans l'ordre : Eastern Aegean, Crete, Evros. */
+const ROUTE_NAMES = (t: (k: string) => string) => [
+  t('statistics.routeEasternAegean'),
+  t('statistics.routeCrete'),
+  t('statistics.routeEvros'),
+]
 
 export function ArrivalsRouteSankey({ records }: { records: ArrivalsGreeceRecord[] }) {
   const { t } = useTranslation()
-  const [levels, setLevels] = useState<1 | 2>(2)
+  const [levels, setLevels] = useState<1 | 2 | 3>(2)
   const [year, setYear] = useState<number | null>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const [wrapW, setWrapW] = useState(0)
@@ -89,9 +98,10 @@ export function ArrivalsRouteSankey({ records }: { records: ArrivalsGreeceRecord
       }
     }
 
-    // Deux niveaux. Crete et Evros sont à la fois point d'entrée et route : ils
-    // traversent le niveau intermédiaire tels quels plutôt que d'être raccordés
+    // Deux niveaux ou plus. Crete et Evros sont à la fois point d'entrée et route :
+    // ils traversent le niveau intermédiaire tels quels plutôt que d'être raccordés
     // directement à la Grèce, ce qui les placerait sur une colonne à part.
+    // `route` : 0 = Eastern Aegean, 1 = Crete, 2 = Evros.
     const sources = [
       ...AEGEAN_ISLANDS
         .map(i => ({ name: i.label, color: i.color, value: totals.islands.get(i.label) ?? 0, route: 0 }))
@@ -100,28 +110,60 @@ export function ArrivalsRouteSankey({ records }: { records: ArrivalsGreeceRecord
       { name: t('statistics.routeEvros'), color: EVROS_COLOR, value: totals.evros, route: 2 },
     ].filter(s => s.value > 0)
 
-    const routeIdxOf = new Map<number, number>()
-    routes.forEach((r, i) => {
-      const original = r.name === t('statistics.routeEasternAegean') ? 0 : r.name === t('statistics.routeCrete') ? 1 : 2
-      routeIdxOf.set(original, sources.length + i)
-    })
-    const greeceIdx = sources.length + routes.length
-
+    // Les routes conservent leur rang d'origine, sinon le raccordement se perd dès
+    // qu'une route est vide sur l'année choisie.
+    const routeRank = [0, 1, 2].filter(r => routes.some(x => x.name === ROUTE_NAMES(t)[r]))
+    const routeIdxOf = new Map(routeRank.map((r, i) => [r, sources.length + i]))
     sources.forEach((s, i) => {
       const target = routeIdxOf.get(s.route)
       if (target !== undefined) links.push({ source: i, target, value: s.value })
     })
-    routes.forEach((r, i) => links.push({ source: sources.length + i, target: greeceIdx, value: r.value }))
+
+    const routeNodes = routes.map(r => ({ name: r.name, nodeColor: r.color }))
+
+    if (levels === 2) {
+      const greeceIdx = sources.length + routes.length
+      routes.forEach((r, i) => links.push({ source: sources.length + i, target: greeceIdx, value: r.value }))
+      return {
+        nodes: [...sources.map(s => ({ name: s.name, nodeColor: s.color })), ...routeNodes,
+          { name: t('statistics.greece'), nodeColor: GREECE_COLOR }],
+        links,
+        sourceCount: sources.length,
+        maxDepth: 2,
+      }
+    }
+
+    // Trois niveaux : les routes se regroupent en voie d'entrée avant la Grèce.
+    // Eastern Aegean + Crete reconstituent `total_arrivals_sea`, Evros à lui seul
+    // `total_arrivals_land` — le regroupement est exact, pas approché.
+    const seaTotal = routes.filter(r => r.name !== ROUTE_NAMES(t)[2]).reduce((s, r) => s + r.value, 0)
+    const landTotal = routes.filter(r => r.name === ROUTE_NAMES(t)[2]).reduce((s, r) => s + r.value, 0)
+    const modes = [
+      { name: t('statistics.seaArrivals'), value: seaTotal, color: SEA_COLOR },
+      { name: t('statistics.landArrivals'), value: landTotal, color: LAND_COLOR },
+    ].filter(m => m.value > 0)
+
+    const modeBase = sources.length + routes.length
+    const modeIdxOf = new Map<'sea' | 'land', number>()
+    modes.forEach((m, i) => modeIdxOf.set(m.name === t('statistics.landArrivals') ? 'land' : 'sea', modeBase + i))
+    const greeceIdx = modeBase + modes.length
+
+    routes.forEach((r, i) => {
+      const target = modeIdxOf.get(r.name === ROUTE_NAMES(t)[2] ? 'land' : 'sea')
+      if (target !== undefined) links.push({ source: sources.length + i, target, value: r.value })
+    })
+    modes.forEach((m, i) => links.push({ source: modeBase + i, target: greeceIdx, value: m.value }))
 
     return {
       nodes: [
         ...sources.map(s => ({ name: s.name, nodeColor: s.color })),
-        ...routes.map(r => ({ name: r.name, nodeColor: r.color })),
+        ...routeNodes,
+        ...modes.map(m => ({ name: m.name, nodeColor: m.color })),
         { name: t('statistics.greece'), nodeColor: GREECE_COLOR },
       ],
       links,
       sourceCount: sources.length,
-      maxDepth: 2,
+      maxDepth: 3,
     }
   }, [totals, levels, t])
 
@@ -136,20 +178,16 @@ export function ArrivalsRouteSankey({ records }: { records: ArrivalsGreeceRecord
     <div>
       <div className="mb-2 flex flex-wrap items-center justify-end gap-2">
         <div className="border-border flex items-center overflow-hidden rounded-md border">
-          <button
-            type="button"
-            onClick={() => setLevels(1)}
-            className={`px-2.5 py-1.5 text-xs ${levels === 1 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-          >
-            {t('statistics.flowOneLevel')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setLevels(2)}
-            className={`border-border border-l px-2.5 py-1.5 text-xs ${levels === 2 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
-          >
-            {t('statistics.flowTwoLevels')}
-          </button>
+          {([1, 2, 3] as const).map((n, i) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setLevels(n)}
+              className={`px-2.5 py-1.5 text-xs whitespace-nowrap ${i > 0 ? 'border-border border-l' : ''} ${levels === n ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+            >
+              {t(n === 1 ? 'statistics.flowOneLevel' : n === 2 ? 'statistics.flowTwoLevels' : 'statistics.flowThreeLevels')}
+            </button>
+          ))}
         </div>
         <select
           className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 shadow-sm"

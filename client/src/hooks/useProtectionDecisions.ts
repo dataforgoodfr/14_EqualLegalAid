@@ -44,10 +44,11 @@ export interface SecondInstanceRecord {
   protection_rate: number
 }
 
-export interface ProtectionRatePerMonthRecord {
-  first_instance_protection_rate: number
-  second_instance_protection_rate: number
-  display_date: string
+export interface AppealLegalAidRecord {
+  id: string
+  year: number
+  with_legal_aid: number
+  without_legal_aid: number
 }
 
 export interface DecisionsYearly {
@@ -91,10 +92,20 @@ const toNum = (v: unknown): number => {
 const toStr = (v: unknown): string =>
   typeof v === 'string' ? v : String(v ?? '')
 
+// quarter is stored as an Airtable Date field whose rendered format varies
+// (e.g. "2021-01-01" or "1/1/2021"), so pull out the 4-digit year instead of
+// assuming a fixed position.
+const parseYear = (v: unknown): number => {
+  const s = toStr(v)
+  const match = s.match(/\d{4}/)
+  return match ? parseInt(match[0], 10) : 0
+}
+
 export function useProtectionDecisions() {
   const airtableService = useAirtableService()
   const [firstInstance, setFirstInstance] = useState<FirstInstanceRecord[]>([])
   const [secondInstance, setSecondInstance] = useState<SecondInstanceRecord[]>([])
+  const [appealsLegalAid, setAppealsLegalAid] = useState<AppealLegalAidRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -102,7 +113,7 @@ export function useProtectionDecisions() {
     try {
       setLoading(true)
       setError(null)
-      const [rawFirst, rawSecond] = await Promise.all([
+      const [rawFirst, rawSecond, rawAppeals] = await Promise.all([
         airtableService.fetchRecordsFromTable({
           tableName: 'ind6_first_instance_decisions',
           selectConfig: {
@@ -116,6 +127,10 @@ export function useProtectionDecisions() {
             maxRecords: 5000,
             sort: [{ field: 'date', direction: 'asc' }],
           },
+        }),
+        airtableService.fetchRecordsFromTable({
+          tableName: 'ind78_appeals',
+          selectConfig: { maxRecords: 5000 },
         }),
       ])
 
@@ -162,8 +177,31 @@ export function useProtectionDecisions() {
         protection_rate: toNum(r.fields['protection_rate']),
       }))
 
+      const appealsByYear = new Map<number, AppealLegalAidRecord>()
+      rawAppeals.forEach((r) => {
+        const year = parseYear(r.fields['quarter'])
+        if (year <= 0) return
+        const lodged = toNum(r.fields['lodged_appeals'])
+        const withAid = toNum(r.fields['appeals_having_free_legal_aid_benefit'])
+        const existing = appealsByYear.get(year)
+        if (existing) {
+          existing.with_legal_aid += withAid
+          existing.without_legal_aid += Math.max(0, lodged - withAid)
+        }
+        else {
+          appealsByYear.set(year, {
+            id: `appeals-${year}`,
+            year,
+            with_legal_aid: withAid,
+            without_legal_aid: Math.max(0, lodged - withAid),
+          })
+        }
+      })
+      const parsedAppeals = Array.from(appealsByYear.values()).sort((a, b) => a.year - b.year)
+
       setFirstInstance(parsedFirst)
       setSecondInstance(parsedSecond)
+      setAppealsLegalAid(parsedAppeals)
     }
     catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch protection decisions data')
@@ -177,7 +215,7 @@ export function useProtectionDecisions() {
     fetchRecords()
   }, [fetchRecords])
 
-  return { firstInstance, secondInstance, loading, error }
+  return { firstInstance, secondInstance, appealsLegalAid, loading, error }
 }
 
 export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondInstanceRecord)[]): DecisionsYearly[] {
@@ -251,65 +289,4 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
     }
   }
   return Array.from(map.values()).sort((a, b) => a.year - b.year)
-}
-
-export function protectionRatePerMonth(firstInstanceRecords: FirstInstanceRecord[], secondInstanceRecord:SecondInstanceRecord[]) {
-
-// we wish to create an array of objects
-  // example :
-  // const chartData = [
-  //   {
-  //     first_instance_protection_rate: 5,
-  //     second_instance_protection_rate: 10,
-  //     display_date: firstInstance[0].display_date
-  //   },
-  //   {
-  //     first_instance_protection_rate: 5,
-  //     second_instance_protection_rate: 10,
-  //     display_date: firstInstance[1].display_date
-  //   },
-  //   {
-  //     first_instance_protection_rate: 5,
-  //     second_instance_protection_rate: 10,
-  //     display_date: firstInstance[2].display_date
-  //   }
-  // ]
-  
-  // to do so, we create a map, we take the values of the two arguments one by one
-  const map = new Map<string, ProtectionRatePerMonthRecord>()
-  
-  // example : map = {
-  //   {
-  //     '2020 / 10',
-  //     {first_instance_protection_rate: 5,second_instance_protection_rate: 10,display_date: 2020 / 5}
-  //   }
-  // }
-
-  firstInstanceRecords.forEach(record => {
-    const key = record.date
-    const chartData = {
-      first_instance_protection_rate: record.protection_rate,
-      second_instance_protection_rate: 0,
-      display_date: `${record.year} / ${record.month}`
-    }
-    map.set(key, chartData)
-  });
-
-  secondInstanceRecord.forEach(record => {
-    const key = record.date
-    const second_instance_protection_rate = record.protection_rate
-    const existing_record = map.get(key)
-    if(existing_record){
-      existing_record.second_instance_protection_rate = second_instance_protection_rate
-    }else{
-      const chartData = {
-        "first_instance_protection_rate": 0,
-        "second_instance_protection_rate": second_instance_protection_rate,
-        display_date: `${record.year} / ${record.month}`
-      }
-      map.set(key, chartData)
-    }
-  });
-
-  return Array.from(map.values())
 }

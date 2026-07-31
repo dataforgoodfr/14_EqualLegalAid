@@ -241,6 +241,15 @@
     "decisionsEvolution": "Evolution of decisions applications for annulment",
     "legalAidAnnulmentRequests": "Requests for legal aid on annulment",
     "legalAidPositive": "positive",
-    "legalAidNegative": "Negative"
+    "legalAidNegative": "Negative",
+    "protectionDecisionView": "Protection Decision",
+    "legalAidView": "Legal Aid",
+    "withLegalAid": "With legal aid",
+    "withoutLegalAid": "Without legal aid",
+    "protectionDecisionsEvolution": "Evolution of decisions",
+    "submitted": "Submitted",
+    "protectionRateFirstInstance": "Protection rate on the merit on 1st instance",
+    "protectionRateSecondInstance": "Protection rate on the merit on 2nd instance",
+    "totalProtectionGranted": "Total protection granted"
   }
 }

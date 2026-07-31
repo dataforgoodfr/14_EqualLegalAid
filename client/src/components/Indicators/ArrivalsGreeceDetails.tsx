@@ -8,6 +8,7 @@ import type { ArrivalsGreeceRecord, ArrivalsGreeceYearly } from '@/hooks/useArri
 import { aggregateByYear } from '@/hooks/useArrivalsGreece'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { IndicatorInfoButton } from '@/components/ui/IndicatorInfoButton'
+import { ArrivalsRouteSankey } from './ArrivalsRouteSankey'
 import { useTranslation } from 'react-i18next'
 import { BarChart2, LineChart as LineChartIcon } from 'lucide-react'
 import { BarChart, Bar, LabelList, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -631,6 +632,14 @@ export function ArrivalsGreeceDetails({
               </div>
             </div>
           )}
+
+          {/* Sankey des voies d'entrée — piste à évaluer. Les trois routes se
+              reconstituent exactement dans la table, ce qui autorise un diagramme
+              de flux sans perte. */}
+          <div className="rounded-lg border border-gray-200 p-4">
+            <h3 className="mb-3 text-sm font-bold text-gray-900">{t('statistics.arrivalsByRoute')}</h3>
+            <ArrivalsRouteSankey records={records} />
+          </div>
         </div>
 
         {/* Card footer */}

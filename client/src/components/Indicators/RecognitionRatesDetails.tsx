@@ -60,7 +60,9 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
   const [expanded, setExpanded] = useState<Record<'first' | 'second', boolean>>({ first: false, second: true })
   const toggle = (key: 'first' | 'second') => setExpanded(prev => ({ ...prev, [key]: !prev[key] }))
 
-  const total = record.total_first + record.total_second
+  const totalFirst = record.refugee_status_first + record.subsidiary_protection_first + record.rejected_first
+  const totalSecond = record.refugee_status_second + record.subsidiary_protection_second + record.rejected_second
+  const total = totalFirst + totalSecond
 
   return (
     <div className="min-w-0 overflow-x-auto rounded-lg border border-gray-200">
@@ -75,7 +77,7 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
         <tbody>
           <TreeRow
             label={t('statistics.firstInstanceDecisions')}
-            value={record.total_first}
+            value={totalFirst}
             total={total}
             depth={0}
             expandable
@@ -86,13 +88,13 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
             <>
               <TreeRow label={t('statistics.refugeeStatus')} value={record.refugee_status_first} total={total} depth={1} expandable={false} />
               <TreeRow label={t('statistics.subsidiaryProtection')} value={record.subsidiary_protection_first} total={total} depth={1} expandable={false} />
-              <TreeRow label={t('statistics.rejected')} value={record.rejected_first} total={total} depth={1} expandable={false} />
+              <TreeRow label={t('statistics.rejectionOnMerits')} value={record.rejected_first} total={total} depth={1} expandable={false} />
             </>
           )}
 
           <TreeRow
             label={t('statistics.appealsDecisions')}
-            value={record.total_second}
+            value={totalSecond}
             total={total}
             depth={0}
             expandable
@@ -103,7 +105,7 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
             <>
               <TreeRow label={t('statistics.refugeeStatus')} value={record.refugee_status_second} total={total} depth={1} expandable={false} />
               <TreeRow label={t('statistics.subsidiaryProtection')} value={record.subsidiary_protection_second} total={total} depth={1} expandable={false} />
-              <TreeRow label={t('statistics.rejected')} value={record.rejected_second} total={total} depth={1} expandable={false} />
+              <TreeRow label={t('statistics.rejectionOnMerits')} value={record.rejected_second} total={total} depth={1} expandable={false} />
             </>
           )}
 

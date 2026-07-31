@@ -241,6 +241,15 @@
     "decisionsEvolution": "Εξέλιξη αποφάσεων επί αιτήσεων ακύρωσης",
     "legalAidAnnulmentRequests": "Αιτήσεις νομικής βοήθειας για ακύρωση",
     "legalAidPositive": "θετική",
-    "legalAidNegative": "Αρνητική"
+    "legalAidNegative": "Αρνητική",
+    "protectionDecisionView": "Απόφαση προστασίας",
+    "legalAidView": "Νομική βοήθεια",
+    "withLegalAid": "Με νομική βοήθεια",
+    "withoutLegalAid": "Χωρίς νομική βοήθεια",
+    "protectionDecisionsEvolution": "Εξέλιξη των αποφάσεων",
+    "submitted": "Υποβλήθηκαν",
+    "protectionRateFirstInstance": "Ποσοστό προστασίας επί της ουσίας σε πρώτο βαθμό",
+    "protectionRateSecondInstance": "Ποσοστό προστασίας επί της ουσίας σε δεύτερο βαθμό",
+    "totalProtectionGranted": "Σύνολο χορηγηθείσας προστασίας"
   }
 }

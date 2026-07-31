@@ -3,15 +3,13 @@ import { useState, useMemo } from 'react'
 import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
-import type { FirstInstanceRecord, SecondInstanceRecord } from '@/hooks/useProtectionDecisions'
+import type { AppealLegalAidRecord, FirstInstanceRecord, SecondInstanceRecord } from '@/hooks/useProtectionDecisions'
 import { aggregateDecisionsByYear } from '@/hooks/useProtectionDecisions'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
 import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
-import { ProtectionRateLineChart} from './ProtectionRateLineChart'
-import { protectionRatePerMonth } from '@/hooks'
-
+import { DecisionsEvolutionBarChart } from './DecisionsEvolutionBarChart'
 
 const GRANTED_COLOR = '#3F9FD8'
 const REJECTED_COLOR = '#04356C'
@@ -64,10 +62,12 @@ function DecisionsContent({
   records,
   instanceLabel,
   isFirstInstance,
+  appealsLegalAid,
 }: {
   records: (FirstInstanceRecord | SecondInstanceRecord)[]
   instanceLabel: string
   isFirstInstance: boolean
+  appealsLegalAid?: AppealLegalAidRecord[]
 }) {
   const { t } = useTranslation()
   const chartTitle = isFirstInstance ? t('statistics.protectionDecisions') : t('statistics.appealsDecisions');
@@ -83,6 +83,7 @@ function DecisionsContent({
     inadmissible: false,
     withdrawals: false,
   })
+  const [donutView, setDonutView] = useState<'protection' | 'legalAid'>('protection')
 
   const data = useMemo(() => yearly.find(r => r.year === selectedYear), [yearly, selectedYear])
 
@@ -97,19 +98,47 @@ function DecisionsContent({
     ].filter(d => d.value > 0)
   }, [data, t])
 
+  const showLegalAidToggle = !isFirstInstance && (appealsLegalAid?.length ?? 0) > 0
+
+  const legalAidData = useMemo(() => {
+    if (!showLegalAidToggle) return []
+    const rec = appealsLegalAid!.find(r => r.year === selectedYear)
+    if (!rec) return []
+    return [
+      { name: t('statistics.withLegalAid'), value: rec.with_legal_aid, color: GRANTED_COLOR },
+      { name: t('statistics.withoutLegalAid'), value: rec.without_legal_aid, color: REJECTED_COLOR },
+    ].filter(d => d.value > 0)
+  }, [showLegalAidToggle, appealsLegalAid, selectedYear, t])
+
+  const showingLegalAid = showLegalAidToggle && donutView === 'legalAid'
+  const activeDonutData = showingLegalAid ? legalAidData : donutData
+  const activeDonutTitle = showingLegalAid ? t('statistics.legalAidView') : chartTitle
+
   if (!data) return null
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-base font-semibold text-gray-700">{instanceLabel}</h3>
-        <select
-          className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
-          value={selectedYear}
-          onChange={e => setSelectedYear(Number(e.target.value))}
-        >
-          {[...years].reverse().map(y => <option key={y} value={y}>{y}</option>)}
-        </select>
+        <div className="flex gap-2">
+          {showLegalAidToggle && (
+            <select
+              className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
+              value={donutView}
+              onChange={e => setDonutView(e.target.value as 'protection' | 'legalAid')}
+            >
+              <option value="protection">{t('statistics.protectionDecisionView')}</option>
+              <option value="legalAid">{t('statistics.legalAidView')}</option>
+            </select>
+          )}
+          <select
+            className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm"
+            value={selectedYear}
+            onChange={e => setSelectedYear(Number(e.target.value))}
+          >
+            {[...years].reverse().map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -231,12 +260,12 @@ function DecisionsContent({
         </div>
 
         {/* Donut panel */}
-        <div className="lg:col-span-2 flex flex-col items-center justify-start gap-4">
-          <p className="text-sm font-bold text-gray-900 mb-4">{chartTitle}</p>
+        <div className="lg:col-span-2 flex flex-col items-center justify-start gap-4 rounded-lg border border-gray-200 p-5">
+          <p className="text-sm font-bold text-gray-900 mb-4">{activeDonutTitle}</p>
           <ChartContainer config={{}} className="h-52 w-full">
             <PieChart>
               <Pie
-                data={donutData}
+                data={activeDonutData}
                 cx="50%"
                 cy="50%"
                 innerRadius={55}
@@ -244,7 +273,7 @@ function DecisionsContent({
                 dataKey="value"
                 labelLine={false}
               >
-                {donutData.map(entry => (
+                {activeDonutData.map(entry => (
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
@@ -252,7 +281,7 @@ function DecisionsContent({
             </PieChart>
           </ChartContainer>
           <div className="w-full space-y-2 px-2">
-            {donutData.map(d => (
+            {activeDonutData.map(d => (
               <div key={d.name} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
                 <span className="text-sm text-gray-700">{d.name}</span>
@@ -261,7 +290,13 @@ function DecisionsContent({
             ))}
           </div>
         </div>
-      </div>      
+      </div>
+
+      {/* Evolution bar chart */}
+      <div className="rounded-lg border border-gray-200 p-5">
+        <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.protectionDecisionsEvolution')}</h3>
+        <DecisionsEvolutionBarChart yearly={yearly} />
+      </div>
     </div>
   )
 }
@@ -270,12 +305,14 @@ function DecisionsContent({
 export function ProtectionDecisionsDetails({
   firstInstance,
   secondInstance,
+  appealsLegalAid,
   loading,
   error,
   customText,
 }: {
   firstInstance: FirstInstanceRecord[]
   secondInstance: SecondInstanceRecord[]
+  appealsLegalAid?: AppealLegalAidRecord[]
   loading: boolean
   error: string | null
   customText?: IndicatorCustomText | null
@@ -332,30 +369,27 @@ export function ProtectionDecisionsDetails({
               records={secondInstance}
               instanceLabel={t('statistics.appealsDecisions')}
               isFirstInstance={false}
+              appealsLegalAid={appealsLegalAid}
             />
           </Tabs.Content>
 
           {/* Explanatory text */}
           {(explanatoryTitle || explanatoryText) && (
-            <div className="rounded-lg bg-gray-50 px-4 py-4 space-y-1.5">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-4 space-y-1.5">
               {explanatoryTitle && (
                 <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
               )}
               {explanatoryText && (
-                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">{explanatoryText}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line text-justify">{explanatoryText}</p>
               )}
             </div>
           )}
         </div>
 
-        <div className="space-y-6 p-6">
-          <ProtectionRateLineChart protectionRatePerMonthRecord={protectionRatePerMonth(firstInstance, secondInstance)} />
-        </div>
-
         {/* Card footer */}
         {(customText?.source || customText?.last_updated_on) && (
           <div className="space-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+            <div className="flex justify-between">
               {customText.source && (
                 <span>
                   <span className="font-medium text-gray-600">{t('statistics.source')}:</span>

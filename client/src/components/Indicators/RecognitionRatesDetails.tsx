@@ -1,17 +1,15 @@
 import { useMemo, useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import type { IndicatorCustomText } from '@/hooks/useIndicatorCustomTexts'
 import type { RecognitionRateRecord } from '@/hooks/useRecognitionRates'
 import { Loading } from '../Loading'
 import { ErrorMessage } from '../Caselaws/ErrorMessage'
-import { ChartContainer, ChartTooltipContent, ChartLegendContent, IndicatorInfoButton, CHART_GRID_PROPS, CHART_AXIS_PROPS, CHART_LINE_PROPS } from '@/components/ui'
-import type { ChartConfig } from '@/components/ui'
+import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 
-const INTERNATIONAL_COLOR = '#3F9FD8'
-const SUBSIDIARY_COLOR = '#04356C'
-const REJECTION_COLOR = '#9AD0F2'
+const GRANTED_COLOR = '#3F9FD8'
+const REJECTED_COLOR = '#04356C'
 
 function TreeRow({
   label,
@@ -137,12 +135,6 @@ export function RecognitionRatesDetails({
   const { t, i18n } = useTranslation()
   const isGr = i18n.language === 'el'
 
-  const chartConfig = {
-    international_protection_rate: { label: t('statistics.internationalProtectionRate'), color: INTERNATIONAL_COLOR },
-    subsidiary_protection_rate: { label: t('statistics.subsidiaryProtectionRate'), color: SUBSIDIARY_COLOR },
-    rejection_rate: { label: t('statistics.rejectionRate'), color: REJECTION_COLOR },
-  } satisfies ChartConfig
-
   const firstYear = records[0]?.year
   const lastYear = records[records.length - 1]?.year
 
@@ -160,6 +152,22 @@ export function RecognitionRatesDetails({
     () => records.find(r => r.year === selectedYear) ?? records[records.length - 1],
     [records, selectedYear],
   )
+
+  const firstInstanceDonutData = useMemo(() => {
+    if (!selectedRecord) return []
+    return [
+      { name: t('statistics.totalProtectionGranted'), value: selectedRecord.refugee_status_first + selectedRecord.subsidiary_protection_first, color: GRANTED_COLOR },
+      { name: t('statistics.rejectionOnMerits'), value: selectedRecord.rejected_first, color: REJECTED_COLOR },
+    ].filter(d => d.value > 0)
+  }, [selectedRecord, t])
+
+  const secondInstanceDonutData = useMemo(() => {
+    if (!selectedRecord) return []
+    return [
+      { name: t('statistics.totalProtectionGranted'), value: selectedRecord.refugee_status_second + selectedRecord.subsidiary_protection_second, color: GRANTED_COLOR },
+      { name: t('statistics.rejectionOnMerits'), value: selectedRecord.rejected_second, color: REJECTED_COLOR },
+    ].filter(d => d.value > 0)
+  }, [selectedRecord, t])
 
   const title = (isGr ? customText?.title_gr : customText?.title_en) || t('statistics.overallProtectionRate')
   const subtitle = isGr ? customText?.subtitle_gr : customText?.subtitle_en
@@ -189,12 +197,12 @@ export function RecognitionRatesDetails({
 
           {/* Explanatory text */}
           {(explanatoryTitle || explanatoryText) && (
-            <div className="rounded-lg bg-gray-50 px-4 py-4 space-y-1.5">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-4 space-y-1.5">
               {explanatoryTitle && (
                 <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
               )}
               {explanatoryText && (
-                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">{explanatoryText}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line text-justify">{explanatoryText}</p>
               )}
             </div>
           )}
@@ -236,34 +244,75 @@ export function RecognitionRatesDetails({
             {selectedRecord && <InstanceTable record={selectedRecord} />}
           </div>
 
-          {/* Evolution chart */}
-          <div>
-            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.evolutionOfDecisionsAllInstances')}</h3>
-            <ChartContainer config={chartConfig} className="h-80 w-full">
-              <LineChart data={records}>
-                <CartesianGrid {...CHART_GRID_PROPS} />
-                <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
-                <YAxis unit="%" domain={[0, 100]} {...CHART_AXIS_PROPS} />
-                <Tooltip
-                  content={(
-                    <ChartTooltipContent
-                      labelFormatter={label => t('statistics.yearLabel', { year: label })}
-                    />
-                  )}
-                />
-                <Legend content={<ChartLegendContent />} />
-                <Line type="monotone" dataKey="international_protection_rate" stroke={chartConfig.international_protection_rate.color} {...CHART_LINE_PROPS} />
-                <Line type="monotone" dataKey="subsidiary_protection_rate" stroke={chartConfig.subsidiary_protection_rate.color} {...CHART_LINE_PROPS} />
-                <Line type="monotone" dataKey="rejection_rate" stroke={chartConfig.rejection_rate.color} {...CHART_LINE_PROPS} />
-              </LineChart>
-            </ChartContainer>
+          {/* Protection rate on the merit, by instance */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="flex flex-col items-center justify-start gap-4 rounded-lg border border-gray-200 p-5">
+              <p className="mb-4 text-sm font-bold text-gray-900">{t('statistics.protectionRateFirstInstance')}</p>
+              <ChartContainer config={{}} className="h-52 w-full">
+                <PieChart>
+                  <Pie
+                    data={firstInstanceDonutData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={90}
+                    dataKey="value"
+                    labelLine={false}
+                  >
+                    {firstInstanceDonutData.map(entry => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={value => (value != null ? Number(value).toLocaleString('fr-FR') : '')} />
+                </PieChart>
+              </ChartContainer>
+              <div className="w-full space-y-2 px-2">
+                {firstInstanceDonutData.map(d => (
+                  <div key={d.name} className="flex items-center gap-2">
+                    <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
+                    <span className="text-sm text-gray-700">{d.name}</span>
+                    <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col items-center justify-start gap-4 rounded-lg border border-gray-200 p-5">
+              <p className="mb-4 text-sm font-bold text-gray-900">{t('statistics.protectionRateSecondInstance')}</p>
+              <ChartContainer config={{}} className="h-52 w-full">
+                <PieChart>
+                  <Pie
+                    data={secondInstanceDonutData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={90}
+                    dataKey="value"
+                    labelLine={false}
+                  >
+                    {secondInstanceDonutData.map(entry => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={value => (value != null ? Number(value).toLocaleString('fr-FR') : '')} />
+                </PieChart>
+              </ChartContainer>
+              <div className="w-full space-y-2 px-2">
+                {secondInstanceDonutData.map(d => (
+                  <div key={d.name} className="flex items-center gap-2">
+                    <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
+                    <span className="text-sm text-gray-700">{d.name}</span>
+                    <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Card footer */}
         {(customText?.source || customText?.last_updated_on) && (
           <div className="space-y-1 border-t border-gray-100 bg-gray-50/60 px-6 py-3 text-xs text-gray-500">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+            <div className="flex justify-between">
               {customText.source && (
                 <span>
                   <span className="font-medium text-gray-600">{t('statistics.source')}:</span>

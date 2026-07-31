@@ -13,6 +13,7 @@ const GRANTED_COLOR = '#3F9FD8'
 const REJECTED_COLOR = '#04356C'
 const INADMISSIBLE_COLOR = '#6BB8E8'
 const WITHDRAWALS_COLOR = '#9AD0F2'
+const ACCEPTED_GREEN = '#059669'
 
 type AnnulmentsView = 'total' | 'onMerit'
 
@@ -158,7 +159,7 @@ function AnnulmentsCard({ records }: { records: AnnulmentRecord[] }) {
         </div>
 
         {/* Donut panel */}
-        <div className="flex flex-col items-center justify-start gap-4 lg:col-span-2">
+        <div className="flex flex-col items-center justify-start gap-4 lg:col-span-2 rounded-lg border border-gray-200 p-5">
           <p className="mb-4 text-sm font-bold text-gray-900">{t('statistics.courtDecisionOnApplicationsForAnnulment')}</p>
           <ChartContainer config={{}} className="h-52 w-full">
             <PieChart>
@@ -198,11 +199,11 @@ function AnnulmentApplicationsLineChart({ records }: { records: AnnulmentRecord[
   const chartConfig = {
     applications_for_annulment_submitted: {
       label: t('statistics.annulmentApplication'),
-      color: GRANTED_COLOR,
+      color: REJECTED_COLOR,
     },
     decisions_on_applications_for_annulment: {
       label: t('statistics.decisionsIssued'),
-      color: '#059669',
+      color: GRANTED_COLOR,
     },
   } satisfies ChartConfig
 
@@ -226,11 +227,11 @@ function InterimMeasuresLineChart({ records }: { records: InterimMeasuresRecord[
   const chartConfig = {
     interim_measures_submitted: {
       label: t('statistics.interimMeasuresSubmitted'),
-      color: '#7C3AED',
+      color: REJECTED_COLOR,
     },
     decisions_interim_measures: {
       label: t('statistics.decisionsInterimMeasures'),
-      color: REJECTED_COLOR,
+      color: GRANTED_COLOR,
     },
   } satisfies ChartConfig
 
@@ -252,7 +253,7 @@ function InterimMeasuresLineChart({ records }: { records: InterimMeasuresRecord[
 function DecisionsEvolutionLineChart({ records }: { records: AnnulmentRecord[] }) {
   const { t } = useTranslation()
   const chartConfig = {
-    positive_decisions: { label: t('statistics.applicationAccepted'), color: GRANTED_COLOR },
+    positive_decisions: { label: t('statistics.applicationAccepted'), color: ACCEPTED_GREEN },
     negative_decisions_on_the_merits: { label: t('statistics.rejectionOnMerits'), color: REJECTED_COLOR },
     negative_decisions_on_admissibility_grounds: { label: t('statistics.rejectionInadmissible'), color: INADMISSIBLE_COLOR },
     negative_decisions_or_withdrawals: { label: t('statistics.withdrawalsArchived'), color: WITHDRAWALS_COLOR },
@@ -387,75 +388,71 @@ export function CourtAsylumProceduresDetails({
         </div>
       </div>
 
-      {/* Section 2: fluctuation of annulment applications & interim measures */}
-      <div>
-        <h2 className="mb-4 text-lg font-bold" style={{ color: '#04356C' }}>{t('statistics.fluctuationTitle')}</h2>
-        <div className="space-y-6 rounded-xl border border-gray-200 bg-white p-6">
-          {(explanatoryTitle || explanatoryText) && (
-            <div className="space-y-1.5 rounded-lg bg-gray-50 px-4 py-4">
-              {explanatoryTitle && (
-                <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
-              )}
-              {explanatoryText && (
-                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">{explanatoryText}</p>
-              )}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-lg border border-gray-200 p-5">
-              <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.annulmentApplications')}</h3>
-              <AnnulmentApplicationsLineChart records={annulments} />
-            </div>
-            <div className="rounded-lg border border-gray-200 p-5">
-              <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.interimMeasuresRequests')}</h3>
-              <InterimMeasuresLineChart records={interimMeasures} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Section 3: decisions evolution + legal aid on annulment */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
-        <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.decisionsEvolution')}</h3>
-          <DecisionsEvolutionLineChart records={annulments} />
-        </div>
-        <LegalAidDonut records={legalAid} />
-      </div>
-
-      {/* Footer — source & last updated */}
-      {(customText?.source || customText?.last_updated_on) && (
-        <div className="space-y-1 border-t border-gray-100 px-1 py-3 text-xs text-gray-500">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-            {customText.source && (
-              <span>
-                <span className="font-medium text-gray-600">
-                  {t('statistics.source')}
-                  :
-                </span>
-                {' '}
-                <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline transition-colors hover:text-gray-800">
-                  {customText.source}
-                </a>
-              </span>
+      {/* Section 2: fluctuation of annulment applications, interim measures & decisions evolution */}
+      <div className="space-y-6 rounded-xl border border-gray-200 bg-white p-6">
+        {(explanatoryTitle || explanatoryText) && (
+          <div className="space-y-1.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-4">
+            {explanatoryTitle && (
+              <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
             )}
-            {customText.last_updated_on && (
-              <span>
-                <span className="font-medium text-gray-600">
-                  {t('statistics.lastUpdated')}
-                  :
-                </span>
-                {' '}
-                {customText.last_updated_on}
-              </span>
+            {explanatoryText && (
+              <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line text-justify">{explanatoryText}</p>
             )}
           </div>
-          {customText.sourceText && (
-            <p className="italic text-gray-400 whitespace-pre-line">{customText.sourceText}</p>
-          )}
+        )}
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border border-gray-200 p-5">
+            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.annulmentApplications')}</h3>
+            <AnnulmentApplicationsLineChart records={annulments} />
+          </div>
+          <div className="rounded-lg border border-gray-200 p-5">
+            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.interimMeasuresRequests')}</h3>
+            <InterimMeasuresLineChart records={interimMeasures} />
+          </div>
         </div>
-      )}
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
+          <div className="rounded-lg border border-gray-200 p-5">
+            <h3 className="mb-2 text-sm font-bold text-gray-900">{t('statistics.decisionsEvolution')}</h3>
+            <DecisionsEvolutionLineChart records={annulments} />
+          </div>
+          <LegalAidDonut records={legalAid} />
+        </div>
+
+        {/* Footer — source, last updated & legend */}
+        {(customText?.source || customText?.last_updated_on) && (
+          <div className="space-y-1 border-t border-gray-100 pt-4 text-xs text-gray-500">
+            <div className="flex justify-between">
+              {customText.source && (
+                <span>
+                  <span className="font-medium text-gray-600">
+                    {t('statistics.source')}
+                    :
+                  </span>
+                  {' '}
+                  <a href={customText.source} target="_blank" rel="noopener noreferrer" className="underline transition-colors hover:text-gray-800">
+                    {customText.source}
+                  </a>
+                </span>
+              )}
+              {customText.last_updated_on && (
+                <span>
+                  <span className="font-medium text-gray-600">
+                    {t('statistics.lastUpdated')}
+                    :
+                  </span>
+                  {' '}
+                  {customText.last_updated_on}
+                </span>
+              )}
+            </div>
+            {customText.sourceText && (
+              <p className="italic text-gray-400 whitespace-pre-line">{customText.sourceText}</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

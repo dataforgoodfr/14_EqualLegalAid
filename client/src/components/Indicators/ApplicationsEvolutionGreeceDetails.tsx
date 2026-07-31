@@ -23,7 +23,7 @@ export function ApplicationsEvolutionGreeceDetails({
   const isGr = i18n.language === 'el'
 
   const chartConfig = {
-    first_applications: { label: t('statistics.firstTime'), color: '#04356C' },
+    first_applications: { label: t('statistics.firstTime'), color: '#003366' },
     subsequent_applications: { label: t('statistics.subsequent'), color: '#6B9BD2' },
   } satisfies ChartConfig
 
@@ -57,7 +57,7 @@ export function ApplicationsEvolutionGreeceDetails({
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">{subtitle}</p>}
@@ -101,7 +101,7 @@ export function ApplicationsEvolutionGreeceDetails({
           {(explanatoryTitle || explanatoryText) && (
             <div className="rounded-lg bg-gray-50 px-4 py-4 space-y-1.5">
               {explanatoryTitle && (
-                <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
+                <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#003366' }}>{explanatoryTitle}</h3>
               )}
               {explanatoryText && (
                 <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">{explanatoryText}</p>

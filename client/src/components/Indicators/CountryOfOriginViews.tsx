@@ -18,10 +18,10 @@ const ISLANDS_COLOR = '#1E6FA5'
 const MAINLAND_COLOR = '#D97706'
 // Bleu primaire de la charte. La Grèce est un aplat de pays, pas une bulle : la
 // forme suffit à la distinguer des origines, pas besoin d'une couleur d'accent.
-const GREECE_COLOR = '#04356C'
+const GREECE_COLOR = '#003366'
 
 const COUNTRY_PALETTE = [
-  '#04356C', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#7C3AED',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8', '#7C3AED',
   '#A78BFA', '#B45309', '#059669', '#94a3b8',
 ]
 

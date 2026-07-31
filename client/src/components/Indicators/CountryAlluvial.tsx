@@ -12,7 +12,7 @@ import type { AsylumApplicationByNationalityRecord } from '@/hooks/useGreeceTota
  */
 
 const PALETTE = [
-  '#093266', '#1E6FA5', '#3F9FD8', '#6BB8E8',
+  '#003366', '#1E6FA5', '#3F9FD8', '#6BB8E8',
   '#D15F36', '#E1977C', '#7C3AED', '#059669',
 ]
 const OTHER_COLOR = '#CBD3DE'

@@ -9,7 +9,7 @@ import { ChartContainer, IndicatorInfoButton } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
 
 const GRANTED_COLOR = '#3F9FD8'
-const REJECTED_COLOR = '#04356C'
+const REJECTED_COLOR = '#003366'
 
 function TreeRow({
   label,
@@ -65,7 +65,7 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
   return (
     <div className="min-w-0 overflow-x-auto rounded-lg border border-gray-200">
       <table className="w-full text-sm">
-        <thead className="bg-[#04356C] text-xs tracking-wide text-white uppercase">
+        <thead className="bg-[#003366] text-xs tracking-wide text-white uppercase">
           <tr>
             <th className="px-4 py-2 text-left">{t('statistics.decisionType')}</th>
             <th className="px-4 py-2 text-right">{t('statistics.count')}</th>
@@ -186,7 +186,7 @@ export function RecognitionRatesDetails({
         {/* Card header */}
         <div className="border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+            <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
             <IndicatorInfoButton text={information} />
           </div>
           {subtitle && <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">{subtitle}</p>}
@@ -199,7 +199,7 @@ export function RecognitionRatesDetails({
           {(explanatoryTitle || explanatoryText) && (
             <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-4 space-y-1.5">
               {explanatoryTitle && (
-                <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#04356C' }}>{explanatoryTitle}</h3>
+                <h3 className="text-sm font-semibold whitespace-pre-line" style={{ color: '#003366' }}>{explanatoryTitle}</h3>
               )}
               {explanatoryText && (
                 <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line text-justify">{explanatoryText}</p>

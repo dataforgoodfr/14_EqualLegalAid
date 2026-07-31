@@ -352,7 +352,7 @@ export function ArrivalsGreeceDetails({
         <div className="flex items-start justify-between gap-4 border-b border-gray-100 bg-gray-50/60 px-6 py-5">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#04356C' }}>{title}</h2>
+              <h2 className="text-xl font-bold whitespace-pre-line" style={{ color: '#003366' }}>{title}</h2>
               <IndicatorInfoButton text={information} />
             </div>
             {subtitle && (

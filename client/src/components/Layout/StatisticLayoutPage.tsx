@@ -52,7 +52,7 @@ export const StatisticLayoutPage = () => {
           />
           <div className="absolute bottom-10 left-0 w-full pl-[5%] xl:bottom-[72px]">
             <h1 className="max-w-[800px]">
-              <span className="font-gotham bg-[#093266] px-5 text-[32px] font-extrabold uppercase leading-tight tracking-[0.3px] text-white xl:text-[48px] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+              <span className="font-gotham bg-[#003366] px-5 text-[32px] font-extrabold uppercase leading-tight tracking-[0.3px] text-white xl:text-[48px] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
                 {t('nav.statistics')}
               </span>
             </h1>

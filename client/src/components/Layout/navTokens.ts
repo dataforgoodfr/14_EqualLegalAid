@@ -1,10 +1,8 @@
 /**
  * Jetons de la navigation des indicateurs.
  *
- * `navy` et `orange` sont les couleurs de marque relevées sur le site du client
- * (equallegalaid.org) : ce sont déjà celles du bandeau de titre `bg-[#093266]` et
- * du filet de HighlightTitle. Le handoff design proposait #12305F et #D2622D,
- * deux approximations — les valeurs de marque priment.
+ * `navy` et `orange` sont les couleurs de la charte du site : #003366 et #D15F36.
+ * Ce sont celles du bandeau de titre `bg-[#003366]` et du filet de HighlightTitle.
  *
  * Les deux teintes dérivées sont calculées à partir d'elles, pas reprises du
  * handoff : `navyDark` est le bleu assombri de 20 % (survol d'une pastille
@@ -12,8 +10,8 @@
  * lisible en petit corps sur fond marine.
  */
 export const NAV_COLORS = {
-  navy: '#093266',
-  navyDark: '#072852',
+  navy: '#003366',
+  navyDark: '#002952',
   orange: '#D15F36',
   orangeLight: '#E1977C',
   textMuted: '#5A6472',

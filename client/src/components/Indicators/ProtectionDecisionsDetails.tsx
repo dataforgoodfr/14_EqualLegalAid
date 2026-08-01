@@ -93,8 +93,8 @@ function DecisionsContent({
   const donutData = useMemo(() => {
     if (!data) return []
     return [
-      { name: t('statistics.granted'), value: data.positive, color: GRANTED_COLOR },
-      { name: t('statistics.rejected'), value: data.negative, color: REJECTED_COLOR },
+      { name: t('statistics.positiveOutcomeInternationalProtection'), value: data.positive, color: GRANTED_COLOR },
+      { name: t('statistics.negativeOutcomeDecisions'), value: data.negative, color: REJECTED_COLOR },
     ].filter(d => d.value > 0)
   }, [data, t])
 
@@ -206,9 +206,11 @@ function DecisionsContent({
                         )
                         : (
                           <>
+                            <TreeRow label={t('statistics.maintenanceFirstInstanceSubsidiaryProtection')} value={data.maintenance_first_instance_subsidiary_protection} total={data.total} depth={2} expandable={false} />
                             <TreeRow label={t('statistics.rejectedManifestlyUnfounded')} value={data.rejected_as_manifestly_unfounded} total={data.total} depth={2} expandable={false} />
                             <TreeRow label={t('statistics.rejectedManifestlyUnfoundedSafeCountry')} value={data.rejected_as_manifestly_unfounded_safe_country} total={data.total} depth={2} expandable={false} />
                             <TreeRow label={t('statistics.exclusionRefugeeStatus')} value={data.exclusion_from_refugee_status} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.negativeSecondInstanceImplicitWithdrawals')} value={data.negative_second_instance_implicit_withdrawals} total={data.total} depth={2} expandable={false} />
                             <TreeRow label={t('statistics.revocationProtectionStatus')} value={data.revocation_of_protection_status} total={data.total} depth={2} expandable={false} />
                             <TreeRow label={t('statistics.rejectedOther')} value={data.rejected_other} total={data.total} depth={2} expandable={false} />
                           </>
@@ -228,10 +230,23 @@ function DecisionsContent({
                   />
                   {expanded.inadmissible && (
                     <>
-                      <TreeRow label={t('statistics.borderProcedure')} value={data.border_procedure} total={data.total} depth={2} expandable={false} />
+                      {isFirstInstance
+                        ? (
+                          <TreeRow label={t('statistics.borderProcedure')} value={data.border_procedure} total={data.total} depth={2} expandable={false} />
+                        )
+                        : (
+                          <>
+                            <TreeRow label={t('statistics.borderProcedureSafeThirdCountry')} value={data.border_procedure_safe_third_country} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.borderProcedureAlbania')} value={data.border_procedure_albania} total={data.total} depth={2} expandable={false} />
+                            <TreeRow label={t('statistics.borderProcedureNorthMacedonia')} value={data.border_procedure_north_macedonia} total={data.total} depth={2} expandable={false} />
+                          </>
+                        )}
                       <TreeRow label={t('statistics.dublinRegulation')} value={data.dublin_regulation} total={data.total} depth={2} expandable={false} />
                       <TreeRow label={t('statistics.subsequentApplicants')} value={data.subsequent_applications} total={data.total} depth={2} expandable={false} />
                       <TreeRow label={t('statistics.formalGrounds')} value={data.formal_grounds_rejections} total={data.total} depth={2} expandable={false} />
+                      {!isFirstInstance && (
+                        <TreeRow label={t('statistics.lateAppeals')} value={data.late_appeals} total={data.total} depth={2} expandable={false} />
+                      )}
                     </>
                   )}
 
@@ -281,13 +296,17 @@ function DecisionsContent({
             </PieChart>
           </ChartContainer>
           <div className="w-full space-y-2 px-2">
-            {activeDonutData.map(d => (
-              <div key={d.name} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
-                <span className="text-sm text-gray-700">{d.name}</span>
-                <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
-              </div>
-            ))}
+            {activeDonutData.map((d) => {
+              const donutTotal = activeDonutData.reduce((sum, e) => sum + e.value, 0)
+              return (
+                <div key={d.name} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                  <span className="text-sm text-gray-700">{d.name}</span>
+                  <span className="ml-auto text-xs text-gray-400">{donutTotal > 0 ? `${Math.round((d.value / donutTotal) * 100)}%` : ''}</span>
+                  <span className="text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>

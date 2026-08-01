@@ -37,11 +37,17 @@ export interface SecondInstanceRecord {
   revocation_of_protection_status: number
   formal_grounds_rejections: number
   border_procedure: number
+  border_procedure_safe_third_country: number
+  border_procedure_albania: number
+  border_procedure_north_macedonia: number
   dublin_regulation: number
   subsequent_applications: number
   explicit_withdrawals: number
   implicit_withdrawals: number
   protection_rate: number
+  negative_second_instance_implicit_withdrawals: number
+  maintenance_first_instance_subsidiary_protection: number
+  late_appeals: number
 }
 
 export interface AppealLegalAidRecord {
@@ -65,12 +71,18 @@ export interface DecisionsYearly {
   rejected_as_manifestly_unfounded_safe_country: number
   revocation_of_protection_status: number
   rejected_other: number
+  negative_second_instance_implicit_withdrawals: number
+  maintenance_first_instance_subsidiary_protection: number
   rejection_on_merits: number
   // Rejection as inadmissible
   border_procedure: number
+  border_procedure_safe_third_country: number
+  border_procedure_albania: number
+  border_procedure_north_macedonia: number
   dublin_regulation: number
   subsequent_applications: number
   formal_grounds_rejections: number
+  late_appeals: number
   rejection_inadmissible: number
   // Withdrawals
   explicit_withdrawals: number
@@ -170,11 +182,17 @@ export function useProtectionDecisions() {
         revocation_of_protection_status: toNum(r.fields['Rejection_on_the_merits_Revocation_of_protection_status']),
         formal_grounds_rejections: toNum(r.fields['Rejection_on_formal_grounds']),
         border_procedure: toNum(r.fields['Border_procedure_Safe_Third_Country']) + toNum(r.fields['Border_procedure_Safe_Third_Country_ALBANIA']) + toNum(r.fields['Border_procedure_Safe_Third_Country_NORTH_MACEDONIA']),
+        border_procedure_safe_third_country: toNum(r.fields['Border_procedure_Safe_Third_Country']),
+        border_procedure_albania: toNum(r.fields['Border_procedure_Safe_Third_Country_ALBANIA']),
+        border_procedure_north_macedonia: toNum(r.fields['Border_procedure_Safe_Third_Country_NORTH_MACEDONIA']),
         dublin_regulation: toNum(r.fields['Dublin_Regulation']),
         subsequent_applications: toNum(r.fields['Subsequent_Applications']),
         explicit_withdrawals: toNum(r.fields['explicit_withdrawals']),
         implicit_withdrawals: toNum(r.fields['implicit_withdrawals']),
         protection_rate: toNum(r.fields['protection_rate']),
+        negative_second_instance_implicit_withdrawals: toNum(r.fields['Rejection_on_the_merits_Negative_2nde_instance_implicit_withdrawals']),
+        maintenance_first_instance_subsidiary_protection: toNum(r.fields['Maintenance_first_instance_Subsidiary_protection']),
+        late_appeals: toNum(r.fields['Late_appeals']),
       }))
 
       const appealsByYear = new Map<number, AppealLegalAidRecord>()
@@ -228,11 +246,18 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
     const manifestlyUnfoundedSafeCountry = !isFirst ? (r as SecondInstanceRecord).rejected_as_manifestly_unfounded_safe_country : 0
     const revocation = !isFirst ? (r as SecondInstanceRecord).revocation_of_protection_status : 0
     const rejectedOther = !isFirst ? (r as SecondInstanceRecord).rejected_other : 0
+    const negativeSecondInstanceImplicitWithdrawals = !isFirst ? (r as SecondInstanceRecord).negative_second_instance_implicit_withdrawals : 0
+    const maintenanceFirstInstanceSubsidiaryProtection = !isFirst ? (r as SecondInstanceRecord).maintenance_first_instance_subsidiary_protection : 0
+    const borderProcedureSafeThirdCountry = !isFirst ? (r as SecondInstanceRecord).border_procedure_safe_third_country : 0
+    const borderProcedureAlbania = !isFirst ? (r as SecondInstanceRecord).border_procedure_albania : 0
+    const borderProcedureNorthMacedonia = !isFirst ? (r as SecondInstanceRecord).border_procedure_north_macedonia : 0
+    const lateAppeals = !isFirst ? (r as SecondInstanceRecord).late_appeals : 0
 
     const positive = r.refugee_status + r.subsidiary_protection
     const rejection_on_merits = r.rejected_as_unfounded + r.exclusion_from_refugee_status + negFirst + negAccel
       + manifestlyUnfounded + manifestlyUnfoundedSafeCountry + revocation + rejectedOther
-    const rejection_inadmissible = r.border_procedure + r.dublin_regulation + r.subsequent_applications + r.formal_grounds_rejections
+      + negativeSecondInstanceImplicitWithdrawals + maintenanceFirstInstanceSubsidiaryProtection
+    const rejection_inadmissible = r.border_procedure + r.dublin_regulation + r.subsequent_applications + r.formal_grounds_rejections + lateAppeals
     const withdrawals_archived = r.explicit_withdrawals + r.implicit_withdrawals
     const negative = rejection_on_merits + rejection_inadmissible + withdrawals_archived
     const existing = map.get(r.year)
@@ -248,11 +273,17 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
       existing.rejected_as_manifestly_unfounded_safe_country += manifestlyUnfoundedSafeCountry
       existing.revocation_of_protection_status += revocation
       existing.rejected_other += rejectedOther
+      existing.negative_second_instance_implicit_withdrawals += negativeSecondInstanceImplicitWithdrawals
+      existing.maintenance_first_instance_subsidiary_protection += maintenanceFirstInstanceSubsidiaryProtection
       existing.rejection_on_merits += rejection_on_merits
       existing.border_procedure += r.border_procedure
+      existing.border_procedure_safe_third_country += borderProcedureSafeThirdCountry
+      existing.border_procedure_albania += borderProcedureAlbania
+      existing.border_procedure_north_macedonia += borderProcedureNorthMacedonia
       existing.dublin_regulation += r.dublin_regulation
       existing.subsequent_applications += r.subsequent_applications
       existing.formal_grounds_rejections += r.formal_grounds_rejections
+      existing.late_appeals += lateAppeals
       existing.rejection_inadmissible += rejection_inadmissible
       existing.explicit_withdrawals += r.explicit_withdrawals
       existing.implicit_withdrawals += r.implicit_withdrawals
@@ -274,11 +305,17 @@ export function aggregateDecisionsByYear(records: (FirstInstanceRecord | SecondI
         rejected_as_manifestly_unfounded_safe_country: manifestlyUnfoundedSafeCountry,
         revocation_of_protection_status: revocation,
         rejected_other: rejectedOther,
+        negative_second_instance_implicit_withdrawals: negativeSecondInstanceImplicitWithdrawals,
+        maintenance_first_instance_subsidiary_protection: maintenanceFirstInstanceSubsidiaryProtection,
         rejection_on_merits,
         border_procedure: r.border_procedure,
+        border_procedure_safe_third_country: borderProcedureSafeThirdCountry,
+        border_procedure_albania: borderProcedureAlbania,
+        border_procedure_north_macedonia: borderProcedureNorthMacedonia,
         dublin_regulation: r.dublin_regulation,
         subsequent_applications: r.subsequent_applications,
         formal_grounds_rejections: r.formal_grounds_rejections,
+        late_appeals: lateAppeals,
         rejection_inadmissible,
         explicit_withdrawals: r.explicit_withdrawals,
         implicit_withdrawals: r.implicit_withdrawals,

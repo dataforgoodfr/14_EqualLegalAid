@@ -33,10 +33,13 @@ const BUCKET_COLORS = ['#D1EFF9', '#9AD0F2', '#6BB8E8', '#1E6FA5', '#003366']
 // Fixed thresholds — independent of data
 const TOTAL_THRESHOLDS = [5_000, 50_000, 100_000, 200_000]
 const TOTAL_LABELS = ['< 5K', '5K – 50K', '50K – 100K', '100K – 200K', '> 200K']
-const PER_CAPITA_THRESHOLDS = [10, 100, 250, 500]
-const PER_CAPITA_LABELS = ['< 10', '10 – 100', '100 – 250', '250 – 500', '> 500']
+// First-time applications per 1,000 population. Calibrated against the actual
+// EU dataset (~0.01–23 range, median ~1, p90 ~4, p95 ~7 — Cyprus/Austria/
+// Hungary/Sweden are the high outliers in some years).
+const PER_CAPITA_THRESHOLDS = [1, 2, 5, 10]
+const PER_CAPITA_LABELS = ['< 1', '1 – 2', '2 – 5', '5 – 10', '> 10']
 
-type ValueKey = 'total_applicants' | 'total_applicants_per_capita'
+type ValueKey = 'total_applicants' | 'first_time_applicants_per_capita'
 
 function getBucketColor(value: number, thresholds: number[]): string {
   if (!thresholds.length) return BUCKET_COLORS[0]
@@ -68,7 +71,7 @@ function applyMapData(
   thresholds: number[],
 ) {
   if (!records.length || !map.getLayer('region-fill')) return
-  const valueKey: ValueKey = perCapita ? 'total_applicants_per_capita' : 'total_applicants'
+  const valueKey: ValueKey = perCapita ? 'first_time_applicants_per_capita' : 'total_applicants'
   const active = records.filter(r => r.total_applicants > 0)
   const codes = [...new Set(active.map(r => r.country_code))]
   const noMatch = ['==', ['get', ISO_PROP], ''] as unknown
@@ -119,7 +122,7 @@ export function EuropeRegionMap({ customText }: { customText?: IndicatorCustomTe
     [yearRecords],
   )
 
-  const valueKey: ValueKey = perCapita ? 'total_applicants_per_capita' : 'total_applicants'
+  const valueKey: ValueKey = perCapita ? 'first_time_applicants_per_capita' : 'total_applicants'
 
   const thresholds = perCapita ? PER_CAPITA_THRESHOLDS : TOTAL_THRESHOLDS
 

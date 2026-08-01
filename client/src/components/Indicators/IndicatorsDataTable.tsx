@@ -23,19 +23,17 @@ interface Props {
 
 export function IndicatorsDataTable({ data, perCapita }: Props) {
   const { t } = useTranslation()
-  const defaultSortKey = perCapita ? 'total_applicants_per_capita' : 'total_applicants'
+  const defaultSortKey = perCapita ? 'first_time_applicants_per_capita' : 'first_time_applicants'
   const [sorting, setSorting] = useState<SortingState>([{ id: defaultSortKey, desc: true }])
 
   const absoluteColumns: ColumnDef<MapIndicatorRecord>[] = useMemo(() => [
     { accessorKey: 'name_country', header: t('statistics.country') },
-    { accessorKey: 'total_applicants', header: t('statistics.totalApplicants'), cell: ({ getValue }) => fmtInt(getValue<number>()) },
     { accessorKey: 'first_time_applicants', header: t('statistics.firstTimeShort'), cell: ({ getValue }) => fmtInt(getValue<number>()) },
-    { accessorKey: 'subsequent_applicants', header: t('statistics.subsequent'), cell: ({ getValue }) => fmtInt(getValue<number>()) },
   ], [t])
 
   const perCapitaColumns: ColumnDef<MapIndicatorRecord>[] = useMemo(() => [
     { accessorKey: 'name_country', header: t('statistics.country') },
-    { accessorKey: 'total_applicants_per_capita', header: t('statistics.totalPerCapita'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
+    { accessorKey: 'first_time_applicants_per_capita', header: t('statistics.firstApplication'), cell: ({ getValue }) => fmtDec(getValue<number>()) },
   ], [t])
 
   const columns = useMemo(

@@ -78,7 +78,7 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
           <TreeRow
             label={t('statistics.firstInstanceDecisions')}
             value={totalFirst}
-            total={total}
+            total={totalFirst}
             depth={0}
             expandable
             expanded={expanded.first}
@@ -86,16 +86,15 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
           />
           {expanded.first && (
             <>
-              <TreeRow label={t('statistics.refugeeStatus')} value={record.refugee_status_first} total={total} depth={1} expandable={false} />
-              <TreeRow label={t('statistics.subsidiaryProtection')} value={record.subsidiary_protection_first} total={total} depth={1} expandable={false} />
-              <TreeRow label={t('statistics.rejectionOnMerits')} value={record.rejected_first} total={total} depth={1} expandable={false} />
+              <TreeRow label={t('statistics.totalDecisionInternationalProtection')} value={record.refugee_status_first + record.subsidiary_protection_first} total={totalFirst} depth={1} expandable={false} />
+              <TreeRow label={t('statistics.rejectionOnMerits')} value={record.rejected_first} total={totalFirst} depth={1} expandable={false} />
             </>
           )}
 
           <TreeRow
             label={t('statistics.appealsDecisions')}
             value={totalSecond}
-            total={total}
+            total={totalSecond}
             depth={0}
             expandable
             expanded={expanded.second}
@@ -103,9 +102,8 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
           />
           {expanded.second && (
             <>
-              <TreeRow label={t('statistics.refugeeStatus')} value={record.refugee_status_second} total={total} depth={1} expandable={false} />
-              <TreeRow label={t('statistics.subsidiaryProtection')} value={record.subsidiary_protection_second} total={total} depth={1} expandable={false} />
-              <TreeRow label={t('statistics.rejectionOnMerits')} value={record.rejected_second} total={total} depth={1} expandable={false} />
+              <TreeRow label={t('statistics.totalDecisionInternationalProtection')} value={record.refugee_status_second + record.subsidiary_protection_second} total={totalSecond} depth={1} expandable={false} />
+              <TreeRow label={t('statistics.rejectionOnMerits')} value={record.rejected_second} total={totalSecond} depth={1} expandable={false} />
             </>
           )}
 
@@ -269,13 +267,17 @@ export function RecognitionRatesDetails({
                 </PieChart>
               </ChartContainer>
               <div className="w-full space-y-2 px-2">
-                {firstInstanceDonutData.map(d => (
-                  <div key={d.name} className="flex items-center gap-2">
-                    <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
-                    <span className="text-sm text-gray-700">{d.name}</span>
-                    <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
-                  </div>
-                ))}
+                {firstInstanceDonutData.map((d) => {
+                  const donutTotal = firstInstanceDonutData.reduce((sum, e) => sum + e.value, 0)
+                  return (
+                    <div key={d.name} className="flex items-center gap-2">
+                      <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
+                      <span className="text-sm text-gray-700">{d.name}</span>
+                      <span className="ml-auto text-xs text-gray-400">{donutTotal > 0 ? `${Math.round((d.value / donutTotal) * 100)}%` : ''}</span>
+                      <span className="text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
             <div className="flex flex-col items-center justify-start gap-4 rounded-lg border border-gray-200 p-5">
@@ -299,13 +301,17 @@ export function RecognitionRatesDetails({
                 </PieChart>
               </ChartContainer>
               <div className="w-full space-y-2 px-2">
-                {secondInstanceDonutData.map(d => (
-                  <div key={d.name} className="flex items-center gap-2">
-                    <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
-                    <span className="text-sm text-gray-700">{d.name}</span>
-                    <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
-                  </div>
-                ))}
+                {secondInstanceDonutData.map((d) => {
+                  const donutTotal = secondInstanceDonutData.reduce((sum, e) => sum + e.value, 0)
+                  return (
+                    <div key={d.name} className="flex items-center gap-2">
+                      <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
+                      <span className="text-sm text-gray-700">{d.name}</span>
+                      <span className="ml-auto text-xs text-gray-400">{donutTotal > 0 ? `${Math.round((d.value / donutTotal) * 100)}%` : ''}</span>
+                      <span className="text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>

@@ -184,7 +184,8 @@ function AnnulmentsCard({ records }: { records: AnnulmentRecord[] }) {
               <div key={d.name} className="flex items-center gap-2">
                 <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: d.color }} />
                 <span className="text-sm text-gray-700">{d.name}</span>
-                <span className="ml-auto text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
+                <span className="ml-auto text-xs text-gray-400">{total > 0 ? `${Math.round((d.value / total) * 100)}%` : ''}</span>
+                <span className="text-sm font-semibold text-gray-800">{d.value.toLocaleString('fr-FR')}</span>
               </div>
             ))}
           </div>

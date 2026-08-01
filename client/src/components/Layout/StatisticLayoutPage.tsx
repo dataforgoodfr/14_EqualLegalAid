@@ -37,8 +37,8 @@ export const StatisticLayoutPage = () => {
     { group: 'greeceFlows', label: (isGr ? asylumSeekersCamps?.title_gr : asylumSeekersCamps?.title_en) || t('statistics.asylumSeekersCamps'), to: 'AsylumSeekersCamps' },
     { group: 'greeceFlows', label: (isGr ? asylumApplicationsEvolutionInGreece?.title_gr : asylumApplicationsEvolutionInGreece?.title_en) || t('statistics.asylumEvolutionGreece'), to: 'AsylumApplicationsEvolutionInGreece' },
     { group: 'decisions', label: (isGr ? protectionGrantedVsRejected?.title_gr : protectionGrantedVsRejected?.title_en) || t('statistics.firstSecondInstanceDecisionsGreece'), to: 'ProtectionGrantedVsRejected' },
-    { group: 'decisions', label: (isGr ? courtAsylumProcedures?.title_gr : courtAsylumProcedures?.title_en) || t('statistics.courtAsylumProcedures'), to: 'CourtAsylumProcedures' },
     { group: 'decisions', label: (isGr ? recognitionRates?.title_gr : recognitionRates?.title_en) || t('statistics.overallProtectionRate'), to: 'RecognitionRates' },
+    { group: 'decisions', label: (isGr ? courtAsylumProcedures?.title_gr : courtAsylumProcedures?.title_en) || t('statistics.courtAsylumProcedures'), to: 'CourtAsylumProcedures' },
   ]
   return (
     <div className="app mx-auto my-0 w-full xl:max-w-315">

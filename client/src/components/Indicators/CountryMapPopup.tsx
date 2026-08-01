@@ -16,16 +16,8 @@ export function CountryMapPopup({ record, perCapita }: Props) {
 
   const rows = [
     {
-      label: t('statistics.totalApplicants'),
-      value: perCapita ? record.total_applicants_per_capita : record.total_applicants,
-    },
-    {
-      label: t('statistics.firstTimeShort'),
+      label: t('statistics.firstTimeApplication'),
       value: perCapita ? record.first_time_applicants_per_capita : record.first_time_applicants,
-    },
-    {
-      label: t('statistics.subsequent'),
-      value: perCapita ? record.subsequent_applicants_per_capita : record.subsequent_applicants,
     },
   ]
 

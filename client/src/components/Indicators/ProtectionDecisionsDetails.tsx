@@ -371,7 +371,7 @@ export function ProtectionDecisionsDetails({
             </Tabs.Trigger>
             {" > "}
             <Tabs.Trigger className="rounded-sm px-3 py-1.5 leading-none data-[state=active]:shadow data-[state=active]:bg-[#04356C] data-[state=active]:text-white" value="tab2">
-              {t('statistics.appealsDecisions')}
+              {t('statistics.secondInstanceDecisions')}
             </Tabs.Trigger>
           </Tabs.List>
 
@@ -386,7 +386,7 @@ export function ProtectionDecisionsDetails({
           <Tabs.Content className="TabsContent" value="tab2">
             <DecisionsContent
               records={secondInstance}
-              instanceLabel={t('statistics.appealsDecisions')}
+              instanceLabel={t('statistics.secondInstanceDecisions')}
               isFirstInstance={false}
               appealsLegalAid={appealsLegalAid}
             />

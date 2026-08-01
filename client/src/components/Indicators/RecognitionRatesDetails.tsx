@@ -92,7 +92,7 @@ function InstanceTable({ record }: { record: RecognitionRateRecord }) {
           )}
 
           <TreeRow
-            label={t('statistics.appealsDecisions')}
+            label={t('statistics.secondInstanceDecisions')}
             value={totalSecond}
             total={totalSecond}
             depth={0}

@@ -36,7 +36,7 @@ export function DecisionsEvolutionBarChart({ yearly }: { yearly: DecisionsYearly
 
   return (
     <ChartContainer config={chartConfig} className="h-72 w-full">
-      <BarChart data={yearly} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
+      <BarChart data={yearly} margin={{ top: 20, right: 8, left: 8, bottom: 4 }}>
         <CartesianGrid {...CHART_GRID_PROPS} />
         <XAxis dataKey="year" {...CHART_AXIS_PROPS} />
         <YAxis {...CHART_AXIS_PROPS} />

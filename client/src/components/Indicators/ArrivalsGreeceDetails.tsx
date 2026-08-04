@@ -461,7 +461,7 @@ export function ArrivalsGreeceDetails({
               <h3 className="mb-3 text-sm font-bold text-gray-900">{t('statistics.rankingLocations')}</h3>
 
               <h4 className="mb-1.5 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                {t('statistics.seaArrivals')}
+                {t('statistics.seaArrivalsLegend')}
               </h4>
               <div className="mb-3 space-y-1.5">
                 {seaRanking.map(({ label, color, value }) => (
@@ -491,7 +491,7 @@ export function ArrivalsGreeceDetails({
               </div>
 
               <h4 className="mb-1.5 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                {t('statistics.landArrivals')}
+                {t('statistics.landArrivalsLegend')}
               </h4>
               {/* pas de libellé « Evros » ici : le titre de section le porte déjà */}
               <div>

@@ -189,6 +189,7 @@ export function ArrivalsGreeceDetails({
 
   const evrosValue = yearData?.evros ?? 0
   const maxRankValue = Math.max(...seaRanking.map(d => d.value), evrosValue, 1)
+  const rankTotal = yearData?.total_arrivals ?? 0
 
   // Série annuelle complète — l'amplitude entre années se lit mal sur la carte,
   // qui ne montre qu'une année à la fois. Bornes prises dans les données plutôt
@@ -249,8 +250,11 @@ export function ArrivalsGreeceDetails({
       ? [
         // Les deux séries agrégées reprennent la palette de la carte : « Land »
         // est exactement Evros, « Sea » une teinte de la famille insulaire.
-        { key: 'sea', label: t('statistics.seaArrivals'), color: SEA_COLOR },
-        { key: 'land', label: t('statistics.landArrivals'), color: LAND_COLOR },
+        // Libellés distincts de ceux du classement à droite : ce graphique porte
+        // les arrivées de la période entière, pas seulement les premières
+        // demandes enregistrées sur l'année sélectionnée.
+        { key: 'sea', label: t('statistics.seaArrivalsLegend'), color: SEA_COLOR },
+        { key: 'land', label: t('statistics.landArrivalsLegend'), color: LAND_COLOR },
       ]
       : LOCATION_SERIES.map(s => ({ key: s.key as string, label: s.label, color: ENTRY_COLORS[s.key] })),
     [evolutionSplit, t],
@@ -470,8 +474,16 @@ export function ArrivalsGreeceDetails({
                           style={{ width: `${(value / maxRankValue) * 100}%`, backgroundColor: color }}
                         />
                       </div>
-                      <span className="w-12 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
+                      <span className="w-24 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
                         {value.toLocaleString('fr-FR')}
+                        {rankTotal > 0 && (
+                          <span className="text-gray-400">
+                            {' '}
+                            (
+                            {((value / rankTotal) * 100).toFixed(0)}
+                            %)
+                          </span>
+                        )}
                       </span>
                     </div>
                   </div>
@@ -490,8 +502,16 @@ export function ArrivalsGreeceDetails({
                       style={{ width: `${(evrosValue / maxRankValue) * 100}%`, backgroundColor: ENTRY_COLORS.evros }}
                     />
                   </div>
-                  <span className="w-12 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
+                  <span className="w-24 flex-shrink-0 text-right text-xs text-gray-700 tabular-nums">
                     {evrosValue.toLocaleString('fr-FR')}
+                    {rankTotal > 0 && (
+                      <span className="text-gray-400">
+                        {' '}
+                        (
+                        {((evrosValue / rankTotal) * 100).toFixed(0)}
+                        %)
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>

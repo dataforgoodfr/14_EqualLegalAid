@@ -169,6 +169,8 @@
     "byEntryPoint": "By entry point",
     "landArrivals": "First registration on the mainland",
     "seaArrivals": "First registration on the Aegean islands",
+    "landArrivalsLegend": "Arrivals on the mainland",
+    "seaArrivalsLegend": "Arrivals on the Aegean islands",
     "seaArrivalsByIsland": "Sea arrivals by island",
     "routeEasternAegean": "Eastern Aegean",
     "routeCrete": "Crete",

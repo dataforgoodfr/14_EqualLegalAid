@@ -134,6 +134,8 @@ function ChartTooltipContent({
   labelFormatter,
   multiColumn = false,
   sortByValueDesc = false,
+  showPercent = false,
+  percentKey,
 }: {
   active?: boolean
   payload?: TooltipPayloadItem[]
@@ -145,6 +147,14 @@ function ChartTooltipContent({
   multiColumn?: boolean
   sortByValueDesc?: boolean
   labelFormatter?: (label: string | number, payload: TooltipPayloadItem[]) => React.ReactNode
+  // Affiche la part de chaque valeur entre parenthèses. Par défaut le total est
+  // la somme des entrées affichées dans l'infobulle (cas d'un graphique groupé,
+  // où toutes les catégories d'une même année/mois y figurent). Pour un
+  // graphique à une seule série par barre, `percentKey` pointe vers un champ
+  // pré-calculé sur la donnée (ex. "pct"), le total n'étant pas déductible de
+  // l'infobulle elle-même.
+  showPercent?: boolean
+  percentKey?: string
 }) {
   const { config } = useChart()
 
@@ -157,6 +167,10 @@ function ChartTooltipContent({
   const items = sortByValueDesc
     ? [...payload].sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))
     : payload
+
+  const payloadTotal = showPercent && !percentKey
+    ? items.reduce((sum, it) => sum + (Number(it.value) || 0), 0)
+    : 0
 
   return (
     <div
@@ -176,6 +190,12 @@ function ChartTooltipContent({
           const key = String(item.dataKey ?? item.name ?? 'value')
           const cfg = config[key]
           const color = item.color ?? item.fill ?? cfg?.color
+
+          const pct = percentKey
+            ? Number(item.payload?.[percentKey])
+            : showPercent && payloadTotal > 0
+              ? (Number(item.value) || 0) / payloadTotal * 100
+              : undefined
 
           return (
             <div key={i} className="flex items-center gap-2">
@@ -202,6 +222,13 @@ function ChartTooltipContent({
                     {typeof item.value === 'number'
                       ? item.value.toLocaleString('fr-FR')
                       : item.value}
+                    {pct !== undefined && !Number.isNaN(pct) && (
+                      <span className="text-muted-foreground ml-1 font-normal">
+                        (
+                        {pct.toFixed(0)}
+                        %)
+                      </span>
+                    )}
                   </span>
                 )}
               </div>

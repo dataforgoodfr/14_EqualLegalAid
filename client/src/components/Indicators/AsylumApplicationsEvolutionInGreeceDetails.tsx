@@ -364,6 +364,7 @@ function ByPivot({
             <ChartTooltipContent
               labelFormatter={label => t('statistics.yearLabel', { year: label })}
               sortByValueDesc
+              showPercent
             />
           )}
         />

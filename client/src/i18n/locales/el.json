@@ -169,6 +169,8 @@
     "byEntryPoint": "Ανά σημείο εισόδου",
     "landArrivals": "Πρώτη καταγραφή στην ηπειρωτική χώρα",
     "seaArrivals": "Πρώτη καταγραφή στα νησιά του Αιγαίου",
+    "landArrivalsLegend": "Αφίξεις στην ηπειρωτική χώρα",
+    "seaArrivalsLegend": "Αφίξεις στα νησιά του Αιγαίου",
     "seaArrivalsByIsland": " Αφίξεις από θαλάσσια σύνορα ανά νησί",
     "routeEasternAegean": "Ανατολικό Αιγαίο",
     "routeCrete": "Κρήτη",

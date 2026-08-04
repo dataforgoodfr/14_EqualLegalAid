@@ -132,6 +132,17 @@ function formatYearMonth(yearMonth: string): string {
   return name ? `${name} ${year}` : yearMonth
 }
 
+// Valeur + part du total du mois/année entre parenthèses, pour l'infobulle du
+// graphique d'évolution par zone — les zones étant disjointes, leur somme (le
+// champ `total` de la ligne) est le dénominateur naturel.
+function formatValueWithPct(value: unknown, total: unknown): string {
+  const v = Number(value) || 0
+  const t = Number(total) || 0
+  const formatted = v.toLocaleString('fr-FR')
+  if (t <= 0) return formatted
+  return `${formatted} (${((v / t) * 100).toFixed(0)}%)`
+}
+
 const convertToGeoJSON = (arr: AsylumCampRecord[]) => ({
   type: 'FeatureCollection' as const,
   features: arr.map((item) => ({
@@ -259,13 +270,18 @@ export function AsylumSeekersCampsDetails({
     const keys = groupByType
       ? (selectedCampType === 'all' ? CAMP_TYPES : [selectedCampType])
       : regions
-    return keys
+    const rows = keys
       .map((key, i) => ({
         group: groupByType ? (CAMP_TYPE_LABELS[key] ?? key) : key,
         value: totals.get(key) ?? 0,
         color: groupByType ? CAMP_COLORS[key] : REGION_COLORS[i % REGION_COLORS.length],
       }))
       .filter(d => d.value > 0)
+    // Une seule barre est survolée à la fois — le total ne se déduit pas de
+    // l'infobulle comme pour les graphiques groupés, il faut donc le porter sur
+    // chaque ligne.
+    const total = rows.reduce((sum, d) => sum + d.value, 0)
+    return rows.map(d => ({ ...d, pct: total > 0 ? (d.value / total) * 100 : 0 }))
   }, [snapshotRecords, groupByType, selectedCampType, regions, campTypes])
 
   const keyFigure = useMemo(() => {
@@ -727,7 +743,7 @@ export function AsylumSeekersCampsDetails({
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
                   <Tooltip
                     wrapperStyle={{ zIndex: 1000 }}
-                    content={<ChartTooltipContent hideLabel />} />
+                    content={<ChartTooltipContent hideLabel percentKey="pct" />} />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                     {snapshotData.map(d => <Cell key={d.group} fill={d.color} />)}
                   </Bar>
@@ -790,7 +806,7 @@ export function AsylumSeekersCampsDetails({
                           tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
                         />
                         <Tooltip
-                          formatter={(value, name) => [Number(value).toLocaleString('fr-FR'), name]}
+                          formatter={(value, name, props: any) => [formatValueWithPct(value, props?.payload?.total), name]}
                           labelFormatter={label => formatYearMonth(String(label))}
                         />
                         <Legend iconType="line" iconSize={10} wrapperStyle={{ fontSize: 11 }} />
@@ -824,7 +840,7 @@ export function AsylumSeekersCampsDetails({
                           tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
                         />
                         <Tooltip
-                          formatter={(value, name) => [Number(value).toLocaleString('fr-FR'), name]}
+                          formatter={(value, name, props: any) => [formatValueWithPct(value, props?.payload?.total), name]}
                           labelFormatter={label => t('statistics.yearLabel', { year: label })}
                           cursor={{ fill: 'rgba(0,0,0,0.04)' }}
                         />

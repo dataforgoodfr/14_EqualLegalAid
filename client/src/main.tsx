@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { GlobalLayout, StatisticLayoutPage } from '@/components/Layout'
 import { LanguageSync } from '@/components/LanguageSync'
+import { IframeResizeSync } from '@/components/IframeResizeSync'
 import { AirtableProvider } from '@/providers'
 import { store } from './redux/store.ts'
 import { Provider } from 'react-redux'
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
         <DownloadCaselawProvider>
           <BrowserRouter>
             <LanguageSync />
+            <IframeResizeSync />
             <Routes>
               <Route element={<GlobalLayout />}>
                 <Route index element={<CaselawPage />} />
